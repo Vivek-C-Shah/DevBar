@@ -24,10 +24,10 @@ public partial class ClipboardCard : UserControl
         EmptyHint.Visibility = _module.Entries.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
         foreach (var entry in _module.Entries)
-            Chips.Children.Add(BuildChip(entry));
+            Chips.Children.Add(BuildChip(entry, _module.RemoveEntry));
     }
 
-    private static Border BuildChip(ClipboardEntry entry)
+    private static Border BuildChip(ClipboardEntry entry, Action<ClipboardEntry> onRemove)
     {
         var border = new Border
         {
@@ -51,6 +51,23 @@ public partial class ClipboardCard : UserControl
         var kind = new TextBlock { Text = entry.Kind.ToString(), Style = (Style)Application.Current.Resources["Overline"] };
         Grid.SetRow(kind, 0);
 
+        var remove = new Button
+        {
+            Content = "",
+            Style = (Style)Application.Current.Resources["IconButton"],
+            Width = 20,
+            Height = 18,
+            FontSize = 9,
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Top,
+        };
+        Grid.SetRow(remove, 0);
+        remove.Click += (_, e) =>
+        {
+            e.Handled = true; // don't let the click bubble up and re-copy the entry
+            onRemove(entry);
+        };
+
         var text = new TextBlock
         {
             Text = entry.Text,
@@ -71,6 +88,7 @@ public partial class ClipboardCard : UserControl
         Grid.SetRow(ago, 2);
 
         grid.Children.Add(kind);
+        grid.Children.Add(remove);
         grid.Children.Add(text);
         grid.Children.Add(ago);
         border.Child = grid;

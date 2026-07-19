@@ -21,12 +21,14 @@ public partial class BarWindow : Window
 
     private TrayIcon? _tray;
     private HwndSource? _source;
+    private IntPtr _hwnd;
 
     private readonly DispatcherTimer _showTimer;
     private readonly DispatcherTimer _hideTimer;
     private bool _expanded;
     private bool _pinned;
     private int _current;
+    private DateTime _lastWheelPage = DateTime.MinValue;
 
     // A small floating toolbar, not a taskbar-style edge strip: the window is
     // always sized to exactly its visible content, idle or expanded, so there's
@@ -84,6 +86,8 @@ public partial class BarWindow : Window
         int ex = GetWindowLong(hwnd, GWL_EXSTYLE);
         SetWindowLong(hwnd, GWL_EXSTYLE, ex | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE);
 
+        _hwnd = hwnd;
+
         ClipboardMonitor.Attach(hwnd);
         ClipboardMonitor.TextCopied += OnClipboardText;
 
@@ -117,6 +121,20 @@ public partial class BarWindow : Window
     {
         if (msg == WM_APP_TRAY) { _tray?.HandleMessage(lParam); handled = true; }
         else if (msg == WM_CLIPBOARDUPDATE) { ClipboardMonitor.HandleMessage(msg); }
+        else if (msg == WM_MOUSEHWHEEL && _expanded)
+        {
+            // Touchpad two-finger horizontal swipe. Windows reports this as a
+            // native WM_MOUSEHWHEEL (not WM_MOUSEWHEEL+Shift), one notch per
+            // ~WHEEL_DELTA of travel; a positive delta is a swipe right.
+            short delta = (short)(((long)wParam >> 16) & 0xFFFF);
+            var now = DateTime.UtcNow;
+            if (Math.Abs(delta) >= 40 && (now - _lastWheelPage).TotalMilliseconds > 250)
+            {
+                _lastWheelPage = now;
+                Page(delta > 0 ? 1 : -1);
+                handled = true;
+            }
+        }
         else if (msg == WM_NCHITTEST)
         {
             handled = true;
@@ -163,10 +181,21 @@ public partial class BarWindow : Window
             return;
         }
 
-        var duration = TimeSpan.FromMilliseconds(width > Panel.Width ? 180 : 100);
-        var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
-        Panel.BeginAnimation(WidthProperty, new DoubleAnimation(Panel.Width, width, duration) { EasingFunction = ease });
-        Panel.BeginAnimation(HeightProperty, new DoubleAnimation(Panel.Height, height, duration) { EasingFunction = ease });
+        bool expanding = height > Panel.Height;
+
+        // Expanding: the width settles almost immediately while height keeps
+        // growing — reads as a tray/shade dropping down from the idle pill,
+        // not the whole card stretching diagonally. Collapsing: pull both back
+        // up quickly together, since leaving should feel instant.
+        var widthDuration = TimeSpan.FromMilliseconds(expanding ? 90 : 110);
+        var heightDuration = TimeSpan.FromMilliseconds(expanding ? 260 : 130);
+        var widthEase = new CubicEase { EasingMode = EasingMode.EaseOut };
+        IEasingFunction heightEase = expanding
+            ? new PowerEase { EasingMode = EasingMode.EaseOut, Power = 3 }
+            : new CubicEase { EasingMode = EasingMode.EaseIn };
+
+        Panel.BeginAnimation(WidthProperty, new DoubleAnimation(Panel.Width, width, widthDuration) { EasingFunction = widthEase });
+        Panel.BeginAnimation(HeightProperty, new DoubleAnimation(Panel.Height, height, heightDuration) { EasingFunction = heightEase });
     }
 
     // ---------------- hover / expand ----------------
@@ -199,13 +228,19 @@ public partial class BarWindow : Window
         if (_expanded) return;
         _expanded = true;
 
+        // Blur-behind only runs while actually visible/expanded — it costs
+        // real idle CPU if left on, see GlassEffect's doc comment.
+        GlassEffect.Enable(_hwnd, (Color)FindResource("ColBg"), tintOpacity: 200);
+
         SetSize(ExpandedWidth, ExpandedHeight, animate: true);
 
-        var fade = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(140))
-        { BeginTime = TimeSpan.FromMilliseconds(70) };
+        // Content fades in roughly alongside the drop, so it reads as "revealed
+        // by the tray" rather than popping in ahead of the motion.
+        var fade = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(190))
+        { BeginTime = TimeSpan.FromMilliseconds(90) };
         PanelContent.BeginAnimation(OpacityProperty, fade);
-        AccentRail.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 0.85, TimeSpan.FromMilliseconds(140)) { BeginTime = TimeSpan.FromMilliseconds(70) });
-        IdleMark.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(90)));
+        AccentRail.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 0.85, TimeSpan.FromMilliseconds(190)) { BeginTime = TimeSpan.FromMilliseconds(90) });
+        IdleMark.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(80)));
 
         ShowCurrentModule();
     }
@@ -214,6 +249,8 @@ public partial class BarWindow : Window
     {
         if (!_expanded) return;
         _expanded = false;
+
+        GlassEffect.Disable(_hwnd);
 
         SetSize(IdleWidth, IdleHeight, animate: true);
 

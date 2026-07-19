@@ -14,23 +14,25 @@ DevBar is that. It's a tiny pill docked to the top of your screen — about the 
 ```
       ▁▁▁▁▁▁▁▁▁▁▁▁▁          ← idle, all day
    ┌─────────────────────┐
-   │  Clipboard   ● ○ ○ ○ │  ← hover, 180ms
+   │  Clipboard         📌│  ← hover, drops down like a shade
    │  [chip] [chip] [chip]│
+   │      ‹  ● ○ ○ ○  ›   │  ← arrows + dots, or a touchpad swipe
    └─────────────────────┘
 ```
 
 ## Why this and not [taskbar utility / Rainmeter / PowerToys]
 
 - **It's small.** DevBar is not a second taskbar. It's ~125px idle, ~640px expanded, centered near the top edge. It never reserves screen real estate, never pushes your windows around, and every pixel outside the pill is click‑through — whatever's under it still works normally.
-- **Hover, not click.** Glance up, it's there. Look away, it's gone. No window to alt‑tab past, no icon to remember.
+- **Hover, not click.** Glance up, it's there. Look away, it's gone. No window to alt‑tab past, no icon to remember. The expand motion is a drop‑down reveal — like a shade unrolling from the pill, not a card growing out of nowhere.
+- **Real glass, not a flat panel.** The expanded card uses genuine Windows compositor blur (Acrylic) behind it — vibrancy like iOS/macOS control panels, not a fake alpha-transparency trick.
 - **Modular.** Each capability is a self‑contained module behind a five‑method interface. The bar ships with five; writing a sixth takes an afternoon.
-- **Genuinely lightweight.** Every module is event‑driven or polls only while its card is on screen — nothing runs while the bar is collapsed. Measured on this machine: **0.0% CPU at idle**, ~90–140MB working set (WPF + the Windows Runtime projections the Media/accent‑color modules use). See [Performance](#performance) below for how that was measured, not just claimed.
+- **Genuinely lightweight.** Every module is event‑driven or polls only while its card is on screen — nothing runs while the bar is collapsed, **including the blur**, which is switched off at the OS level the instant the bar collapses specifically because live blur is not free (see [Performance](#performance)). Measured on this machine: **0.0% CPU at idle**, ~90–140MB working set. Measured, not asserted.
 
 ## Modules
 
 | Module | What it shows |
 |---|---|
-| 🗐 **Clipboard** | Last 25 copies, type‑tagged (text/URL/code), click a chip to re‑copy it |
+| 🗐 **Clipboard** | Last 25 copies, type‑tagged (text/URL/code), click a chip to re‑copy it, × to delete one |
 | 🗀 **Shelf** | Ephemeral drag‑and‑drop scratch space for files — clears on restart, on purpose |
 | 🤖 **Claude Code** | Active CLI sessions (working / waiting on you / idle), click to focus the terminal |
 | 🌐 **Ports** | Listening TCP ports with owning process, one click to kill |
@@ -62,21 +64,38 @@ All captured from the app actually running — nothing mocked up.
 
 ## Install
 
-**Requirements:** Windows 10 2004+ or Windows 11, [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) (the app will prompt to install it if missing).
+**Requirements:** Windows 10 2004+ or Windows 11 (x64). No .NET runtime install needed — the installer bundles it.
+
+### Option A — installer (recommended)
+
+Download `DevBar-Setup-<version>.exe` from [Releases](../../releases) and run it.
+
+- **No admin required** — installs to your own user profile (`%LOCALAPPDATA%\Programs\DevBar`), so it's a plain double‑click, no UAC prompt.
+- Adds a **Start Menu entry** — press the Windows key, type `devbar`, hit Enter, exactly like any other installed app.
+- Optional checkbox to launch DevBar automatically at sign‑in.
+- Comes with a clean uninstaller (Settings → Apps, or the Start Menu entry).
+
+To build the installer yourself instead of trusting a downloaded binary:
+
+```powershell
+git clone https://github.com/<your-org>/devbar.git
+cd devbar
+dotnet publish src\DevBar\DevBar.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
+"C:\Users\<you>\AppData\Local\Programs\Inno Setup 6\ISCC.exe" installer\DevBar.iss
+```
+
+Produces `dist\DevBar-Setup-<version>.exe` — the same installer described above. Requires [Inno Setup](https://jrsoftware.org/isinfo.php) (`winget install JRSoftware.InnoSetup`).
+
+### Option B — build and run from source (for development)
 
 ```powershell
 git clone https://github.com/<your-org>/devbar.git
 cd devbar
 dotnet build DevBar.sln -c Release
-```
-
-Run it:
-
-```powershell
 .\src\DevBar\bin\Release\net8.0-windows10.0.19041.0\DevBar.exe
 ```
 
-It has no installer yet — that's a `v1.1` item (MSIX + winget). For now, drop a shortcut to the exe in `shell:startup` if you want it launching with Windows.
+This framework-dependent build needs the [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) — Windows will prompt to install it if missing. Faster to iterate on than the self-contained publish, but not what you'd hand to someone else to install.
 
 ### Debug / demo flags
 
@@ -90,7 +109,7 @@ DevBar.exe --shelf-seed "C:\a.png;C:\b.txt"   # pre-populate the Shelf
 ## Using it
 
 - **Hover** the pill to expand it. **Move away** and it collapses after a short delay.
-- **Arrows / two‑finger swipe** page between modules. **Dots** show your position.
+- **Page between modules** with the arrows at the bottom‑center of the card (next to the dots, not off in a corner), or with a **two‑finger horizontal swipe** on a precision touchpad — no need to aim for a small button.
 - **Pin** (top‑right) holds the bar open for a session — useful while babysitting a build.
 - **Drag a file** over the idle pill and it reveals itself so you can drop onto the Shelf.
 - **Right‑click the tray icon** for pin/config/exit.
@@ -126,6 +145,7 @@ How it stays there:
 - **Clipboard and hover are 100% event‑driven** — `AddClipboardFormatListener` and native mouse‑enter/leave, no polling loop anywhere in the shell.
 - **Ports and Claude Code session scans run off the UI thread** (`Task.Run`), so a slow `Process.GetProcesses()` on a loaded dev box never stalls the animation.
 - **No AppBar space reservation.** Early builds used the Win32 AppBar API (same mechanism as the taskbar) to reserve the full screen width — it worked, but it's the wrong shape for a tool this small, and it meant every app on the machine had to respect a strip it didn't need to. Current build is a plain topmost window sized to its own content, with `WM_NCHITTEST` making the space around the pill click‑through.
+- **Blur is enabled only while expanded.** Real Windows Acrylic blur-behind is not free — DWM has to keep re-sampling whatever's behind the window for as long as it's on, which measured out to real, sustained idle CPU when left on permanently. `GlassEffect.Enable`/`Disable` are called from `Expand()`/`Collapse()` specifically so the compositor cost only exists for the few seconds the bar is actually on screen, never during the ~99% of the time it sits idle as a small pill.
 - The working‑set floor (~90MB) is WPF + CLR baseline plus the Windows Runtime projections the accent‑color and Media modules touch once at startup — the honest cost of native UI on .NET, not something the bar wastes ongoing.
 
 Electron would have made the first screen faster to build and the process afterward heavier by 100+MB and non‑zero at idle — that trade is why this is WPF.
@@ -158,8 +178,8 @@ Drop a compiled DLL implementing it into `%LOCALAPPDATA%\DevBar\modules\` and De
 
 ## Roadmap
 
-- [x] **v1** — shell, hover‑expand, five modules, tray icon
-- [ ] **v1.1** — winget package, MSIX installer, per‑monitor support
+- [x] **v1** — shell, hover‑expand, five modules, tray icon, Acrylic glass, no‑admin installer
+- [ ] **v1.1** — winget package, per‑monitor support
 - [ ] **v1.2** — module template repo + "build your first module" guide
 - [ ] **v2** — Slack, CI‑pulse, PR‑radar modules (OAuth‑backed, once the plugin path is proven)
 
@@ -173,4 +193,4 @@ MIT — see [LICENSE](LICENSE).
 
 ## A note on how this was built
 
-DevBar was built end-to-end by Claude (Anthropic), working from a design brief, with a human in the loop for direction and course-correction along the way — including catching a full-width-bar version that didn't match the "small toolbar" intent, which is why the shell went through a real redesign rather than shipping the first pass.
+DevBar was built end-to-end by Claude (Anthropic), working from a design brief, with a human in the loop for direction and course-correction along the way — including catching a full-width-bar version that didn't match the "small toolbar" intent (leading to a real shell redesign) and later asking for real glass/Acrylic vibrancy, which surfaced a genuine tension worth knowing about if you touch this code: live compositor blur is not free, and it's disabled at the OS level the instant the bar collapses specifically to keep idle CPU at zero. See `GlassEffect.cs` for the details.

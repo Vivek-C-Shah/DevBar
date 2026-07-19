@@ -26,6 +26,8 @@ public sealed class ClipboardModule : IDevBarModule
             Entries.RemoveAt(Entries.Count - 1);
     }
 
+    public void RemoveEntry(ClipboardEntry entry) => Entries.Remove(entry);
+
     public UserControl BuildCard() => new ClipboardCard(this);
 
     public void OnExpanded() { /* purely event-driven, nothing to start */ }

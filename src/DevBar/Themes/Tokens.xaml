@@ -12,6 +12,10 @@
     <Color x:Key="ColDanger">#F47067</Color>
 
     <SolidColorBrush x:Key="BrushBg" Color="{StaticResource ColBg}"/>
+    <!-- The bar's own translucency over the real OS acrylic blur (see
+         GlassEffect.cs) — genuinely blurred, so nothing behind is legible
+         through it, unlike a plain alpha blend over crisp desktop pixels. -->
+    <SolidColorBrush x:Key="BrushPanelGlass" Color="#C80B0E14"/>
     <SolidColorBrush x:Key="BrushBgElevated" Color="{StaticResource ColBgElevated}"/>
     <SolidColorBrush x:Key="BrushHairline" Color="{StaticResource ColHairline}"/>
     <SolidColorBrush x:Key="BrushText" Color="{StaticResource ColText}"/>
