@@ -16,6 +16,10 @@
          GlassEffect.cs) — genuinely blurred, so nothing behind is legible
          through it, unlike a plain alpha blend over crisp desktop pixels. -->
     <SolidColorBrush x:Key="BrushPanelGlass" Color="#C80B0E14"/>
+    <!-- Accessibility fallback when Windows' "Transparency effects" setting
+         is off (see Accessibility.PrefersReducedTransparency) — fully
+         opaque, no blur, no mesh-gradient layer. -->
+    <SolidColorBrush x:Key="BrushPanelOpaque" Color="{StaticResource ColBg}"/>
     <SolidColorBrush x:Key="BrushBgElevated" Color="{StaticResource ColBgElevated}"/>
     <SolidColorBrush x:Key="BrushHairline" Color="{StaticResource ColHairline}"/>
     <SolidColorBrush x:Key="BrushText" Color="{StaticResource ColText}"/>

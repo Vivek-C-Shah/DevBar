@@ -24,6 +24,50 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
+            <!-- "Liquid glass" mesh: three soft, slowly-drifting accent-hued
+                 blobs behind everything else, each blurred at radius 24. This
+                 is what gives the surface its shifting, organic color — real
+                 backdrop blur (GlassEffect.cs) makes the *desktop* behind the
+                 bar illegible; this layer is what makes the *bar itself* feel
+                 alive. Built from our own accent color, not sampled from live
+                 desktop pixels — continuous screen-capture-based color
+                 sampling would cost real CPU on every frame, the same tax
+                 that made permanent blur-behind a non-starter (see
+                 GlassEffect.cs). Animations only run while expanded, same
+                 discipline as the blur itself. Skipped entirely when Windows'
+                 "Transparency effects" setting is off — see ApplyGlassMode.
+                 ClipToBounds="True" on Panel keeps every blob inside the
+                 rounded shape. -->
+            <Grid x:Name="MeshGradient" Grid.ColumnSpan="2" Opacity="0" IsHitTestVisible="False">
+                <Ellipse x:Name="Blob1" Width="230" Height="230" HorizontalAlignment="Left" VerticalAlignment="Top"
+                         Margin="-60,-90,0,0">
+                    <Ellipse.RenderTransform>
+                        <TranslateTransform x:Name="Blob1Tx"/>
+                    </Ellipse.RenderTransform>
+                    <Ellipse.Effect>
+                        <BlurEffect Radius="24"/>
+                    </Ellipse.Effect>
+                </Ellipse>
+                <Ellipse x:Name="Blob2" Width="260" Height="260" HorizontalAlignment="Right" VerticalAlignment="Top"
+                         Margin="0,-110,-80,0">
+                    <Ellipse.RenderTransform>
+                        <TranslateTransform x:Name="Blob2Tx"/>
+                    </Ellipse.RenderTransform>
+                    <Ellipse.Effect>
+                        <BlurEffect Radius="24"/>
+                    </Ellipse.Effect>
+                </Ellipse>
+                <Ellipse x:Name="Blob3" Width="200" Height="200" HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                         Margin="0,0,0,-100">
+                    <Ellipse.RenderTransform>
+                        <TranslateTransform x:Name="Blob3Tx"/>
+                    </Ellipse.RenderTransform>
+                    <Ellipse.Effect>
+                        <BlurEffect Radius="24"/>
+                    </Ellipse.Effect>
+                </Ellipse>
+            </Grid>
+
             <!-- left accent rail, fades in together with the expanded content -->
             <Border x:Name="AccentRail" Grid.Column="0" Background="{DynamicResource BrushAccent}" Opacity="0"/>
 

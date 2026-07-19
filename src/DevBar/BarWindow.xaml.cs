@@ -47,11 +47,19 @@ public partial class BarWindow : Window
     // a developer's cursor while they're still looking at it.
     private const int HideDebounceMs = 220;
 
+    private readonly bool _reduceTransparency;
+
     public BarWindow(Config config, StartupArgs args)
     {
         _config = config;
         _args = args;
         InitializeComponent();
+
+        _reduceTransparency = AccessibilityHelper.PrefersReducedTransparency();
+        if (_reduceTransparency)
+            Panel.Background = (Brush)FindResource("BrushPanelOpaque");
+        else
+            SetupMeshGradient();
 
         _modules = ModuleHost.Build(config, args);
 
@@ -170,6 +178,64 @@ public partial class BarWindow : Window
         return (IntPtr)(inside ? HTCLIENT : HTTRANSPARENT);
     }
 
+    // ---------------- liquid glass: mesh-gradient blob layer ----------------
+
+    /// <summary>
+    /// Builds the three blob fills from the live accent color (hue-rotated
+    /// ±35° for a multi-color "mesh" feel) — done once, since the accent
+    /// color itself only changes if the user changes their Windows theme.
+    /// </summary>
+    private void SetupMeshGradient()
+    {
+        var accent = ((SolidColorBrush)FindResource("BrushAccent")).Color;
+
+        Blob1.Fill = BlobBrush(ColorMath.RotateHue(accent, -35, 150));
+        Blob2.Fill = BlobBrush(ColorMath.RotateHue(accent, 0, 130));
+        Blob3.Fill = BlobBrush(ColorMath.RotateHue(accent, 35, 150));
+    }
+
+    private static RadialGradientBrush BlobBrush(Color c)
+    {
+        var brush = new RadialGradientBrush();
+        brush.GradientStops.Add(new GradientStop(c, 0.0));
+        brush.GradientStops.Add(new GradientStop(Color.FromArgb(0, c.R, c.G, c.B), 1.0));
+        brush.Freeze();
+        return brush;
+    }
+
+    /// <summary>
+    /// Slow, organic drift — each blob gets a different duration/range so they
+    /// never sync up into something mechanical. Only ever running while the
+    /// bar is expanded (see Expand/Collapse): a Forever-repeating animation is
+    /// cheap per-frame but it does keep the compositor rendering continuously,
+    /// which is exactly the kind of "always on" cost this app avoids at idle.
+    /// </summary>
+    private void StartBlobDrift()
+    {
+        Drift(Blob1Tx, 18, 10, 7.5);
+        Drift(Blob2Tx, -16, 14, 9.5);
+        Drift(Blob3Tx, 12, -12, 8.5);
+
+        static void Drift(TranslateTransform tx, double dx, double dy, double seconds)
+        {
+            var ease = new SineEase { EasingMode = EasingMode.EaseInOut };
+            var duration = TimeSpan.FromSeconds(seconds);
+            tx.BeginAnimation(TranslateTransform.XProperty,
+                new DoubleAnimation(0, dx, duration) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease });
+            tx.BeginAnimation(TranslateTransform.YProperty,
+                new DoubleAnimation(0, dy, duration) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease });
+        }
+    }
+
+    private void StopBlobDrift()
+    {
+        foreach (var tx in new[] { Blob1Tx, Blob2Tx, Blob3Tx })
+        {
+            tx.BeginAnimation(TranslateTransform.XProperty, null);
+            tx.BeginAnimation(TranslateTransform.YProperty, null);
+        }
+    }
+
     // ---------------- sizing (only the inner Panel resizes; Window stays fixed) ----------------
 
     private void SetSize(double width, double height, bool animate)
@@ -228,9 +294,15 @@ public partial class BarWindow : Window
         if (_expanded) return;
         _expanded = true;
 
-        // Blur-behind only runs while actually visible/expanded — it costs
-        // real idle CPU if left on, see GlassEffect's doc comment.
-        GlassEffect.Enable(_hwnd, (Color)FindResource("ColBg"), tintOpacity: 200);
+        if (!_reduceTransparency)
+        {
+            // Blur-behind and the mesh-gradient drift only run while actually
+            // visible/expanded — both cost real idle CPU/GPU if left on, see
+            // GlassEffect's doc comment.
+            GlassEffect.Enable(_hwnd, (Color)FindResource("ColBg"), tintOpacity: 200);
+            MeshGradient.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(260)) { BeginTime = TimeSpan.FromMilliseconds(60) });
+            StartBlobDrift();
+        }
 
         SetSize(ExpandedWidth, ExpandedHeight, animate: true);
 
@@ -250,7 +322,12 @@ public partial class BarWindow : Window
         if (!_expanded) return;
         _expanded = false;
 
-        GlassEffect.Disable(_hwnd);
+        if (!_reduceTransparency)
+        {
+            GlassEffect.Disable(_hwnd);
+            MeshGradient.BeginAnimation(OpacityProperty, new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(120)));
+            StopBlobDrift();
+        }
 
         SetSize(IdleWidth, IdleHeight, animate: true);
 
