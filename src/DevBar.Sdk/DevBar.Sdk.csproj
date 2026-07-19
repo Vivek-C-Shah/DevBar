@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>DevBar.Sdk</RootNamespace>
+    <Description>Module contract for DevBar. Reference this to build a DevBar module.</Description>
+  </PropertyGroup>
+
+</Project>

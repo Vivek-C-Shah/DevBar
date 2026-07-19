@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>DevBar</RootNamespace>
+    <AssemblyName>DevBar</AssemblyName>
+    <ApplicationIcon>Assets\devbar.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Version>0.1.0</Version>
+    <!-- InvariantGlobalization is NOT compatible with WPF: its text/font layout
+         engine (MS.Internal.FontCache) needs real ICU culture data and crashes
+         the first time it measures a font/script combo it hasn't cached yet
+         (hit this for real — cost a long debugging session). Leave it off. -->
+    <DebugType>embedded</DebugType>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DevBar.Sdk\DevBar.Sdk.csproj" />
+  </ItemGroup>
+
+</Project>

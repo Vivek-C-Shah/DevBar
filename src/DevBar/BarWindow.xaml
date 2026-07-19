@@ -1,0 +1,88 @@
+<Window x:Class="DevBar.BarWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="DevBar"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" Topmost="True" ShowInTaskbar="False" ShowActivated="False"
+        SizeToContent="Manual">
+
+    <!-- A small floating toolbar, flush to the top edge, centered on screen.
+         The Window itself is fixed at the max (expanded) size — animating a
+         WPF Window's own Width/Height live is unreliable, the HWND surface can
+         lag the layout. Instead only the inner Panel border animates size, and
+         WM_NCHITTEST (see WndProc) makes the empty margin around it click-through
+         so it never blocks whatever's underneath while idle. -->
+    <Border x:Name="Panel" Background="{StaticResource BrushBg}"
+            HorizontalAlignment="Center" VerticalAlignment="Top"
+            BorderThickness="1,0,1,1" BorderBrush="{StaticResource BrushHairline}"
+            CornerRadius="0,0,10,10" ClipToBounds="True" AllowDrop="True"
+            MouseEnter="Panel_MouseEnter" MouseLeave="Panel_MouseLeave"
+            DragEnter="Panel_DragEnter">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- left accent rail, fades in together with the expanded content -->
+            <Border x:Name="AccentRail" Grid.Column="0" Background="{DynamicResource BrushAccent}" Opacity="0"/>
+
+            <Grid Grid.Column="1">
+                <!-- idle mark: small centered accent bar, the only thing visible all day -->
+                <Border x:Name="IdleMark" Width="22" Height="3" CornerRadius="1.5"
+                        Background="{DynamicResource BrushAccent}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                <Grid x:Name="PanelContent" Opacity="0" Margin="12,7,12,10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="24"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- header: module identity · dots · nav/pin -->
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock x:Name="ModGlyph" FontFamily="{StaticResource FontGlyph}" FontSize="12"
+                                       Foreground="{DynamicResource BrushAccent}" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="ModName" Margin="8,0,0,0" Style="{StaticResource Overline}"
+                                       FontSize="10.5" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <StackPanel x:Name="DotsPanel" Grid.Column="1" Orientation="Horizontal"
+                                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="14,0"/>
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right"
+                                    VerticalAlignment="Center">
+                            <!-- No ToolTips here on purpose: a tooltip popup is its own top-level
+                                 window, and it stealing the hover point mid-display would fire a
+                                 real MouseLeave on the bar and collapse it out from under the user. -->
+                            <Button x:Name="PrevBtn" Style="{StaticResource IconButton}" Content="&#xE76B;"
+                                    Width="22" Height="20" Click="PrevBtn_Click"/>
+                            <Button x:Name="NextBtn" Style="{StaticResource IconButton}" Content="&#xE76C;"
+                                    Width="22" Height="20" Click="NextBtn_Click"/>
+                            <Border Width="1" Height="11" Background="{StaticResource BrushHairline}" Margin="5,0"/>
+                            <Button x:Name="PinBtn" Style="{StaticResource IconButton}" Content="&#xE718;"
+                                    Width="22" Height="20" Click="PinBtn_Click"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- carousel viewport: one module in focus, full width of the card -->
+                    <Grid Grid.Row="1" x:Name="Viewport" ClipToBounds="True" Margin="0,5,0,0"
+                          SizeChanged="Viewport_SizeChanged">
+                        <StackPanel x:Name="Track" Orientation="Horizontal" HorizontalAlignment="Left">
+                            <StackPanel.RenderTransform>
+                                <TranslateTransform x:Name="TrackTx"/>
+                            </StackPanel.RenderTransform>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

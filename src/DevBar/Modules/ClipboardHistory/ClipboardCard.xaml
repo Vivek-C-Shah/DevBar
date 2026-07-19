@@ -1,0 +1,11 @@
+<UserControl x:Class="DevBar.Modules.ClipboardHistory.ClipboardCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <TextBlock x:Name="EmptyHint" Text="Copy something — it shows up here."
+                   Style="{StaticResource BodyMuted}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Style="{StaticResource ThinScrollViewer}">
+            <StackPanel x:Name="Chips" Orientation="Horizontal"/>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

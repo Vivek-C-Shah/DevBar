@@ -1,0 +1,13 @@
+# build output
+bin/
+obj/
+
+# Rider / VS
+.vs/
+.idea/
+*.user
+*.suo
+
+# OS
+Thumbs.db
+.DS_Store
