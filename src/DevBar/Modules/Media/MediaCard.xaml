@@ -3,9 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Grid>
         <TextBlock x:Name="EmptyHint" Text="Nothing playing." Style="{StaticResource BodyMuted}"
-                   HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-        <StackPanel x:Name="PlayerPanel" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
+        <StackPanel x:Name="PlayerPanel" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed">
             <Border Width="90" Height="90" CornerRadius="8" ClipToBounds="True"
                     Background="{StaticResource BrushBgElevated}">
                 <Image x:Name="Thumb" Stretch="UniformToFill"/>

@@ -17,8 +17,15 @@ public sealed class Config
     /// <summary>Module ids to hide, e.g. ["media"].</summary>
     public List<string> DisabledModules { get; set; } = new();
     /// <summary>Explicit module order; unknown ids are ignored, missing ones appended.</summary>
-    public List<string> ModuleOrder { get; set; } = new() { "clipboard", "shelf", "claude", "ports", "media" };
+    public List<string> ModuleOrder { get; set; } = new()
+        { "clipboard", "shelf", "claude", "ports", "docker", "git", "ci", "media" };
     public int ClipboardHistorySize { get; set; } = 25;
+
+    /// <summary>Repo paths the Git status module watches. Empty by default — opt-in.</summary>
+    public List<string> GitWatchedRepos { get; set; } = new();
+
+    /// <summary>Directories/files the Build/CI pulse module watches for a "just built" signal via mtime. Empty by default — opt-in.</summary>
+    public List<CiWatchTarget> CiWatchTargets { get; set; } = new();
 
     public static string Dir =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DevBar");
@@ -54,4 +61,11 @@ public sealed class Config
         }
         catch { /* never crash over config io */ }
     }
+}
+
+public sealed class CiWatchTarget
+{
+    public string Name { get; set; } = "";
+    /// <summary>A directory (watches the newest file's mtime) or a single file.</summary>
+    public string Path { get; set; } = "";
 }

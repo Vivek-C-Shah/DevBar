@@ -20,7 +20,7 @@ public sealed class PortsModule : IDevBarModule
 {
     public string Id => "ports";
     public string DisplayName => "Ports";
-    public string IconGlyph => "";
+    public string IconGlyph => "";
 
     public ObservableCollection<PortInfo> Ports { get; } = new();
 

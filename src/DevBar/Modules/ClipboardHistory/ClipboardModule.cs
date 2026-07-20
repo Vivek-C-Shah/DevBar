@@ -9,7 +9,7 @@ public sealed class ClipboardModule : IDevBarModule
 {
     public string Id => "clipboard";
     public string DisplayName => "Clipboard";
-    public string IconGlyph => "";
+    public string IconGlyph => "";
 
     private readonly Config _config;
     public ObservableCollection<ClipboardEntry> Entries { get; } = new();

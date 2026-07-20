@@ -20,7 +20,7 @@ public partial class ShelfCard : UserControl
     }
 
     private void UpdateEmptyHint()
-        => EmptyHint.Visibility = _module.Items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        => EmptyState.Visibility = _module.Items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
     // ---- drop files in ----
 

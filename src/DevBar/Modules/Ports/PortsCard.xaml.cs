@@ -17,7 +17,11 @@ public partial class PortsCard : UserControl
     }
 
     private void UpdateEmptyHint()
-        => EmptyHint.Visibility = _module.Ports.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+    {
+        bool empty = _module.Ports.Count == 0;
+        EmptyHint.Visibility = empty ? Visibility.Visible : Visibility.Collapsed;
+        HeaderRow.Visibility = empty ? Visibility.Collapsed : Visibility.Visible;
+    }
 
     private void Kill_Click(object sender, RoutedEventArgs e)
     {

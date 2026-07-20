@@ -27,7 +27,7 @@ public sealed class ClaudeModule : IDevBarModule
 {
     public string Id => "claude";
     public string DisplayName => "Claude Code";
-    public string IconGlyph => "";
+    public string IconGlyph => "";
 
     public ObservableCollection<ClaudeSession> Sessions { get; } = new();
 

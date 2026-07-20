@@ -24,23 +24,24 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- "Liquid glass" mesh: three soft, slowly-drifting accent-hued
-                 blobs behind everything else, each blurred at radius 24. This
-                 is what gives the surface its shifting, organic color — real
-                 backdrop blur (GlassEffect.cs) makes the *desktop* behind the
-                 bar illegible; this layer is what makes the *bar itself* feel
-                 alive. Built from our own accent color, not sampled from live
-                 desktop pixels — continuous screen-capture-based color
-                 sampling would cost real CPU on every frame, the same tax
-                 that made permanent blur-behind a non-starter (see
-                 GlassEffect.cs). Animations only run while expanded, same
+            <!-- "Liquid glass" mesh: four soft, asymmetrically-placed,
+                 independently-drifting accent-hued blobs behind everything
+                 else, each blurred at radius 24. This is what gives the
+                 surface its shifting, organic color — real backdrop blur
+                 (GlassEffect.cs) makes the *desktop* behind the bar illegible;
+                 this layer is what makes the *bar itself* feel alive. Built
+                 from our own accent color, not sampled from live desktop
+                 pixels — continuous screen-capture-based color sampling would
+                 cost real CPU on every frame, the same tax that made
+                 permanent blur-behind a non-starter (see GlassEffect.cs).
+                 Position/opacity animations only run while expanded, same
                  discipline as the blur itself. Skipped entirely when Windows'
-                 "Transparency effects" setting is off — see ApplyGlassMode.
-                 ClipToBounds="True" on Panel keeps every blob inside the
-                 rounded shape. -->
+                 "Transparency effects" setting is off (see _reduceTransparency
+                 in the code-behind). ClipToBounds="True" on Panel keeps every
+                 blob inside the rounded shape. -->
             <Grid x:Name="MeshGradient" Grid.ColumnSpan="2" Opacity="0" IsHitTestVisible="False">
-                <Ellipse x:Name="Blob1" Width="230" Height="230" HorizontalAlignment="Left" VerticalAlignment="Top"
-                         Margin="-60,-90,0,0">
+                <Ellipse x:Name="Blob1" Width="240" Height="240" HorizontalAlignment="Left" VerticalAlignment="Top"
+                         Margin="-70,-100,0,0">
                     <Ellipse.RenderTransform>
                         <TranslateTransform x:Name="Blob1Tx"/>
                     </Ellipse.RenderTransform>
@@ -48,8 +49,8 @@
                         <BlurEffect Radius="24"/>
                     </Ellipse.Effect>
                 </Ellipse>
-                <Ellipse x:Name="Blob2" Width="260" Height="260" HorizontalAlignment="Right" VerticalAlignment="Top"
-                         Margin="0,-110,-80,0">
+                <Ellipse x:Name="Blob2" Width="200" Height="200" HorizontalAlignment="Right" VerticalAlignment="Top"
+                         Margin="0,-60,120,0">
                     <Ellipse.RenderTransform>
                         <TranslateTransform x:Name="Blob2Tx"/>
                     </Ellipse.RenderTransform>
@@ -57,10 +58,19 @@
                         <BlurEffect Radius="24"/>
                     </Ellipse.Effect>
                 </Ellipse>
-                <Ellipse x:Name="Blob3" Width="200" Height="200" HorizontalAlignment="Center" VerticalAlignment="Bottom"
-                         Margin="0,0,0,-100">
+                <Ellipse x:Name="Blob3" Width="280" Height="280" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                         Margin="0,0,-100,-120">
                     <Ellipse.RenderTransform>
                         <TranslateTransform x:Name="Blob3Tx"/>
+                    </Ellipse.RenderTransform>
+                    <Ellipse.Effect>
+                        <BlurEffect Radius="24"/>
+                    </Ellipse.Effect>
+                </Ellipse>
+                <Ellipse x:Name="Blob4" Width="190" Height="190" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                         Margin="60,0,0,-80">
+                    <Ellipse.RenderTransform>
+                        <TranslateTransform x:Name="Blob4Tx"/>
                     </Ellipse.RenderTransform>
                     <Ellipse.Effect>
                         <BlurEffect Radius="24"/>
@@ -79,36 +89,42 @@
 
                 <Grid x:Name="PanelContent" Opacity="0" Margin="12,7,12,8">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="22"/>
+                        <RowDefinition Height="26"/>
                         <RowDefinition Height="*"/>
-                        <RowDefinition Height="24"/>
+                        <RowDefinition Height="20"/>
                     </Grid.RowDefinitions>
 
-                    <!-- header: module identity (left) · pin (right) -->
+                    <!-- header: a tab per module (click to jump directly),
+                         condensing to icon-only and horizontally scrolling
+                         (never wrapping) once there isn't room for all of
+                         them; pin stays fixed at the right, outside the
+                         scrollable area. -->
                     <Grid Grid.Row="0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock x:Name="ModGlyph" FontFamily="{StaticResource FontGlyph}" FontSize="12"
-                                       Foreground="{DynamicResource BrushAccent}" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="ModName" Margin="8,0,0,0" Style="{StaticResource Overline}"
-                                       FontSize="10.5" VerticalAlignment="Center"/>
-                        </StackPanel>
+                        <ScrollViewer Grid.Column="0" HorizontalScrollBarVisibility="Hidden"
+                                      VerticalScrollBarVisibility="Disabled" Focusable="False">
+                            <StackPanel x:Name="TabStrip" Orientation="Horizontal" VerticalAlignment="Stretch"/>
+                        </ScrollViewer>
 
                         <!-- No ToolTip here on purpose: a tooltip popup is its own top-level
                              window, and it stealing the hover point mid-display would fire a
                              real MouseLeave on the bar and collapse it out from under the user. -->
                         <Button x:Name="PinBtn" Grid.Column="1" Style="{StaticResource IconButton}" Content="&#xE718;"
-                                Width="22" Height="20" Click="PinBtn_Click"/>
+                                Width="22" Height="20" Margin="4,0,0,0" Click="PinBtn_Click"/>
                     </Grid>
 
-                    <!-- carousel viewport: one module in focus, full width of the card.
-                         Also pages on a touchpad's two-finger horizontal swipe — see
-                         WM_MOUSEHWHEEL in WndProc. -->
-                    <Grid Grid.Row="1" x:Name="Viewport" ClipToBounds="True" Margin="0,5,0,0"
+                    <!-- carousel viewport: one module in focus, full width AND
+                         full height of the card, so every module's content
+                         sits in the same fixed footprint regardless of how
+                         much content it actually has (short content centers
+                         itself — see each module's empty-state markup).
+                         Also pages on a touchpad's two-finger horizontal
+                         swipe — see WM_MOUSEHWHEEL in WndProc. -->
+                    <Grid Grid.Row="1" x:Name="Viewport" ClipToBounds="True" Margin="0,6,0,0"
                           SizeChanged="Viewport_SizeChanged">
                         <StackPanel x:Name="Track" Orientation="Horizontal" HorizontalAlignment="Left">
                             <StackPanel.RenderTransform>
@@ -117,17 +133,15 @@
                         </StackPanel>
                     </Grid>
 
-                    <!-- bottom nav: prev · dots · next, grouped together so paging
-                         controls sit right where your eye already is, not off in a
-                         top corner. -->
+                    <!-- prev/next: direct-tap paging alongside the tab strip
+                         and swipe/wheel — dots were dropped in favor of the
+                         tab strip above, which already shows position. -->
                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center"
                                 VerticalAlignment="Center">
                         <Button x:Name="PrevBtn" Style="{StaticResource IconButton}" Content="&#xE76B;"
-                                Width="22" Height="20" Click="PrevBtn_Click"/>
-                        <StackPanel x:Name="DotsPanel" Orientation="Horizontal"
-                                    VerticalAlignment="Center" Margin="8,0"/>
+                                Width="22" Height="18" Click="PrevBtn_Click"/>
                         <Button x:Name="NextBtn" Style="{StaticResource IconButton}" Content="&#xE76C;"
-                                Width="22" Height="20" Click="NextBtn_Click"/>
+                                Width="22" Height="18" Margin="4,0,0,0" Click="NextBtn_Click"/>
                     </StackPanel>
                 </Grid>
             </Grid>

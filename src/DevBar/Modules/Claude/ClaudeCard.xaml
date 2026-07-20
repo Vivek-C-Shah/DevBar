@@ -41,10 +41,10 @@
 
     <Grid>
         <TextBlock x:Name="EmptyHint" Style="{StaticResource BodyMuted}"
-                   HorizontalAlignment="Left" VerticalAlignment="Top"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
                    Text="No Claude Code sessions detected."/>
         <ScrollViewer VerticalScrollBarVisibility="Auto" Style="{StaticResource ThinScrollViewer}">
-            <ItemsControl x:Name="List" ItemTemplate="{StaticResource SessionTemplate}">
+            <ItemsControl x:Name="List" ItemTemplate="{StaticResource SessionTemplate}" VerticalAlignment="Center">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal"/>

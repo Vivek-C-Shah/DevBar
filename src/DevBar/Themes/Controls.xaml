@@ -46,6 +46,35 @@
         </Style.Triggers>
     </Style>
 
+    <!-- Module tab strip button: icon + underline, both driven from code
+         (BarWindow.UpdateTabStripActive) since active state is per-instance,
+         not stylable via a single shared trigger. Only the flat hover/press
+         chrome lives here, matching IconButton's template exactly. -->
+    <Style x:Key="TabButton" TargetType="Button">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Width" Value="28"/>
+        <Setter Property="Height" Value="26"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="6">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource BrushHover}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource BrushBgElevated}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- Minimal thin scrollbars so lists don't ship the chunky default chrome -->
     <Style x:Key="ThinScrollBar" TargetType="ScrollBar">
         <Setter Property="Background" Value="Transparent"/>

@@ -1,7 +1,10 @@
 using System.IO;
 using System.Reflection;
+using DevBar.Modules.CiPulse;
 using DevBar.Modules.Claude;
 using DevBar.Modules.ClipboardHistory;
+using DevBar.Modules.Docker;
+using DevBar.Modules.GitStatus;
 using DevBar.Modules.Media;
 using DevBar.Modules.Ports;
 using DevBar.Modules.Shelf;
@@ -21,6 +24,9 @@ internal static class ModuleHost
             new ShelfModule(args.ShelfSeed),
             new ClaudeModule(),
             new PortsModule(),
+            new DockerModule(),
+            new GitStatusModule(config),
+            new CiPulseModule(config),
             new MediaModule(),
         };
 

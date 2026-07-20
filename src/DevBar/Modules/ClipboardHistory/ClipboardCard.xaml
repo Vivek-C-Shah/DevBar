@@ -3,9 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Grid>
         <TextBlock x:Name="EmptyHint" Text="Copy something — it shows up here."
-                   Style="{StaticResource BodyMuted}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                   Style="{StaticResource BodyMuted}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <ScrollViewer VerticalScrollBarVisibility="Auto" Style="{StaticResource ThinScrollViewer}">
-            <StackPanel x:Name="Chips" Orientation="Horizontal"/>
+            <StackPanel x:Name="Chips" Orientation="Horizontal" VerticalAlignment="Center"/>
         </ScrollViewer>
     </Grid>
 </UserControl>

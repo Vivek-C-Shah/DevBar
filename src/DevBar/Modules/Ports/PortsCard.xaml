@@ -25,10 +25,35 @@
     </UserControl.Resources>
 
     <Grid>
-        <TextBlock x:Name="EmptyHint" Text="No listening ports found."
-                   Style="{StaticResource BodyMuted}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
-                      Style="{StaticResource ThinScrollViewer}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Column header row — labels every value so "60" and "1884" don't
+             read as two mystery numbers. Mirrors the row template's column
+             widths exactly so labels line up with their values. -->
+        <Grid Grid.Row="0" Margin="10,0,10,4" x:Name="HeaderRow">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="60"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="46"/>
+                <ColumnDefinition Width="22"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Port" Style="{StaticResource Overline}"/>
+            <TextBlock Grid.Column="1" Text="Process" Style="{StaticResource Overline}"/>
+            <TextBlock Grid.Column="2" Text="PID" Style="{StaticResource Overline}"/>
+        </Grid>
+
+        <TextBlock x:Name="EmptyHint" Grid.Row="1" Text="No listening ports found."
+                   Style="{StaticResource BodyMuted}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <!-- Bottom padding on the ScrollViewer keeps the last row clear of the
+             prev/next nav below the card instead of flush against it, and the
+             thin scrollbar (ThinScrollViewer) is the affordance that there's
+             more to scroll to when content overflows the fixed card height. -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                      Style="{StaticResource ThinScrollViewer}" Padding="0,0,0,8">
             <ItemsControl x:Name="List" ItemTemplate="{StaticResource RowTemplate}"/>
         </ScrollViewer>
     </Grid>

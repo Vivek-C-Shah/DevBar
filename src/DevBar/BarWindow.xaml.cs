@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Shapes;
 using System.Windows.Threading;
 using DevBar.Core;
 using DevBar.Sdk;
@@ -33,10 +34,13 @@ public partial class BarWindow : Window
     // A small floating toolbar, not a taskbar-style edge strip: the window is
     // always sized to exactly its visible content, idle or expanded, so there's
     // never a dead invisible zone eating clicks meant for whatever's underneath.
+    // ExpandedHeight is the SAME for every module — paging never resizes the
+    // bar. Modules with less content center it in that fixed footprint rather
+    // than the card shrinking to fit (see each module's card XAML).
     private const double IdleWidth = 124;
     private const double IdleHeight = 22;
     private const double ExpandedWidth = 640;
-    private const double ExpandedHeight = 220;
+    private const double ExpandedHeight = 300;
     private const int ShowDelayMs = 120;
 
     // Real mouse/touch hardware (and, empirically, some combination of Windows
@@ -79,7 +83,7 @@ public partial class BarWindow : Window
         Panel.Width = IdleWidth;
         Panel.Height = IdleHeight;
 
-        BuildDots();
+        BuildTabStrip();
         SourceInitialized += BarWindow_SourceInitialized;
         Closed += (_, _) => Teardown();
     }
@@ -181,17 +185,19 @@ public partial class BarWindow : Window
     // ---------------- liquid glass: mesh-gradient blob layer ----------------
 
     /// <summary>
-    /// Builds the three blob fills from the live accent color (hue-rotated
-    /// ±35° for a multi-color "mesh" feel) — done once, since the accent
-    /// color itself only changes if the user changes their Windows theme.
+    /// Builds the four blob fills from the live accent color (hue-rotated for
+    /// a multi-color "mesh" feel, asymmetric hue spacing so no two blobs read
+    /// as mirrors of each other) — done once, since the accent color itself
+    /// only changes if the user changes their Windows theme.
     /// </summary>
     private void SetupMeshGradient()
     {
         var accent = ((SolidColorBrush)FindResource("BrushAccent")).Color;
 
-        Blob1.Fill = BlobBrush(ColorMath.RotateHue(accent, -35, 150));
-        Blob2.Fill = BlobBrush(ColorMath.RotateHue(accent, 0, 130));
-        Blob3.Fill = BlobBrush(ColorMath.RotateHue(accent, 35, 150));
+        Blob1.Fill = BlobBrush(ColorMath.RotateHue(accent, -40, 150));
+        Blob2.Fill = BlobBrush(ColorMath.RotateHue(accent, 15, 120));
+        Blob3.Fill = BlobBrush(ColorMath.RotateHue(accent, 55, 145));
+        Blob4.Fill = BlobBrush(ColorMath.RotateHue(accent, -80, 110));
     }
 
     private static RadialGradientBrush BlobBrush(Color c)
@@ -204,32 +210,45 @@ public partial class BarWindow : Window
     }
 
     /// <summary>
-    /// Slow, organic drift — each blob gets a different duration/range so they
-    /// never sync up into something mechanical. Only ever running while the
-    /// bar is expanded (see Expand/Collapse): a Forever-repeating animation is
-    /// cheap per-frame but it does keep the compositor rendering continuously,
+    /// Slow, organic drift — each blob gets a different duration, direction,
+    /// and fixed opacity so they never sync up into something mechanical or
+    /// read as uniform brightness. Only ever running while the bar is
+    /// expanded (see Expand/Collapse): a Forever-repeating animation is cheap
+    /// per-frame but it does keep the compositor rendering continuously,
     /// which is exactly the kind of "always on" cost this app avoids at idle.
     /// </summary>
     private void StartBlobDrift()
     {
-        Drift(Blob1Tx, 18, 10, 7.5);
-        Drift(Blob2Tx, -16, 14, 9.5);
-        Drift(Blob3Tx, 12, -12, 8.5);
+        Drift(Blob1, Blob1Tx, 22, 14, 7.5, 0.85);
+        Drift(Blob2, Blob2Tx, -14, 20, 10.5, 0.7);
+        Drift(Blob3, Blob3Tx, -20, -16, 9.0, 0.85);
+        Drift(Blob4, Blob4Tx, 16, -10, 12.0, 0.75);
 
-        static void Drift(TranslateTransform tx, double dx, double dy, double seconds)
+        static void Drift(Ellipse blob, TranslateTransform tx, double dx, double dy, double seconds, double opacity)
         {
-            var ease = new SineEase { EasingMode = EasingMode.EaseInOut };
+            var moveEase = new SineEase { EasingMode = EasingMode.EaseInOut };
             var duration = TimeSpan.FromSeconds(seconds);
             tx.BeginAnimation(TranslateTransform.XProperty,
-                new DoubleAnimation(0, dx, duration) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease });
+                new DoubleAnimation(0, dx, duration) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = moveEase });
             tx.BeginAnimation(TranslateTransform.YProperty,
-                new DoubleAnimation(0, dy, duration) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease });
+                new DoubleAnimation(0, dy, duration) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = moveEase });
+
+            // Each blob's own fixed opacity varies blob-to-blob so the mesh
+            // doesn't read as uniform brightness. An earlier version also
+            // *animated* opacity per-frame here, which measured a real,
+            // avoidable CPU cost on top of the Acrylic blur's already-known
+            // cost while expanded (compositing a blurred, translucent
+            // surface with changing opacity means re-blurring every frame; a
+            // pure position transform doesn't). Staggered position drift
+            // alone already satisfies "never syncs up into something
+            // mechanical."
+            blob.Opacity = opacity;
         }
     }
 
     private void StopBlobDrift()
     {
-        foreach (var tx in new[] { Blob1Tx, Blob2Tx, Blob3Tx })
+        foreach (var tx in new[] { Blob1Tx, Blob2Tx, Blob3Tx, Blob4Tx })
         {
             tx.BeginAnimation(TranslateTransform.XProperty, null);
             tx.BeginAnimation(TranslateTransform.YProperty, null);
@@ -254,7 +273,7 @@ public partial class BarWindow : Window
         // not the whole card stretching diagonally. Collapsing: pull both back
         // up quickly together, since leaving should feel instant.
         var widthDuration = TimeSpan.FromMilliseconds(expanding ? 90 : 110);
-        var heightDuration = TimeSpan.FromMilliseconds(expanding ? 260 : 130);
+        var heightDuration = TimeSpan.FromMilliseconds(expanding ? 280 : 140);
         var widthEase = new CubicEase { EasingMode = EasingMode.EaseOut };
         IEasingFunction heightEase = expanding
             ? new PowerEase { EasingMode = EasingMode.EaseOut, Power = 3 }
@@ -299,7 +318,7 @@ public partial class BarWindow : Window
             // Blur-behind and the mesh-gradient drift only run while actually
             // visible/expanded — both cost real idle CPU/GPU if left on, see
             // GlassEffect's doc comment.
-            GlassEffect.Enable(_hwnd, (Color)FindResource("ColBg"), tintOpacity: 200);
+            GlassEffect.Enable(_hwnd, (Color)FindResource("ColBg"), tintOpacity: 175);
             MeshGradient.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(260)) { BeginTime = TimeSpan.FromMilliseconds(60) });
             StartBlobDrift();
         }
@@ -353,44 +372,92 @@ public partial class BarWindow : Window
         if (idx >= 0) _current = idx;
     }
 
-    // ---------------- carousel ----------------
+    // ---------------- carousel / tab strip ----------------
 
-    private void BuildDots()
+    /// <summary>
+    /// One small icon-only tab per module — click jumps straight there. Lives
+    /// in a horizontally-scrolling (never wrapping) ScrollViewer so it holds
+    /// up regardless of module count; replaces the old dot indicators, which
+    /// only showed position, not identity.
+    /// </summary>
+    private void BuildTabStrip()
     {
-        DotsPanel.Children.Clear();
+        TabStrip.Children.Clear();
         for (int i = 0; i < _modules.Count; i++)
         {
-            var dot = new Border
+            int idx = i;
+            var mod = _modules[i];
+
+            var icon = new TextBlock
             {
-                Width = 5, Height = 5, CornerRadius = new CornerRadius(2.5),
-                Margin = new Thickness(3, 0, 3, 0),
-                Background = i == _current
-                    ? (Brush)FindResource("BrushAccent")
-                    : (Brush)FindResource("BrushHairline"),
+                Text = mod.IconGlyph,
+                FontFamily = (FontFamily)FindResource("FontGlyph"),
+                FontSize = 13,
+                HorizontalAlignment = HorizontalAlignment.Center,
             };
-            DotsPanel.Children.Add(dot);
+
+            var underline = new Border
+            {
+                Height = 2,
+                Width = 14,
+                CornerRadius = new CornerRadius(1),
+                Background = (Brush)FindResource("BrushAccent"),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0, 3, 0, 0),
+            };
+
+            var content = new StackPanel();
+            content.Children.Add(icon);
+            content.Children.Add(underline);
+
+            var btn = new Button
+            {
+                Style = (Style)FindResource("TabButton"),
+                Content = content,
+                Margin = new Thickness(1, 0, 1, 0),
+            };
+            btn.Click += (_, _) =>
+            {
+                if (idx == _current) return;
+                _modules[_current].OnCollapsed();
+                _current = idx;
+                ShowCurrentModule();
+            };
+
+            TabStrip.Children.Add(btn);
+        }
+        UpdateTabStripActive();
+    }
+
+    private void UpdateTabStripActive()
+    {
+        var accent = (Brush)FindResource("BrushAccent");
+        var muted = (Brush)FindResource("BrushMuted");
+
+        for (int i = 0; i < TabStrip.Children.Count; i++)
+        {
+            if (TabStrip.Children[i] is not Button { Content: StackPanel { Children: { Count: 2 } children } }) continue;
+            var icon = (TextBlock)children[0];
+            var underline = (Border)children[1];
+            bool active = i == _current;
+
+            icon.Foreground = active ? accent : muted;
+            icon.Opacity = active ? 1.0 : 0.55;
+            underline.Opacity = active ? 1.0 : 0.0;
         }
     }
 
     private void ShowCurrentModule()
     {
-        if (_modules.Count == 0)
-        {
-            ModName.Text = "No modules";
-            ModGlyph.Text = "";
-            return;
-        }
+        if (_modules.Count == 0) return;
 
         _current = Math.Clamp(_current, 0, _modules.Count - 1);
         var mod = _modules[_current];
-
-        ModName.Text = mod.DisplayName;
-        ModGlyph.Text = mod.IconGlyph;
-        BuildDots();
+        UpdateTabStripActive();
 
         Track.Children.Clear();
         var card = GetOrBuildCard(mod);
-        card.Width = Viewport.ActualWidth > 0 ? Viewport.ActualWidth : ExpandedWidth - 27;
+        SizeCard(card);
         Track.Children.Add(card);
         TrackTx.X = 0;
 
@@ -405,10 +472,23 @@ public partial class BarWindow : Window
         return built;
     }
 
+    /// <summary>
+    /// Every module's card fills the full viewport, width and height, so the
+    /// fixed card footprint (Part 1) is enforced at the shell level — a
+    /// module can't accidentally cause a size jump by returning a shorter
+    /// control. Short content centers itself within that space; see each
+    /// module's card XAML/VerticalAlignment.
+    /// </summary>
+    private void SizeCard(UserControl card)
+    {
+        if (Viewport.ActualWidth > 0) card.Width = Viewport.ActualWidth;
+        if (Viewport.ActualHeight > 0) card.Height = Viewport.ActualHeight;
+    }
+
     private void Viewport_SizeChanged(object sender, SizeChangedEventArgs e)
     {
         foreach (UserControl child in Track.Children)
-            child.Width = Viewport.ActualWidth;
+            SizeCard(child);
     }
 
     private void PrevBtn_Click(object sender, RoutedEventArgs e) => Page(-1);

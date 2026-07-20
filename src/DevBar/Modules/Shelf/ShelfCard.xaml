@@ -34,19 +34,33 @@
     <Grid>
         <Border x:Name="DropHint" Background="{DynamicResource BrushAccentDim}" CornerRadius="8"
                 BorderThickness="1.5" BorderBrush="{DynamicResource BrushAccent}"
-                Visibility="Collapsed" IsHitTestVisible="False">
-            <TextBlock Text="Drop to shelve" Style="{StaticResource Body}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        </Border>
+                Visibility="Collapsed" IsHitTestVisible="False"/>
 
-        <TextBlock x:Name="EmptyHint" Text="Drag files or images in — cleared on restart."
-                   Style="{StaticResource BodyMuted}" HorizontalAlignment="Left" VerticalAlignment="Top"
-                   IsHitTestVisible="False"/>
+        <!-- Empty state: a real drop-target treatment, not a caption in a
+             mostly-dead panel — a dashed outline roughly the size of the
+             card, a large glyph, and the instruction beneath it, all
+             centered. Rectangle (not Border) because only Rectangle
+             supports a dashed stroke in WPF. -->
+        <Grid x:Name="EmptyState" IsHitTestVisible="False">
+            <Rectangle Margin="6" RadiusX="10" RadiusY="10"
+                       Stroke="{StaticResource BrushHairline}" StrokeThickness="1.5"
+                       StrokeDashArray="4 3"/>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock FontFamily="{StaticResource FontGlyph}" FontSize="36"
+                           Foreground="{StaticResource BrushMuted}" Opacity="0.6"
+                           HorizontalAlignment="Center" Text="&#xE896;"/>
+                <TextBlock Text="Drag files or images in" Style="{StaticResource Body}"
+                           HorizontalAlignment="Center" Margin="0,12,0,2"/>
+                <TextBlock Text="cleared on restart" Style="{StaticResource BodyMuted}" FontSize="10.5"
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
 
         <ScrollViewer VerticalScrollBarVisibility="Auto" Style="{StaticResource ThinScrollViewer}">
             <ItemsControl x:Name="List" ItemTemplate="{StaticResource ItemTemplate}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal"/>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
             </ItemsControl>
