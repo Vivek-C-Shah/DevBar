@@ -18,33 +18,40 @@ namespace DevBar.Modules.Jarvis.Tools;
 
 internal static class BuiltInTools
 {
-    public static List<JarvisTool> Create(Config config, Func<IReadOnlyList<IDevBarModule>> modules, ProviderRouter vision) => new()
+    public static List<JarvisTool> Create(Config config, Func<IReadOnlyList<IDevBarModule>> modules, ProviderRouter vision)
     {
-        new RememberTool(),
-        new RecallTool(),
-        new ForgetTool(),
-        new WeatherTool(config.Jarvis),
-        new SystemStatusTool(),
-        new LookAtScreenTool(vision),
-        new TypeTextTool(),
-        new RunCommandTool(config),
-        new SetReminderTool(),
-        new ListRemindersTool(),
-        new CancelReminderTool(),
-        new ListPortsTool(),
-        new KillPortTool(),
-        new DockerListTool(),
-        new DockerContainerTool(),
-        new GitStatusTool(config),
-        new ClaudeSessionsTool(),
-        new MediaTool(),
-        new VolumeTool(),
-        new OpenAppTool(),
-        new OpenUrlTool(),
-        new WebSearchTool(),
-        new ClipboardRecentTool(modules),
-        new CopyToClipboardTool(),
-    };
+        var tools = new List<JarvisTool>
+        {
+            new WebSearchTool(config.Jarvis),
+            new RememberTool(),
+            new RecallTool(),
+            new ForgetTool(),
+            new WeatherTool(config.Jarvis),
+            new SystemStatusTool(),
+            new LookAtScreenTool(vision),
+            new TypeTextTool(),
+            new RunCommandTool(config),
+            new DelegateToClaudeTool(config),
+            new SetReminderTool(),
+            new ListRemindersTool(),
+            new CancelReminderTool(),
+            new ListPortsTool(),
+            new KillPortTool(),
+            new DockerListTool(),
+            new DockerContainerTool(),
+            new GitStatusTool(config),
+            new ClaudeSessionsTool(),
+            new MediaTool(),
+            new VolumeTool(),
+            new OpenAppTool(),
+            new OpenUrlTool(),
+            new ShowSearchTool(),
+            new ClipboardRecentTool(modules),
+            new CopyToClipboardTool(),
+        };
+        tools.Add(new DailyBriefTool(config, tools));
+        return tools;
+    }
 }
 
 // ---------------- ports ----------------
@@ -353,21 +360,6 @@ internal sealed class OpenUrlTool : JarvisTool
             return Task.FromResult("That isn't a web address.");
         Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
         return Task.FromResult($"Opened {uri.Host}.");
-    }
-}
-
-internal sealed class WebSearchTool : JarvisTool
-{
-    public override string Name => "web_search";
-    public override string Description => "Open a Google search in the browser (for things you can't answer yourself or the user wants to see).";
-    protected override (string, string, string)[] Params => new[] { ("query", "string", "Search terms") };
-    public override Risk RiskOf(JsonElement args) => Risk.Reversible;
-
-    public override Task<string> RunAsync(JsonElement args)
-    {
-        var q = Str(args, "query");
-        Process.Start(new ProcessStartInfo("https://www.google.com/search?q=" + Uri.EscapeDataString(q)) { UseShellExecute = true });
-        return Task.FromResult($"Searched for {q}.");
     }
 }
 

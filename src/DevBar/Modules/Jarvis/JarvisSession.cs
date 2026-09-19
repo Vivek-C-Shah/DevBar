@@ -136,6 +136,8 @@ internal sealed partial class JarvisSession
 
                 if (Dismissal().IsMatch(text.Trim()))
                     break;
+                if (WakePrefix().Replace(text, "").Trim().Length == 0)
+                    continue; // just "Jarvis" — keep listening for the actual request
 
                 _turnCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
                 _bargedIn = false;
@@ -264,6 +266,8 @@ internal sealed partial class JarvisSession
             userText = _carryOver + " " + userText;
             _carryOver = null;
         }
+        userText = WakePrefix().Replace(userText, "").Trim();
+        if (userText.Length > 0) userText = char.ToUpperInvariant(userText[0]) + userText[1..];
         // Without barge-in, mute during the turn so we never transcribe our own voice.
         _stt!.Muted = !_cfg.BargeIn;
         _currentUserText = userText;
@@ -321,6 +325,11 @@ internal sealed partial class JarvisSession
         catch { args = JsonDocument.Parse("{}").RootElement; }
 
         var label = Chip(tool, args);
+        if (tool.IsSlow && !_audioStarted && _replyText.Length == 0)
+        {
+            SetReply("One moment.");
+            speech.Say("One moment.");
+        }
         if (tool.RiskOf(args) == Risk.Destructive)
         {
             ToolActivity?.Invoke(label, null);
@@ -391,6 +400,26 @@ internal sealed partial class JarvisSession
         finally { _player.Stop(); }
     }
 
+    /// <summary>Short rising two-note chime: "I heard you" after the wake word.</summary>
+    public static async Task ChimeAsync()
+    {
+        using var player = new AudioPlayer();
+        var pcm = new List<byte>();
+        foreach (var (freq, ms) in new[] { (660.0, 90), (990.0, 120) })
+        {
+            int n = AudioPlayer.SampleRate * ms / 1000;
+            for (int i = 0; i < n; i++)
+            {
+                double env = Math.Min(1, Math.Min(i, n - i) / (AudioPlayer.SampleRate * 0.01)); // 10ms fades, no clicks
+                short s = (short)(Math.Sin(2 * Math.PI * freq * i / AudioPlayer.SampleRate) * env * 0.18 * short.MaxValue);
+                pcm.Add((byte)s);
+                pcm.Add((byte)(s >> 8));
+            }
+        }
+        player.Enqueue(pcm.ToArray());
+        try { await player.WaitDrainedAsync(CancellationToken.None); } catch { }
+    }
+
     /// <summary>Speaks outside a conversation (timers). Standalone — owns its own player.</summary>
     public static async Task AnnounceAsync(JarvisConfig cfg, string text)
     {
@@ -411,6 +440,10 @@ internal sealed partial class JarvisSession
         var profile = facts.Count == 0
             ? $"You don't know anything about {name} yet."
             : $"What you know about {name} (from past conversations; use naturally, don't recite):\n" + string.Join("\n", facts.Select(f => "- " + f.Text));
+        var firstToday = _cfg.LastConversation is not { } last || last.Date < DateTime.Today;
+        var greeting = firstToday
+            ? $"This is {name}'s first conversation today. If they open with a greeting, greet them back and offer a quick daily brief (the daily_brief tool) in one short question."
+            : "";
         var curiosity = facts.Count < 12
             ? $"You're still getting to know {name}. When a conversation reaches a natural pause, you may ask ONE brief, friendly question about them " +
               "(their work, projects, routine, preferences) — at most one per conversation, never when they're busy or mid-task. Use the remember tool for what they tell you."
@@ -429,8 +462,10 @@ internal sealed partial class JarvisSession
             Current time: {DateTime.Now:dddd d MMMM yyyy, h:mm tt} ({TimeZoneInfo.Local.StandardName}).
             {(place is null ? "Location unknown." : $"{name} is in {place.Describe()} (from {place.Source}).")}
             Foreground window: "{ForegroundTitle()}".
+            Match {name}'s energy: terse and fast when they sound rushed or are mid-task, a little more conversational when they're chatty.
             {profile}
             {curiosity}
+            {greeting}
             """;
         return _memory.BuildMessages(system);
     }
@@ -502,6 +537,9 @@ internal sealed partial class JarvisSession
 
     private static List<string> Words(string s) =>
         WordSplit().Split(s.ToLowerInvariant()).Where(w => w.Length > 0).ToList();
+
+    [GeneratedRegex(@"^\s*(hey|ok|okay|hi)?[\s,]*jarvis[\s,.!?]*", RegexOptions.IgnoreCase)]
+    private static partial Regex WakePrefix();
 
     [GeneratedRegex(@"[^a-z0-9']+")]
     private static partial Regex WordSplit();

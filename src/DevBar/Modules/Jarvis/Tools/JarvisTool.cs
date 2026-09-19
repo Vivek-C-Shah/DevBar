@@ -18,6 +18,9 @@ internal abstract class JarvisTool
 
     public virtual Risk RiskOf(JsonElement args) => Risk.Read;
 
+    /// <summary>Takes seconds (web, vision): Jarvis says "One moment" first rather than going silent.</summary>
+    public virtual bool IsSlow => false;
+
     /// <summary>What Jarvis says before a Destructive call, e.g. "kill node on port 3000".</summary>
     public virtual string Describe(JsonElement args) => Name.Replace('_', ' ');
 

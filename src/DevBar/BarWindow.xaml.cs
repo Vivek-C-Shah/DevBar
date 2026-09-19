@@ -592,6 +592,9 @@ public partial class BarWindow : Window, IJarvisHost
 
     public bool RebindJarvisHotkey(string hotkey) => _jarvisHotkey?.Register(hotkey) ?? false;
 
+    public void SetMicIndicator(bool on) =>
+        IdleMark.Background = (Brush)FindResource(on ? "BrushGood" : "BrushAccent");
+
     // ---------------- tray ----------------
 
     private ContextMenu BuildTrayMenu()

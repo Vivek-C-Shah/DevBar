@@ -7,7 +7,12 @@ Goal: **it costs nothing to run day to day.** Paid keys plug in through the same
 > **Status (2026-09-19):**
 > - **Phase 1 is built and installed.**
 > - **Phase 2 is built and installed:** long-term memory with learning after each conversation (visible and deletable in "What Jarvis knows"), location (Windows location, then IP) plus weather and system status, screen questions (Gemini vision), dictation, talking over Jarvis to interrupt it, reminders that survive restarts, and shell commands that always ask first.
-> - **Moved to Phase 3:** offline speech-to-text (Whisper via sherpa-onnx) and an offline brain (Ollama, which is already supported in the `Llm` chain once installed).
+> - **Phase 3 is built and installed:**
+>   - Background web search (Gemini + Google Search grounding, with Groq compound-mini as the last resort; no browser).
+>   - Heads-ups that are event-driven, not polled: Claude Code sessions via an optional hook, Build Pulse targets, and reminders. Etiquette: speak / show / off, quiet hours, silent for games and presentations, voice-only over full-screen video.
+>   - A daily brief, handing tasks to Claude Code, and tone matching.
+>   - An opt-in "Hey Jarvis" wake word (on-device, ~0.16% CPU). On synthesized speech it caught 12–14 of 15 wake phrases with 0–1 false triggers in 20.
+> - **Still open:** Calendar/Gmail (needs the user's Google OAuth client), offline speech-to-text and an offline brain (Ollama is already supported in the `Llm` chain once installed), and Gemini Live mode.
 > - **Groq retired the Llama models,** so the brain chain now runs on `gpt-oss-120b` → `gpt-oss-20b` → Gemini.
 
 ---

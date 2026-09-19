@@ -268,6 +268,7 @@ internal sealed class SystemStatusTool : JarvisTool
 internal sealed class LookAtScreenTool(ProviderRouter vision) : JarvisTool
 {
     public override string Name => "look_at_screen";
+    public override bool IsSlow => true;
     public override string Description => "See what's in the user's current window (or whole screen) and answer a question about it — errors, code, a page. Only when the user refers to what's on screen.";
     protected override (string, string, string)[] Params => new[]
     {

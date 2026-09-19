@@ -129,6 +129,20 @@ public sealed class JarvisConfig
     /// <summary>Talk over Jarvis to interrupt it. Works best with headphones; with speakers it filters out its own voice.</summary>
     public bool BargeIn { get; set; } = true;
 
+    /// <summary>Unprompted heads-ups (Claude Code needs you, build finished): "speak" | "show" | "off".</summary>
+    public string Proactive { get; set; } = "speak";
+    /// <summary>No speaking (notices still show) during these hours, "HH:mm-HH:mm"; empty = never quiet.</summary>
+    public string QuietHours { get; set; } = "23:00-08:00";
+    /// <summary>Date of the last conversation — the first one of a day gets offered a brief.</summary>
+    public DateTime? LastConversation { get; set; }
+
+    /// <summary>
+    /// Say "Hey Jarvis" instead of pressing the hotkey. Off by default: it keeps the
+    /// mic open (on-device only, ~0.3% CPU). Listens on AC power only unless WakeWordOnBattery.
+    /// </summary>
+    public bool WakeWord { get; set; }
+    public bool WakeWordOnBattery { get; set; }
+
     /// <summary>Seconds to keep listening for a follow-up after Jarvis finishes speaking.</summary>
     public int FollowUpSeconds { get; set; } = 6;
 }

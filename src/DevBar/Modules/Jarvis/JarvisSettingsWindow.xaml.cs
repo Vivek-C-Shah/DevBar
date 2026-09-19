@@ -61,6 +61,11 @@ public partial class JarvisSettingsWindow : Window
         UseLocationBox.IsChecked = s.UseLocation;
         LearnBox.IsChecked = s.LearnFromConversations;
         BargeInBox.IsChecked = s.BargeIn;
+        (s.Proactive switch { "show" => ProactiveShow, "off" => ProactiveOff, _ => ProactiveSpeak }).IsChecked = true;
+        QuietBox.Text = s.QuietHours;
+        WakeBox.IsChecked = s.WakeWord;
+        WakeBatteryBox.IsChecked = s.WakeWordOnBattery;
+        RenderClaudeHook();
         MaxHeight = SystemParameters.WorkArea.Height - 40;
         _ = ShowLocationAsync();
         BrainChain.Text = string.Join(" → ", s.Llm);
@@ -268,6 +273,11 @@ public partial class JarvisSettingsWindow : Window
         _module.Settings.UseLocation = UseLocationBox.IsChecked == true;
         _module.Settings.LearnFromConversations = LearnBox.IsChecked == true;
         _module.Settings.BargeIn = BargeInBox.IsChecked == true;
+        _module.Settings.Proactive = ProactiveShow.IsChecked == true ? "show" : ProactiveOff.IsChecked == true ? "off" : "speak";
+        _module.Settings.QuietHours = QuietBox.Text.Trim();
+        _module.Settings.WakeWord = WakeBox.IsChecked == true && Speech.WakeWordListener.IsInstalled;
+        _module.Settings.WakeWordOnBattery = WakeBatteryBox.IsChecked == true;
+        _module.ApplyWakeWord();
         if (placeChanged) { LocationService.Invalidate(); _ = ShowLocationAsync(); }
         _module.SaveSettings();
         if (_pendingHotkey != _module.Settings.Hotkey) ApplyHotkey_Click(sender, e);
@@ -280,6 +290,53 @@ public partial class JarvisSettingsWindow : Window
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
 
     private void Memory_Click(object sender, RoutedEventArgs e) => _module.OpenMemory();
+
+    /// <summary>First time on: fetch the 19MB on-device model, then Save applies it.</summary>
+    private async void WakeBox_Click(object sender, RoutedEventArgs e)
+    {
+        if (WakeBox.IsChecked != true || Speech.WakeWordListener.IsInstalled) return;
+        WakeBox.IsEnabled = false;
+        try
+        {
+            var progress = new Progress<double>(p => WakeStatus.Text = p < 0.95 ? $"Downloading wake-word model… {p:P0}" : "Unpacking…");
+            await Speech.WakeWordListener.DownloadAsync(progress, CancellationToken.None);
+            WakeStatus.Text = "Ready — press Save to start listening for \"Hey Jarvis\".";
+        }
+        catch (Exception ex)
+        {
+            WakeStatus.Text = "Download failed: " + ex.Message;
+            WakeBox.IsChecked = false;
+        }
+        finally { WakeBox.IsEnabled = true; }
+    }
+
+    private void RenderClaudeHook()
+    {
+        bool on = Proactive.ClaudeHook.IsInstalled;
+        ClaudeHookText.Text = on ? "Disconnect Claude Code" : "Connect Claude Code";
+        if (ClaudeHookStatus.Text.Length == 0)
+            ClaudeHookStatus.Text = on ? "Connected — new sessions report to Jarvis." : "Not connected.";
+    }
+
+    private async void ClaudeHook_Click(object sender, RoutedEventArgs e)
+    {
+        ClaudeHookBtn.IsEnabled = false;
+        try
+        {
+            if (Proactive.ClaudeHook.IsInstalled)
+            {
+                Proactive.ClaudeHook.Uninstall();
+                ClaudeHookStatus.Text = "Disconnected.";
+            }
+            else ClaudeHookStatus.Text = await Proactive.ClaudeHook.InstallAsync() + " Applies to Claude Code sessions started from now on.";
+        }
+        catch (Exception ex) { ClaudeHookStatus.Text = "Couldn't change ~/.claude/settings.json: " + ex.Message; }
+        finally
+        {
+            ClaudeHookBtn.IsEnabled = true;
+            RenderClaudeHook();
+        }
+    }
 
     private async Task ShowLocationAsync()
     {

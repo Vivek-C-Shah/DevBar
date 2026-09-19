@@ -27,7 +27,7 @@ internal static class JarvisSelfTest
 {
     private const string Phrase = "Good evening, Vivek. Port three thousand is free, and all systems are running.";
 
-    public static async Task RunAsync(string outDir, bool phase2Only = false)
+    public static async Task RunAsync(string outDir, bool phase2Only = false, bool phase3Only = false)
     {
         Directory.CreateDirectory(outDir);
         var log = new StringBuilder();
@@ -35,6 +35,12 @@ internal static class JarvisSelfTest
 
         var cfg = Config.Load().Jarvis;
         Log($"keys: deepgram={Has("deepgram")} groq={Has("groq")} gemini={Has("gemini")}");
+        if (phase3Only)
+        {
+            await Phase3Async(cfg, Log);
+            Log("done");
+            return;
+        }
         if (phase2Only)
         {
             await Phase2Async(cfg, Log);
@@ -176,6 +182,99 @@ internal static class JarvisSelfTest
     }
 
     private static bool Has(string k) => SecretStore.Has(k);
+
+    private static async Task Phase3Async(JarvisConfig cfg, Action<string> Log)
+    {
+        var sw = Stopwatch.StartNew();
+        var answer = await WebSearch.AskAsync("What is the latest stable version of Node.js LTS?", null, CancellationToken.None);
+        Log($"web_search ({sw.ElapsedMilliseconds}ms): {answer}");
+
+        var tools = BuiltInTools.Create(Config.Load(), () => Array.Empty<IDevBarModule>(), new ProviderRouter(() => cfg.Vision));
+        sw.Restart();
+        var brief = await tools.First(t => t.Name == "daily_brief").RunAsync(JsonDocument.Parse("{}").RootElement);
+        Log($"daily_brief ({sw.ElapsedMilliseconds}ms): {brief.Replace("\n", " | ")}");
+        Log($"tools: {tools.Count}, ask_claude_code risk={tools.First(t => t.Name == "ask_claude_code").RiskOf(JsonDocument.Parse("{}").RootElement)}");
+
+        // Claude Code hook scripts, fed the same JSON Claude Code would send (not registered anywhere).
+        var (nodeScript, psScript) = await Proactive.ClaudeHook.WriteScriptsAsync();
+        var statusFile = Path.Combine(Proactive.ClaudeSessionWatcher.Dir, "selftest-hook.json");
+        foreach (var (label, exe, argsPrefix) in new[] { ("node", "node", $"\"{nodeScript}\""), ("powershell", "powershell", $"-NoProfile -ExecutionPolicy Bypass -File \"{psScript}\"") })
+        {
+            var states = new List<string>();
+            foreach (var (ev, msg) in new[] { ("UserPromptSubmit", ""), ("Notification", "Claude needs your permission to use Bash"),
+                                              ("Notification", "Claude is waiting for your input"), ("Stop", ""), ("SessionEnd", "") })
+            {
+                var json = $"{{\"session_id\":\"selftest-hook\",\"cwd\":\"D:\\\\work\\\\ClientPulse\",\"hook_event_name\":\"{ev}\",\"message\":\"{msg}\"}}";
+                var t0 = Stopwatch.StartNew();
+                var psi = new ProcessStartInfo(exe, argsPrefix) { RedirectStandardInput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true };
+                using (var p = Process.Start(psi)!)
+                {
+                    await p.StandardInput.WriteAsync(json);
+                    p.StandardInput.Close();
+                    await p.WaitForExitAsync();
+                }
+                string state = File.Exists(statusFile) ? JsonDocument.Parse(File.ReadAllText(statusFile)).RootElement.GetProperty("state").GetString() ?? "?" : "(deleted)";
+                states.Add($"{ev}{(msg.Length > 0 ? "[" + msg.Split(' ')[2] + "]" : "")}->{state} {t0.ElapsedMilliseconds}ms");
+            }
+            Log($"hook {label}: {string.Join("; ", states)}");
+        }
+        if (File.Exists(statusFile)) File.Delete(statusFile);
+
+        // Wake word on synthesized speech: phrases that should and shouldn't trigger.
+        if (!WakeWordListener.IsInstalled) { Log("wake word: model not installed"); return; }
+        var voices = new List<(string Name, ITextToSpeech Tts)>();
+        if (SecretStore.Get("deepgram") is { } k)
+        {
+            voices.Add(("aura-draco", new DeepgramAuraTts(k, "aura-2-draco-en")));
+            voices.Add(("aura-pandora", new DeepgramAuraTts(k, "aura-2-pandora-en")));
+            voices.Add(("aura-zeus", new DeepgramAuraTts(k, "aura-2-zeus-en")));
+        }
+        foreach (var id in new[] { "en_GB-alan-medium", "en_GB-northern_english_male-medium" })
+            if (LocalTts.Find("piper", id) is { IsInstalled: true } v) voices.Add(("piper-" + id.Split('-')[1], new LocalTts(v)));
+
+        var positives = new[] { "Hey Jarvis, what's the time?", "Jarvis, open Chrome.", "Okay Jarvis, kill port three thousand." };
+        var negatives = new[] { "Hey, what's the service status today?", "The jar of vitamins is on the kitchen shelf.",
+                                "Harvest season in Jaipur starts next week.", "Travis said the build is green." };
+        using var spotter = WakeWordListener.CreateSpotter();
+        int tp = 0, fp = 0, total = 0;
+        double audioSec = 0, computeMs = 0;
+        foreach (var (vname, tts) in voices)
+        {
+            foreach (var (phrase, expect) in positives.Select(p => (p, true)).Concat(negatives.Select(n => (n, false))))
+            {
+                var ms = new MemoryStream();
+                try { await tts.SpeakAsync(phrase, pcm => ms.Write(pcm), CancellationToken.None); }
+                catch (Exception ex) { Log($"  tts {vname} failed: {ex.Message}"); continue; }
+                var pcm16k = Resample(ms.ToArray(), AudioPlayer.SampleRate, MicCapture.SampleRate);
+                var samples = new float[pcm16k.Length / 2 + MicCapture.SampleRate / 2]; // + 0.5s trailing silence
+                for (int i = 0; i < pcm16k.Length / 2; i++) samples[i] = BitConverter.ToInt16(pcm16k, i * 2) / 32768f;
+
+                using var stream = spotter.CreateStream();
+                var t0 = Stopwatch.StartNew();
+                string hit = "";
+                for (int off = 0; off < samples.Length; off += 800) // 50ms chunks, like the mic
+                {
+                    stream.AcceptWaveform(MicCapture.SampleRate, samples[off..Math.Min(samples.Length, off + 800)]);
+                    while (spotter.IsReady(stream))
+                    {
+                        spotter.Decode(stream);
+                        var kw = spotter.GetResult(stream).Keyword;
+                        if (kw.Length > 0 && hit.Length == 0) hit = kw;
+                    }
+                }
+                computeMs += t0.Elapsed.TotalMilliseconds;
+                audioSec += samples.Length / (double)MicCapture.SampleRate;
+                total++;
+                bool fired = hit.Length > 0;
+                if (fired && expect) tp++;
+                if (fired && !expect) fp++;
+                Log($"  {(fired == expect ? "ok  " : "MISS")} {vname,-14} {(expect ? "+" : "-")} \"{phrase}\" -> {(fired ? hit : "(none)")}");
+            }
+        }
+        int posTotal = voices.Count * positives.Length, negTotal = voices.Count * negatives.Length;
+        Log($"wake word: detected {tp}/{posTotal} wake phrases, {fp}/{negTotal} false triggers; " +
+            $"compute {computeMs / audioSec / 10:0.00}% of one core per second of audio");
+    }
 
     /// <summary>
     /// Phase 2 checks. Deliberately never sends the real screen anywhere (a

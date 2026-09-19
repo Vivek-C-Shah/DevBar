@@ -140,6 +140,40 @@
             <TextBlock Text="What Jarvis knows about you..." Style="{StaticResource Body}"/>
         </Button>
 
+        <!-- wake word -->
+        <TextBlock Style="{StaticResource Section}" Text="Wake word"/>
+        <WrapPanel>
+            <CheckBox x:Name="WakeBox" Style="{StaticResource Toggle}" Content="Say &quot;Hey Jarvis&quot;" Click="WakeBox_Click"/>
+            <CheckBox x:Name="WakeBatteryBox" Style="{StaticResource Toggle}" Content="Also on battery"/>
+        </WrapPanel>
+        <TextBlock x:Name="WakeStatus" Style="{StaticResource BodyMuted}" FontSize="11" TextWrapping="Wrap"
+                   Text="Keeps the mic open while idle, on-device only (~0.3% CPU); nothing leaves your PC until you say it. The bar's idle mark turns green while it listens."/>
+
+        <!-- heads-ups -->
+        <TextBlock Style="{StaticResource Section}" Text="Heads-ups: Jarvis speaks up on its own"/>
+        <WrapPanel>
+            <RadioButton x:Name="ProactiveSpeak" GroupName="proactive" Style="{StaticResource Seg}" Content="Speak"/>
+            <RadioButton x:Name="ProactiveShow" GroupName="proactive" Style="{StaticResource Seg}" Content="Show only"/>
+            <RadioButton x:Name="ProactiveOff" GroupName="proactive" Style="{StaticResource Seg}" Content="Off"/>
+        </WrapPanel>
+        <Grid Margin="0,0,0,6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="92"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Quiet hours" Style="{StaticResource Body}" VerticalAlignment="Center"/>
+            <TextBox x:Name="QuietBox" Grid.Column="1" ToolTip="HH:mm-HH:mm, e.g. 23:00-08:00. Notices still show, silently. Empty = never quiet."/>
+        </Grid>
+        <StackPanel Orientation="Horizontal">
+            <Button x:Name="ClaudeHookBtn" Style="{StaticResource ChipButton}" Click="ClaudeHook_Click">
+                <TextBlock x:Name="ClaudeHookText" Style="{StaticResource Body}"/>
+            </Button>
+            <TextBlock x:Name="ClaudeHookStatus" Style="{StaticResource BodyMuted}" FontSize="11" Margin="8,0,0,0"
+                       VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="250"/>
+        </StackPanel>
+        <TextBlock Style="{StaticResource BodyMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0"
+                   Text="Adds a small hook to ~/.claude/settings.json (backed up first) so I can tell you when a Claude Code session needs you or finishes."/>
+
         <!-- voice -->
         <TextBlock Style="{StaticResource Section}" Text="Voice"/>
         <WrapPanel>

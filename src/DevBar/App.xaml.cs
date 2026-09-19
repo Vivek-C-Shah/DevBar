@@ -18,7 +18,7 @@ public partial class App : Application
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
             var outDir = selfTest + 1 < e.Args.Length ? e.Args[selfTest + 1]
                 : System.IO.Path.Combine(Config.Dir, "selftest");
-            try { await Modules.Jarvis.JarvisSelfTest.RunAsync(outDir, phase2Only: e.Args.Contains("--phase2")); }
+            try { await Modules.Jarvis.JarvisSelfTest.RunAsync(outDir, phase2Only: e.Args.Contains("--phase2"), phase3Only: e.Args.Contains("--phase3")); }
             finally { Shutdown(); }
             return;
         }

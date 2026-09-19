@@ -4,6 +4,7 @@ using DevBar.Core;
 using DevBar.Modules.Jarvis.Brain;
 using DevBar.Modules.Jarvis.Context;
 using DevBar.Modules.Jarvis.Memory;
+using DevBar.Modules.Jarvis.Proactive;
 using DevBar.Modules.Jarvis.Speech;
 using DevBar.Modules.Jarvis.Tools;
 using DevBar.Sdk;
@@ -18,6 +19,8 @@ internal interface IJarvisHost
     void ReleaseJarvis();
     /// <summary>Re-register the global shortcut; false if unparseable or taken by another app.</summary>
     bool RebindJarvisHotkey(string hotkey);
+    /// <summary>Tint the idle pill while the wake word keeps the mic open — the user can always see it.</summary>
+    void SetMicIndicator(bool on);
 }
 
 /// <summary>
@@ -64,6 +67,10 @@ internal sealed class JarvisModule : IDevBarModule
     private JarvisCard? _card;
     private JarvisSettingsWindow? _settings;
     private JarvisMemoryWindow? _memoryWindow;
+    private NoticeCenter? _notices;
+    private ClaudeSessionWatcher? _claudeWatcher;
+    private BuildWatcher? _buildWatcher;
+    private WakeWordListener? _wake;
 
     // A local voice model holds 100–300MB; keep it for quick follow-up
     // conversations, drop it once Jarvis has been unused for a while.
@@ -82,6 +89,7 @@ internal sealed class JarvisModule : IDevBarModule
         {
             await Task.Delay(TimeSpan.FromSeconds(5));
             ReminderScheduler.Start(text => _ = AnnounceAsync(text));
+            StartProactive();
         }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
     }
 
@@ -107,6 +115,8 @@ internal sealed class JarvisModule : IDevBarModule
     private async Task StartAsync()
     {
         _unloadTimer?.Stop();
+        _wake?.Pause(); // the conversation owns the mic now
+        _host.SetMicIndicator(false);
         _tools ??= BuiltInTools.Create(Config, () => _modules, _vision);
         _ = LocationService.GetAsync(Settings); // cached 30 min; ready by the time you finish your sentence
         // Pay connection/model-load costs while Deepgram's socket is connecting, not on the first reply.
@@ -140,6 +150,14 @@ internal sealed class JarvisModule : IDevBarModule
             ScheduleUnload();
             if (Settings.LearnFromConversations)
                 _ = Task.Run(() => ProfileLearner.LearnAsync(_learner, Settings.UserName));
+            if (_wake != null)
+            {
+                _wake.Resume();
+                _host.SetMicIndicator(_wake.IsListening);
+            }
+            Settings.LastConversation = DateTime.Now;
+            Config.Save();
+            _notices?.FlushDeferred();
         }
     }
 
@@ -161,6 +179,73 @@ internal sealed class JarvisModule : IDevBarModule
     }
 
     public void ConfirmFromUi(bool yes) => _session?.ConfirmFromUi(yes);
+
+    // ---------------- proactive ----------------
+
+    /// <summary>Event-driven only (file-change notifications) — nothing polls.</summary>
+    private void StartProactive()
+    {
+        var ui = Application.Current.Dispatcher;
+        _notices = new NoticeCenter(Settings, DeliverNoticeAsync, () => _session != null);
+        try { _claudeWatcher = new ClaudeSessionWatcher(ui, _notices.Notify); } catch { /* folder unwritable */ }
+        if (Config.CiWatchTargets.Count > 0) _buildWatcher = new BuildWatcher(Config, ui, _notices.Notify);
+        ApplyWakeWord();
+    }
+
+    /// <summary>Starts/stops the wake-word listener to match settings.</summary>
+    public void ApplyWakeWord()
+    {
+        if (Settings.WakeWord && WakeWordListener.IsInstalled)
+        {
+            if (_wake is null)
+            {
+                _wake = new WakeWordListener(acOnly: !Settings.WakeWordOnBattery);
+                _wake.Detected += kw => Application.Current.Dispatcher.BeginInvoke(() => OnWake(kw));
+            }
+            if (_session is null)
+            {
+                try { _wake.Start(); }
+                catch (Exception ex) { Error?.Invoke("Wake word couldn't start: " + ex.Message); }
+            }
+        }
+        else
+        {
+            _wake?.Dispose();
+            _wake = null;
+        }
+        _host.SetMicIndicator(_wake?.IsListening == true);
+    }
+
+    private void OnWake(string keyword)
+    {
+        JarvisSession.Trace($"wake word: {keyword}");
+        if (_session != null) return;
+        _ = JarvisSession.ChimeAsync();
+        _ = StartAsync();
+    }
+
+    private async Task DeliverNoticeAsync(string text, bool speak, bool show)
+    {
+        if (speak && !show)
+        {
+            JarvisSession.Trace($"announce (voice only): {text}");
+            await JarvisSession.AnnounceAsync(Settings, text);
+            return;
+        }
+        if (speak)
+        {
+            await AnnounceAsync(text);
+            return;
+        }
+        // Show-only: the bar drops down with the notice for a few seconds.
+        _host.HoldOpenForJarvis();
+        Reply?.Invoke(text);
+        await Task.Delay(TimeSpan.FromSeconds(6));
+        if (_session is null) _host.ReleaseJarvis();
+    }
+
+    /// <summary>Debug: push a notice through the same etiquette as real ones.</summary>
+    internal void NotifyForTest(string text) => _notices?.Notify(text);
 
     /// <summary>Debug: run a real session and hand it <paramref name="text"/> as the first utterance.</summary>
     public async Task InjectForTestAsync(string text)

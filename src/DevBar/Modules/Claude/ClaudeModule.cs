@@ -85,6 +85,7 @@ public sealed class ClaudeModule : IDevBarModule
         if (!Directory.Exists(StatusDir)) yield break;
         foreach (var file in Directory.EnumerateFiles(StatusDir, "*.json"))
         {
+            if (DateTime.Now - File.GetLastWriteTime(file) > TimeSpan.FromHours(12)) continue; // abandoned session
             ClaudeSession? s = null;
             try
             {
