@@ -25,6 +25,7 @@ internal static class BuiltInTools
             new WebSearchTool(config.Jarvis),
             new RememberTool(),
             new RecallTool(),
+            new ReadNoteTool(),
             new ForgetTool(),
             new WeatherTool(config.Jarvis),
             new SystemStatusTool(),
@@ -49,6 +50,8 @@ internal static class BuiltInTools
             new ClipboardRecentTool(modules),
             new CopyToClipboardTool(),
         };
+        // Google tools only when connected — unused schemas still cost prompt tokens.
+        if (Google.GoogleAuth.IsConnected) tools.AddRange(Google.GoogleToolSet.All());
         tools.Add(new DailyBriefTool(config, tools));
         return tools;
     }

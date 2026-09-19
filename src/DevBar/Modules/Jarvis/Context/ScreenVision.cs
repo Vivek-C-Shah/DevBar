@@ -21,7 +21,7 @@ internal static class ScreenVision
     {
         var (jpeg, what) = Capture(fullScreen);
         if (jpeg is null) return "Couldn't capture the screen.";
-        return await AskImageAsync(vision, jpeg, what, question, ct);
+        return Google.Untrusted.Wrap(await AskImageAsync(vision, jpeg, what, question, ct));
     }
 
     internal static async Task<string> AskImageAsync(ProviderRouter vision, byte[] jpeg, string what, string question, CancellationToken ct)

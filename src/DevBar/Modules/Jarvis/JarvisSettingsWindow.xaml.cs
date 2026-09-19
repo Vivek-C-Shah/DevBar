@@ -42,6 +42,13 @@ public partial class JarvisSettingsWindow : Window
     private string _piperVoice;
     private string _pendingHotkey;
     private CancellationTokenSource? _downloadCts;
+    private List<string> _brain = new();
+
+    private static readonly string[] BrainSuggestionList =
+    {
+        "groq:openai/gpt-oss-120b", "groq:openai/gpt-oss-20b", "gemini:gemini-3.5-flash-lite", "gemini:gemini-2.5-flash",
+        "openai:gpt-5-mini", "anthropic:claude-haiku-4-5", "cerebras:gpt-oss-120b", "ollama:qwen3:4b",
+    };
 
     internal JarvisSettingsWindow(JarvisModule module)
     {
@@ -66,13 +73,24 @@ public partial class JarvisSettingsWindow : Window
         WakeBox.IsChecked = s.WakeWord;
         WakeBatteryBox.IsChecked = s.WakeWordOnBattery;
         RenderClaudeHook();
-        MaxHeight = SystemParameters.WorkArea.Height - 40;
+        // Fixed height inside the work area: with SizeToContent the ScrollViewer is measured
+        // unbounded and the bottom sections become unreachable.
+        Height = Math.Min(SystemParameters.WorkArea.Height - 40, 980);
         _ = ShowLocationAsync();
-        BrainChain.Text = string.Join(" → ", s.Llm);
+        _brain = s.Llm.ToList();
+        RenderBrain();
+        GoogleIdBox.Text = SecretStore.Get(Google.GoogleAuth.ClientIdKey) ?? "";
+        RenderGoogle();
         BuildKeyRows();
 
         (s.TtsEngine switch { "piper" => EnginePiper, "kokoro" => EngineKokoro, "windows" => EngineWindows, _ => EngineAura }).IsChecked = true;
         Closed += (_, _) => _downloadCts?.Cancel();
+        // Text boxes swallow the mouse wheel in WPF; scroll the page wherever the cursor is.
+        PreviewMouseWheel += (_, e) =>
+        {
+            Scroller.ScrollToVerticalOffset(Scroller.VerticalOffset - e.Delta);
+            e.Handled = true;
+        };
         PreviewKeyDown += (_, e) =>
         {
             if (e.Key == Key.Escape && !HotkeyBox.IsKeyboardFocused) Close();
@@ -268,6 +286,9 @@ public partial class JarvisSettingsWindow : Window
     {
         SaveVoice();
         _module.Settings.UserName = NameBox.Text.Trim();
+        if (_brain.Count > 0) _module.Settings.Llm = _brain.ToList();
+        if (GoogleIdBox.Text.Trim() != (SecretStore.Get(Google.GoogleAuth.ClientIdKey) ?? "")) SecretStore.Set(Google.GoogleAuth.ClientIdKey, GoogleIdBox.Text.Trim());
+        if (GoogleSecretBox.Password.Trim().Length > 0) { SecretStore.Set(Google.GoogleAuth.ClientSecretKey, GoogleSecretBox.Password.Trim()); GoogleSecretBox.Clear(); }
         bool placeChanged = _module.Settings.HomeLocation != HomeBox.Text.Trim() || _module.Settings.UseLocation != (UseLocationBox.IsChecked == true);
         _module.Settings.HomeLocation = HomeBox.Text.Trim();
         _module.Settings.UseLocation = UseLocationBox.IsChecked == true;
@@ -290,6 +311,155 @@ public partial class JarvisSettingsWindow : Window
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
 
     private void Memory_Click(object sender, RoutedEventArgs e) => _module.OpenMemory();
+
+    // ---------------- brain order ----------------
+
+    private void RenderBrain()
+    {
+        BrainList.Children.Clear();
+        for (int i = 0; i < _brain.Count; i++)
+        {
+            int idx = i;
+            var spec = _brain[i];
+            var llm = Brain.OpenAiCompatibleLlm.Parse(spec);
+            var row = new Grid { Margin = new Thickness(0, 0, 0, 4) };
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(22) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            row.Children.Add(new TextBlock { Text = $"{i + 1}.", Style = (Style)FindResource("MonoMuted"), VerticalAlignment = VerticalAlignment.Center });
+            var name = new TextBlock
+            {
+                Text = spec + (llm is null ? "   (unknown provider)" : llm.HasKey ? "" : "   (no key)"),
+                Style = (Style)FindResource(llm is { HasKey: true } ? "Mono" : "MonoMuted"),
+                VerticalAlignment = VerticalAlignment.Center,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                Tag = spec,
+            };
+            Grid.SetColumn(name, 1);
+            row.Children.Add(name);
+
+            var buttons = new StackPanel { Orientation = Orientation.Horizontal };
+            Grid.SetColumn(buttons, 2);
+            buttons.Children.Add(IconBtn("\uE70E", idx > 0, () => Swap(idx, idx - 1)));              // up
+            buttons.Children.Add(IconBtn("\uE70D", idx < _brain.Count - 1, () => Swap(idx, idx + 1))); // down
+            buttons.Children.Add(IconBtn("\uE711", _brain.Count > 1, () => { _brain.RemoveAt(idx); RenderBrain(); }));
+            row.Children.Add(buttons);
+            BrainList.Children.Add(row);
+        }
+
+        BrainSuggestions.Children.Clear();
+        foreach (var s in BrainSuggestionList.Where(s => !_brain.Contains(s)))
+        {
+            var chip = new Button { Style = (Style)FindResource("ChipButton"), Margin = new Thickness(0, 0, 6, 6), Padding = new Thickness(8, 2, 8, 2) };
+            chip.Content = new TextBlock { Text = "+ " + s, Style = (Style)FindResource("MonoMuted"), FontSize = 10.5 };
+            chip.Click += (_, _) => { _brain.Add(s); RenderBrain(); };
+            BrainSuggestions.Children.Add(chip);
+        }
+    }
+
+    private Button IconBtn(string glyph, bool enabled, Action onClick)
+    {
+        var b = new Button { Style = (Style)FindResource("IconButton"), Content = glyph, Width = 24, Height = 22, IsEnabled = enabled };
+        b.Click += (_, _) => onClick();
+        return b;
+    }
+
+    private void Swap(int a, int b)
+    {
+        (_brain[a], _brain[b]) = (_brain[b], _brain[a]);
+        RenderBrain();
+    }
+
+    private void BrainAdd_Click(object sender, RoutedEventArgs e)
+    {
+        var spec = BrainNewBox.Text.Trim();
+        if (Brain.OpenAiCompatibleLlm.Parse(spec) is null)
+        {
+            BrainStatus.Text = "Use provider:model — providers are groq, gemini, openai, anthropic, openrouter, cerebras, ollama.";
+            return;
+        }
+        if (!_brain.Contains(spec)) _brain.Add(spec);
+        BrainNewBox.Clear();
+        RenderBrain();
+    }
+
+    private void BrainNewBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter) BrainAdd_Click(sender, e);
+    }
+
+    /// <summary>One tiny request per model, in order, so a typo or a missing key shows up here — not mid-conversation.</summary>
+    private async void BrainTest_Click(object sender, RoutedEventArgs e)
+    {
+        SaveKeys();
+        BrainTestBtn.IsEnabled = false;
+        var results = new List<string>();
+        foreach (var spec in _brain)
+        {
+            var llm = Brain.OpenAiCompatibleLlm.Parse(spec);
+            if (llm is null) { results.Add($"{spec}: unknown provider"); continue; }
+            BrainStatus.Text = $"Testing {spec}…";
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            try
+            {
+                var messages = new System.Text.Json.Nodes.JsonArray
+                {
+                    new System.Text.Json.Nodes.JsonObject { ["role"] = "user", ["content"] = "Reply with just: ok" },
+                };
+                var reply = await llm.ChatAsync(messages, new System.Text.Json.Nodes.JsonArray(), _ => { }, CancellationToken.None);
+                results.Add($"✓ {spec} {sw.ElapsedMilliseconds}ms");
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.Message.Length > 90 ? ex.Message[..90] + "…" : ex.Message;
+                results.Add($"✕ {spec}: {msg}");
+            }
+        }
+        BrainStatus.Text = string.Join("\n", results);
+        BrainTestBtn.IsEnabled = true;
+        RenderBrain();
+    }
+
+    // ---------------- google ----------------
+
+    private void RenderGoogle()
+    {
+        bool connected = Google.GoogleAuth.IsConnected;
+        GoogleBtnText.Text = connected ? "Disconnect Google" : "Connect Google";
+        GoogleStatus.Text = connected
+            ? $"Connected as {Google.GoogleAuth.Account ?? "your account"}."
+            : Google.GoogleAuth.HasClient ? "Ready to connect — your browser will ask for permission."
+            : "Paste the client ID and secret from your Google Cloud 'Desktop app' OAuth client.";
+    }
+
+    private async void Google_Click(object sender, RoutedEventArgs e)
+    {
+        GoogleBtn.IsEnabled = false;
+        try
+        {
+            if (Google.GoogleAuth.IsConnected)
+            {
+                Google.GoogleAuth.Disconnect();
+            }
+            else
+            {
+                if (GoogleIdBox.Text.Trim().Length > 0) SecretStore.Set(Google.GoogleAuth.ClientIdKey, GoogleIdBox.Text.Trim());
+                if (GoogleSecretBox.Password.Trim().Length > 0) { SecretStore.Set(Google.GoogleAuth.ClientSecretKey, GoogleSecretBox.Password.Trim()); GoogleSecretBox.Clear(); }
+                GoogleStatus.Text = "Waiting for you to approve in the browser…";
+                var who = await Google.GoogleAuth.ConnectAsync(CancellationToken.None);
+                GoogleStatus.Text = $"Connected as {who}.";
+            }
+        }
+        catch (Exception ex)
+        {
+            GoogleStatus.Text = ex.Message;
+            GoogleBtn.IsEnabled = true;
+            return;
+        }
+        GoogleBtn.IsEnabled = true;
+        RenderGoogle();
+    }
 
     /// <summary>First time on: fetch the 19MB on-device model, then Save applies it.</summary>
     private async void WakeBox_Click(object sender, RoutedEventArgs e)

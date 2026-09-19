@@ -21,6 +21,13 @@ internal abstract class JarvisTool
     /// <summary>Takes seconds (web, vision): Jarvis says "One moment" first rather than going silent.</summary>
     public virtual bool IsSlow => false;
 
+    /// <summary>
+    /// Returns text written by other people (emails, web pages, screens). After such a
+    /// tool runs, every further action in that turn needs the user's yes — so a
+    /// prompt injection inside an email can't quietly make Jarvis act.
+    /// </summary>
+    public virtual bool ReadsUntrusted => false;
+
     /// <summary>What Jarvis says before a Destructive call, e.g. "kill node on port 3000".</summary>
     public virtual string Describe(JsonElement args) => Name.Replace('_', ' ');
 

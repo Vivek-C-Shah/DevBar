@@ -23,6 +23,16 @@ public partial class App : Application
             return;
         }
 
+        // --jarvis-import profile.json: load pinned facts + reference notes into Jarvis's memory.
+        int import = Array.IndexOf(e.Args, "--jarvis-import");
+        if (import >= 0 && import + 1 < e.Args.Length)
+        {
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            try { Modules.Jarvis.Memory.ProfileImport.Run(e.Args[import + 1]); }
+            finally { Shutdown(); }
+            return;
+        }
+
         _singleInstance = new Mutex(true, @"Local\DevBar_SingleInstance", out bool isNew);
         if (!isNew)
         {

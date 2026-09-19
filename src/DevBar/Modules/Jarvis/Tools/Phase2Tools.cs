@@ -45,6 +45,24 @@ internal sealed class RecallTool : JarvisTool
     }
 }
 
+internal sealed class ReadNoteTool : JarvisTool
+{
+    public override string Name => "read_note";
+    public override string Description => "Open one of the user's reference notes (listed in your prompt) — e.g. their outreach playbook or resume — before doing work that depends on it.";
+    protected override (string, string, string)[] Params => new[] { ("name", "string", "Note name exactly as listed") };
+
+    public override Task<string> RunAsync(JsonElement args)
+    {
+        var name = Str(args, "name");
+        var notes = MemoryStore.Notes();
+        var note = notes.FirstOrDefault(n => n.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                   ?? notes.FirstOrDefault(n => n.Name.Contains(name, StringComparison.OrdinalIgnoreCase) || n.Title.Contains(name, StringComparison.OrdinalIgnoreCase));
+        return Task.FromResult(note is null
+            ? $"No note called {name}. Notes: {string.Join(", ", notes.Select(n => n.Name))}."
+            : $"# {note.Title}\n{note.Content}");
+    }
+}
+
 internal sealed class ForgetTool : JarvisTool
 {
     public override string Name => "forget";
@@ -269,6 +287,7 @@ internal sealed class LookAtScreenTool(ProviderRouter vision) : JarvisTool
 {
     public override string Name => "look_at_screen";
     public override bool IsSlow => true;
+    public override bool ReadsUntrusted => true;
     public override string Description => "See what's in the user's current window (or whole screen) and answer a question about it — errors, code, a page. Only when the user refers to what's on screen.";
     protected override (string, string, string)[] Params => new[]
     {

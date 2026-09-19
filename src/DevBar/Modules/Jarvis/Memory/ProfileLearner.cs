@@ -26,7 +26,7 @@ internal static partial class ProfileLearner
 
             var facts = MemoryStore.Facts(80);
             var (json, provider) = await ProposeAsync(router, userName, lines, facts);
-            Apply(json, facts.Select(f => f.Id).ToHashSet());
+            Apply(json, facts.Where(f => !f.Pinned).Select(f => f.Id).ToHashSet()); // pinned facts are yours, not the learner's
             MemoryStore.MarkLearned(maxId);
             JarvisSession.Trace($"learner ({provider}): {json.Replace('\n', ' ')}");
         }

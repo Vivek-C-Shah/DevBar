@@ -1,7 +1,7 @@
 <Window x:Class="DevBar.Modules.Jarvis.JarvisSettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Jarvis settings" Width="460" SizeToContent="Height"
+        Title="Jarvis settings" Width="460" SizeToContent="Manual"
         WindowStyle="None" ResizeMode="NoResize" Topmost="True" ShowInTaskbar="True"
         WindowStartupLocation="CenterScreen" Background="{StaticResource BrushBg}"
         BorderBrush="{StaticResource BrushHairline}" BorderThickness="1">
@@ -207,11 +207,51 @@
                 <ColumnDefinition Width="64"/>
             </Grid.ColumnDefinitions>
         </Grid>
-        <TextBlock Style="{StaticResource BodyMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0">
-            <Run Text="Brain order (first that answers wins):"/>
-            <Run x:Name="BrainChain" FontFamily="{StaticResource FontMono}" Foreground="{StaticResource BrushText}"/>
-            <LineBreak/><Run Text="Edit the order in config.json → Jarvis.Llm."/>
-        </TextBlock>
+        <!-- brain order -->
+        <TextBlock Style="{StaticResource Section}" Text="Brain order: first model that answers wins"/>
+        <StackPanel x:Name="BrainList"/>
+        <Grid Margin="0,4,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="BrainNewBox" ToolTip="provider:model, e.g. groq:openai/gpt-oss-120b, gemini:gemini-2.5-flash, openai:gpt-5-mini, anthropic:claude-haiku-4-5, ollama:qwen3:4b"
+                     KeyDown="BrainNewBox_KeyDown"/>
+            <Button Grid.Column="1" Style="{StaticResource ChipButton}" Margin="8,0,0,0" Click="BrainAdd_Click">
+                <TextBlock Text="Add" Style="{StaticResource Body}"/>
+            </Button>
+            <Button x:Name="BrainTestBtn" Grid.Column="2" Style="{StaticResource ChipButton}" Margin="6,0,0,0" Click="BrainTest_Click">
+                <TextBlock Text="Test" Style="{StaticResource Body}"/>
+            </Button>
+        </Grid>
+        <WrapPanel x:Name="BrainSuggestions" Margin="0,6,0,0"/>
+        <TextBlock x:Name="BrainStatus" Style="{StaticResource BodyMuted}" FontSize="11" TextWrapping="Wrap"
+                   Text="Providers: groq, gemini, openai, anthropic, openrouter, cerebras, ollama. Each needs its key above (ollama needs none)."/>
+
+        <!-- google -->
+        <TextBlock Style="{StaticResource Section}" Text="Google Calendar &amp; Gmail"/>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="92"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="Client ID" Style="{StaticResource Body}" VerticalAlignment="Center"/>
+            <TextBox x:Name="GoogleIdBox" Grid.Column="1" Margin="0,0,0,6"/>
+            <TextBlock Grid.Row="1" Text="Client secret" Style="{StaticResource Body}" VerticalAlignment="Center"/>
+            <PasswordBox x:Name="GoogleSecretBox" Grid.Row="1" Grid.Column="1" Margin="0,0,0,6"/>
+        </Grid>
+        <StackPanel Orientation="Horizontal">
+            <Button x:Name="GoogleBtn" Style="{StaticResource ChipButton}" Click="Google_Click">
+                <TextBlock x:Name="GoogleBtnText" Style="{StaticResource Body}"/>
+            </Button>
+            <TextBlock x:Name="GoogleStatus" Style="{StaticResource BodyMuted}" FontSize="11" Margin="8,0,0,0"
+                       VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="280"/>
+        </StackPanel>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
             <TextBlock x:Name="SavedText" Style="{StaticResource BodyMuted}" VerticalAlignment="Center" Margin="0,0,10,0"/>

@@ -69,6 +69,7 @@ internal sealed partial class JarvisSession
     private string? _pendingUtterance;
     private string? _carryOver;
     private bool _audioStarted;
+    private bool _turnTainted; // untrusted content (email/web/screen) was read this turn
 
     public JarvisSession(JarvisConfig cfg, List<JarvisTool> tools, ProviderRouter router, ConversationMemory memory, Dispatcher ui)
     {
@@ -272,6 +273,7 @@ internal sealed partial class JarvisSession
         _stt!.Muted = !_cfg.BargeIn;
         _currentUserText = userText;
         _audioStarted = false;
+        _turnTainted = false;
         SetState(JarvisState.Thinking);
         Heard?.Invoke(userText);
         SetReply("");
@@ -330,7 +332,10 @@ internal sealed partial class JarvisSession
             SetReply("One moment.");
             speech.Say("One moment.");
         }
-        if (tool.RiskOf(args) == Risk.Destructive)
+        var risk = tool.RiskOf(args);
+        if (_turnTainted && risk == Risk.Reversible)
+            risk = Risk.Destructive; // acting after reading someone else's text: always ask
+        if (risk == Risk.Destructive)
         {
             ToolActivity?.Invoke(label, null);
             bool ok = await ConfirmAsync(tool.Describe(args), speech, ct);
@@ -344,6 +349,7 @@ internal sealed partial class JarvisSession
         try
         {
             var result = await tool.RunAsync(args);
+            if (tool.ReadsUntrusted) _turnTainted = true;
             ToolActivity?.Invoke(label, true);
             return result;
         }
@@ -455,6 +461,7 @@ internal sealed partial class JarvisSession
             - Say numbers and times the way a person would ("half past three", "port three thousand").
             Personality: calm, competent, quietly witty, British understatement; never sycophantic, never gushing. Address {name} by name occasionally, not every reply.
             You're a companion as much as a tool: chat, stories, explanations, opinions and general questions are all welcome — answer them.
+            Never read long written output aloud (emails, messages, posts, code, lists): put it on the clipboard with copy_to_clipboard, or save it as a Gmail draft when asked for an email and Gmail is connected, then say in one sentence where it is and what it says in gist.
             Use tools to act or check real state instead of guessing. After a tool runs, confirm the outcome in a few words.
             If the request is ambiguous, ask one short question. If you can't do something, say so plainly.
             Destructive tools (killing processes, stopping containers, running commands) are confirmed with {name} automatically — just call them.
@@ -464,16 +471,32 @@ internal sealed partial class JarvisSession
             Foreground window: "{ForegroundTitle()}".
             Match {name}'s energy: terse and fast when they sound rushed or are mid-task, a little more conversational when they're chatty.
             {profile}
+            {NoteIndex()}
             {curiosity}
             {greeting}
             """;
         return _memory.BuildMessages(system);
     }
 
+    /// <summary>Pinned facts always, then the newest others — capped so the prompt stays inside free-tier token budgets.</summary>
     private static List<Fact> SafeFacts()
     {
-        try { return MemoryStore.Facts(25); }
+        try
+        {
+            var all = MemoryStore.Facts(200);
+            return all.Where(f => f.Pinned).Concat(all.Where(f => !f.Pinned).Take(15)).Take(30).ToList();
+        }
         catch { return new List<Fact>(); }
+    }
+
+    private static string NoteIndex()
+    {
+        try
+        {
+            var notes = MemoryStore.Notes();
+            return notes.Count == 0 ? "" : "Reference notes you can open with read_note: " + string.Join("; ", notes.Select(n => $"{n.Name} ({n.Title})")) + ".";
+        }
+        catch { return ""; }
     }
 
     // ---------------- barge-in ----------------

@@ -14,9 +14,10 @@ internal sealed class WebSearchTool(JarvisConfig cfg) : JarvisTool
     public override string Description => "Look something up on the live web and get the answer back (news, versions, prices, scores, docs, anything recent). Runs silently in the background.";
     protected override (string, string, string)[] Params => new[] { ("query", "string", "A precise, self-contained search question") };
     public override bool IsSlow => true;
+    public override bool ReadsUntrusted => true;
 
-    public override Task<string> RunAsync(JsonElement args) =>
-        WebSearch.AskAsync(Str(args, "query"), LocationService.Current?.Describe(), CancellationToken.None);
+    public override async Task<string> RunAsync(JsonElement args) =>
+        Google.Untrusted.Wrap(await WebSearch.AskAsync(Str(args, "query"), LocationService.Current?.Describe(), CancellationToken.None));
 }
 
 /// <summary>Only when the user wants to see results themselves.</summary>
@@ -44,24 +45,29 @@ internal sealed class DailyBriefTool(Config config, List<JarvisTool> siblings) :
 
     public override async Task<string> RunAsync(JsonElement args)
     {
-        var empty = JsonDocument.Parse("{}").RootElement;
-        async Task<string> Run(string name)
+        async Task<string> RunWith(string name, string json)
         {
-            try { return await siblings.First(t => t.Name == name).RunAsync(empty); }
+            try { return await siblings.First(t => t.Name == name).RunAsync(JsonDocument.Parse(json).RootElement); }
             catch (Exception ex) { return $"({name} unavailable: {ex.Message})"; }
         }
+        Task<string> Run(string name) => RunWith(name, "{}");
 
         var parts = await Task.WhenAll(Run("weather"), Run("list_reminders"), Run("claude_sessions"), DockerSummaryAsync(), Run("system_status"));
         var git = config.GitWatchedRepos.Count > 0 ? await Run("git_status") : "No repos watched.";
+        var calendar = siblings.Any(t => t.Name == "calendar_events") ? await Run("calendar_events") : "Google Calendar not connected.";
+        var mail = siblings.Any(t => t.Name == "gmail_search")
+            ? await RunWith("gmail_search", "{\"query\":\"is:unread in:inbox newer_than:2d\",\"max\":5}") : "Gmail not connected.";
         return $"""
             Date: {DateTime.Now:dddd d MMMM, h:mm tt}.
             Weather: {parts[0]}
+            Calendar today: {calendar}
+            Unread mail (last 2 days): {mail}
             Reminders: {parts[1]}
             Repos: {git}
             Claude Code: {parts[2]}
             Docker: {parts[3]}
             PC: {parts[4]}
-            Brief the user in 3–5 spoken sentences: weather first, then only what needs attention (skip anything empty or normal; mention low disk, low battery or very high RAM).
+            Brief the user in 3–5 spoken sentences: weather first, then today's meetings, then mail that looks important (not newsletters), then only what needs attention (skip anything empty or normal; mention low disk, low battery or very high RAM).
             """;
     }
 

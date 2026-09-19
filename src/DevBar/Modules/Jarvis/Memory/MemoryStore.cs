@@ -4,7 +4,10 @@ using Microsoft.Data.Sqlite;
 
 namespace DevBar.Modules.Jarvis.Memory;
 
-internal sealed record Fact(long Id, string Text, string Source, DateTime Updated);
+internal sealed record Fact(long Id, string Text, string Source, DateTime Updated, bool Pinned = false);
+
+/// <summary>A longer reference document (a playbook, a resume) Jarvis opens only when relevant.</summary>
+internal sealed record Note(string Name, string Title, string Content, DateTime Updated);
 
 internal sealed record Reminder(long Id, DateTime DueLocal, string Text);
 
@@ -14,6 +17,8 @@ internal sealed record Reminder(long Id, DateTime DueLocal, string Text);
 ///                source = 'told' (you said "remember…") or 'learned' (picked up after a chat).
 ///   reminders  — survive restarts; one timer is armed for the next one due.
 ///   turns      — recent conversation lines, the raw material for learning; pruned to 30 days.
+///   notes      — reference documents, read on demand (never all pasted into every prompt).
+/// Pinned facts are always in the prompt; the rest fill up to a budget, newest first.
 /// Every call opens and closes its own connection: usage is a handful of
 /// queries per conversation, and nothing stays open while DevBar idles.
 /// </summary>
@@ -50,8 +55,15 @@ internal static class MemoryStore
                         role TEXT NOT NULL,
                         text TEXT NOT NULL,
                         learned INTEGER NOT NULL DEFAULT 0);
+                    CREATE TABLE IF NOT EXISTS notes(
+                        name TEXT PRIMARY KEY,
+                        title TEXT NOT NULL,
+                        content TEXT NOT NULL,
+                        updated TEXT NOT NULL);
                     DELETE FROM turns WHERE ts < datetime('now', '-30 days');
                     """);
+                // v2: pinned facts. ALTER fails harmlessly if the column already exists.
+                try { Exec(conn, "ALTER TABLE facts ADD COLUMN pinned INTEGER NOT NULL DEFAULT 0"); } catch (SqliteException) { }
                 _initialized = true;
             }
         }
@@ -74,13 +86,46 @@ internal static class MemoryStore
     {
         using var conn = Open();
         using var cmd = conn.CreateCommand();
-        cmd.CommandText = "SELECT id, text, source, updated FROM facts ORDER BY updated DESC LIMIT $n";
+        cmd.CommandText = "SELECT id, text, source, updated, pinned FROM facts ORDER BY pinned DESC, updated DESC LIMIT $n";
         cmd.Parameters.AddWithValue("$n", limit);
         using var r = cmd.ExecuteReader();
         var list = new List<Fact>();
         while (r.Read())
-            list.Add(new Fact(r.GetInt64(0), r.GetString(1), r.GetString(2), DateTime.Parse(r.GetString(3)).ToLocalTime()));
+            list.Add(new Fact(r.GetInt64(0), r.GetString(1), r.GetString(2), DateTime.Parse(r.GetString(3)).ToLocalTime(), r.GetInt64(4) == 1));
         return list;
+    }
+
+    public static void SetPinned(long id, bool pinned)
+    {
+        using var conn = Open();
+        Exec(conn, "UPDATE facts SET pinned=$p WHERE id=$id", ("$p", pinned ? 1 : 0), ("$id", id));
+    }
+
+    // ---------------- notes ----------------
+
+    public static void SaveNote(string name, string title, string content)
+    {
+        using var conn = Open();
+        Exec(conn, "INSERT INTO notes(name, title, content, updated) VALUES($n, $t, $c, $u) " +
+                   "ON CONFLICT(name) DO UPDATE SET title=$t, content=$c, updated=$u",
+            ("$n", name), ("$t", title), ("$c", content), ("$u", Now));
+    }
+
+    public static List<Note> Notes()
+    {
+        using var conn = Open();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = "SELECT name, title, content, updated FROM notes ORDER BY name";
+        using var r = cmd.ExecuteReader();
+        var list = new List<Note>();
+        while (r.Read()) list.Add(new Note(r.GetString(0), r.GetString(1), r.GetString(2), DateTime.Parse(r.GetString(3)).ToLocalTime()));
+        return list;
+    }
+
+    public static void DeleteNote(string name)
+    {
+        using var conn = Open();
+        Exec(conn, "DELETE FROM notes WHERE name=$n", ("$n", name));
     }
 
     public static long AddFact(string text, string source)
@@ -120,7 +165,7 @@ internal static class MemoryStore
     public static void ForgetEverything()
     {
         using var conn = Open();
-        Exec(conn, "DELETE FROM facts; DELETE FROM turns;");
+        Exec(conn, "DELETE FROM facts; DELETE FROM turns; DELETE FROM notes;");
     }
 
     /// <summary>Facts whose text contains any of the query's words, best matches first.</summary>

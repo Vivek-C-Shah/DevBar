@@ -117,7 +117,7 @@ internal sealed class JarvisModule : IDevBarModule
         _unloadTimer?.Stop();
         _wake?.Pause(); // the conversation owns the mic now
         _host.SetMicIndicator(false);
-        _tools ??= BuiltInTools.Create(Config, () => _modules, _vision);
+        _tools = BuiltInTools.Create(Config, () => _modules, _vision); // rebuilt each time: Google may have been connected since
         _ = LocationService.GetAsync(Settings); // cached 30 min; ready by the time you finish your sentence
         // Pay connection/model-load costs while Deepgram's socket is connecting, not on the first reply.
         if (Settings.TtsEngine is "piper" or "kokoro")
