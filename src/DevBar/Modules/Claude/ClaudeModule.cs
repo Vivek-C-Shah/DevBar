@@ -80,7 +80,7 @@ public sealed class ClaudeModule : IDevBarModule
         finally { _refreshing = false; }
     }
 
-    private static IEnumerable<ClaudeSession> ReadStatusFiles()
+    internal static IEnumerable<ClaudeSession> ReadStatusFiles()
     {
         if (!Directory.Exists(StatusDir)) yield break;
         foreach (var file in Directory.EnumerateFiles(StatusDir, "*.json"))
@@ -106,7 +106,7 @@ public sealed class ClaudeModule : IDevBarModule
         }
     }
 
-    private static IEnumerable<ClaudeSession> ScanProcesses()
+    internal static IEnumerable<ClaudeSession> ScanProcesses()
     {
         Process[] procs;
         try { procs = Process.GetProcesses(); }

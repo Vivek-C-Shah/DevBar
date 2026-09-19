@@ -73,7 +73,7 @@ public sealed class PortsModule : IDevBarModule
         finally { _refreshing = false; }
     }
 
-    private static List<PortInfo> ReadListeners()
+    internal static List<PortInfo> ReadListeners()
     {
         var results = new List<PortInfo>();
         int size = 0;
