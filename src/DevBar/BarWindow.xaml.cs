@@ -8,12 +8,13 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using DevBar.Core;
+using DevBar.Modules.Jarvis;
 using DevBar.Sdk;
 using static DevBar.Core.NativeMethods;
 
 namespace DevBar;
 
-public partial class BarWindow : Window
+public partial class BarWindow : Window, IJarvisHost
 {
     private readonly Config _config;
     private readonly StartupArgs _args;
@@ -30,6 +31,18 @@ public partial class BarWindow : Window
     private bool _pinned;
     private int _current;
     private DateTime _lastWheelPage = DateTime.MinValue;
+
+    // Jarvis: the talk hotkey is registered for the app's lifetime (a Windows
+    // message, zero idle cost); Esc is only claimed while a conversation is
+    // live so it's never stolen from other apps otherwise.
+    private const int JarvisHotkeyId = 0xB001;
+    private const int JarvisCancelHotkeyId = 0xB002;
+    private JarvisModule? _jarvis;
+    private GlobalHotkey? _jarvisHotkey;
+    private GlobalHotkey? _jarvisCancelHotkey;
+    private bool _heldByJarvis;
+    private int _beforeJarvis = -1;
+    private int _jarvisHoldVersion;
 
     // A small floating toolbar, not a taskbar-style edge strip: the window is
     // always sized to exactly its visible content, idle or expanded, so there's
@@ -65,13 +78,14 @@ public partial class BarWindow : Window
         else
             SetupMeshGradient();
 
-        _modules = ModuleHost.Build(config, args);
+        _modules = ModuleHost.Build(config, args, this);
+        _jarvis = _modules.OfType<JarvisModule>().FirstOrDefault();
 
         _showTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(ShowDelayMs) };
         _showTimer.Tick += (_, _) => { _showTimer.Stop(); Expand(); };
 
         _hideTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(HideDebounceMs) };
-        _hideTimer.Tick += (_, _) => { _hideTimer.Stop(); if (!_pinned && !Panel.IsMouseOver) Collapse(); };
+        _hideTimer.Tick += (_, _) => { _hideTimer.Stop(); if (!_pinned && !_heldByJarvis && !Panel.IsMouseOver) Collapse(); };
 
         // The Window itself is fixed at the max size and centered, always —
         // only the inner Panel border resizes. See WM_NCHITTEST in WndProc for
@@ -106,7 +120,17 @@ public partial class BarWindow : Window
         _tray = new TrayIcon(hwnd) { Menu = BuildTrayMenu() };
         _tray.LeftClick += () => { if (!_expanded) Expand(); };
 
+        if (_jarvis != null)
+        {
+            _jarvisHotkey = new GlobalHotkey(hwnd, JarvisHotkeyId);
+            _jarvisCancelHotkey = new GlobalHotkey(hwnd, JarvisCancelHotkeyId);
+            _jarvis.HotkeyRegistered = _jarvisHotkey.Register(_config.Jarvis.Hotkey);
+        }
+
         RestoreLastModule();
+
+        if (_args.JarvisInject is { } injected && _jarvis != null)
+            _ = _jarvis.InjectForTestAsync(injected);
 
         if (_args.Demo)
         {
@@ -132,6 +156,12 @@ public partial class BarWindow : Window
     private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
         if (msg == WM_APP_TRAY) { _tray?.HandleMessage(lParam); handled = true; }
+        else if (msg == GlobalHotkey.WM_HOTKEY)
+        {
+            int id = (int)wParam;
+            if (id == JarvisHotkeyId) { _jarvis?.OnHotkey(); handled = true; }
+            else if (id == JarvisCancelHotkeyId) { _jarvis?.OnCancelKey(); handled = true; }
+        }
         else if (msg == WM_CLIPBOARDUPDATE) { ClipboardMonitor.HandleMessage(msg); }
         else if (msg == WM_MOUSEHWHEEL && _expanded)
         {
@@ -296,7 +326,7 @@ public partial class BarWindow : Window
     private void Panel_MouseLeave(object sender, MouseEventArgs e)
     {
         _showTimer.Stop();
-        if (_pinned) return;
+        if (_pinned || _heldByJarvis) return;
         _hideTimer.Stop();
         _hideTimer.Start();
     }
@@ -508,8 +538,62 @@ public partial class BarWindow : Window
         PinBtn.Foreground = _pinned
             ? (Brush)FindResource("BrushAccent")
             : (Brush)FindResource("BrushMuted");
-        if (!_pinned && !Panel.IsMouseOver) Collapse();
+        if (!_pinned && !_heldByJarvis && !Panel.IsMouseOver) Collapse();
     }
+
+    // ---------------- jarvis host ----------------
+
+    public void HoldOpenForJarvis()
+    {
+        int idx = _modules.FindIndex(m => m is JarvisModule);
+        if (idx < 0) return;
+        _jarvisHoldVersion++;
+
+        if (!_heldByJarvis) _beforeJarvis = _current;
+        _heldByJarvis = true;
+        _jarvisCancelHotkey?.Register("Escape");
+
+        if (_current != idx)
+        {
+            if (_expanded) _modules[_current].OnCollapsed();
+            _current = idx;
+            if (_expanded) ShowCurrentModule();
+        }
+        if (!_expanded) Expand();
+    }
+
+    public void ReleaseJarvis()
+    {
+        _heldByJarvis = false;
+        _jarvisCancelHotkey?.Unregister();
+
+        // Leave the last reply on screen for a moment, then get out of the way —
+        // unless another conversation started, or the user is hovering/pinned.
+        int version = _jarvisHoldVersion;
+        var linger = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
+        linger.Tick += (_, _) =>
+        {
+            linger.Stop();
+            if (version != _jarvisHoldVersion || _heldByJarvis || _pinned || Panel.IsMouseOver) return;
+            Collapse();
+            // Hover should reopen whatever you were looking at before the hotkey, not Jarvis.
+            if (_beforeJarvis >= 0 && _modules[_current] is JarvisModule)
+            {
+                _current = _beforeJarvis;
+                if (_config.RememberLastModule)
+                {
+                    _config.LastModuleId = _modules[_current].Id;
+                    _config.Save();
+                }
+            }
+        };
+        linger.Start();
+    }
+
+    public bool RebindJarvisHotkey(string hotkey) => _jarvisHotkey?.Register(hotkey) ?? false;
+
+    public void SetMicIndicator(bool on) =>
+        IdleMark.Background = (Brush)FindResource(on ? "BrushGood" : "BrushAccent");
 
     // ---------------- tray ----------------
 
@@ -530,6 +614,13 @@ public partial class BarWindow : Window
             System.Diagnostics.Process.Start("explorer.exe", Config.Dir);
         };
         menu.Items.Add(openConfig);
+
+        if (_jarvis != null)
+        {
+            var jarvisSettings = new MenuItem { Header = "Jarvis settings…" };
+            jarvisSettings.Click += (_, _) => _jarvis.OpenSettings();
+            menu.Items.Add(jarvisSettings);
+        }
 
         menu.Items.Add(new Separator());
 
@@ -554,6 +645,8 @@ public partial class BarWindow : Window
         ClipboardMonitor.TextCopied -= OnClipboardText;
         ClipboardMonitor.Detach();
         _tray?.Dispose();
+        _jarvisHotkey?.Dispose();
+        _jarvisCancelHotkey?.Dispose();
         _source?.RemoveHook(WndProc);
         foreach (var m in _modules) m.OnCollapsed();
     }

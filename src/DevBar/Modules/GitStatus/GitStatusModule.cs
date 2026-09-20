@@ -79,7 +79,7 @@ public sealed class GitStatusModule : IDevBarModule
         finally { _refreshing = false; }
     }
 
-    private static async Task<RepoStatus> ReadRepoAsync(string path)
+    internal static async Task<RepoStatus> ReadRepoAsync(string path)
     {
         if (!Directory.Exists(path))
             return new RepoStatus { Path = path, Error = true };

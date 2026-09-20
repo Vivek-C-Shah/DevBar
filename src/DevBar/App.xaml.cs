@@ -9,8 +9,30 @@ public partial class App : Application
     private Mutex? _singleInstance;
     private BarWindow? _bar;
 
-    protected override void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
+        // Diagnostics mode — runs alongside a live DevBar, so it's checked before the single-instance lock.
+        int selfTest = Array.IndexOf(e.Args, "--jarvis-selftest");
+        if (selfTest >= 0)
+        {
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            var outDir = selfTest + 1 < e.Args.Length ? e.Args[selfTest + 1]
+                : System.IO.Path.Combine(Config.Dir, "selftest");
+            try { await Modules.Jarvis.JarvisSelfTest.RunAsync(outDir, phase2Only: e.Args.Contains("--phase2"), phase3Only: e.Args.Contains("--phase3")); }
+            finally { Shutdown(); }
+            return;
+        }
+
+        // --jarvis-import profile.json: load pinned facts + reference notes into Jarvis's memory.
+        int import = Array.IndexOf(e.Args, "--jarvis-import");
+        if (import >= 0 && import + 1 < e.Args.Length)
+        {
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            try { Modules.Jarvis.Memory.ProfileImport.Run(e.Args[import + 1]); }
+            finally { Shutdown(); }
+            return;
+        }
+
         _singleInstance = new Mutex(true, @"Local\DevBar_SingleInstance", out bool isNew);
         if (!isNew)
         {
@@ -24,6 +46,13 @@ public partial class App : Application
         {
             // A module blowing up must never take the bar down.
             System.Diagnostics.Debug.WriteLine(ex.Exception);
+            try
+            {
+                var log = System.IO.Path.Combine(Config.Dir, "error.log");
+                if (System.IO.File.Exists(log) && new System.IO.FileInfo(log).Length > 256 * 1024) System.IO.File.Delete(log);
+                System.IO.File.AppendAllText(log, $"[{DateTime.Now:O}] {ex.Exception}\n\n");
+            }
+            catch { /* logging must never throw */ }
             ex.Handled = true;
         };
 
@@ -97,6 +126,8 @@ public sealed class StartupArgs
     public string? DemoModuleId { get; }
     /// <summary>--shelf-seed "path;path": pre-populate the shelf (debug only; shelf is normally drag-in).</summary>
     public IReadOnlyList<string> ShelfSeed { get; }
+    /// <summary>--jarvis-inject "text": start a Jarvis session and feed it this utterance as if spoken (debug only).</summary>
+    public string? JarvisInject { get; }
 
     public StartupArgs(string[] args)
     {
@@ -109,6 +140,9 @@ public sealed class StartupArgs
                     Demo = true;
                     if (i + 1 < args.Length && !args[i + 1].StartsWith("--"))
                         DemoModuleId = args[++i];
+                    break;
+                case "--jarvis-inject" when i + 1 < args.Length:
+                    JarvisInject = args[++i];
                     break;
                 case "--shelf-seed" when i + 1 < args.Length:
                     seed.AddRange(args[++i].Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));

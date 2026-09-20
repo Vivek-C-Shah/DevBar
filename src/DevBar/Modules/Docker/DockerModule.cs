@@ -59,34 +59,13 @@ public sealed class DockerModule : IDevBarModule
         _refreshing = true;
         try
         {
-            // {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}} — tab-delimited is
-            // trivial to split and Docker's own JSON-per-line format needs no
-            // extra parsing dependency for four flat fields.
-            var result = await ShellOut.RunAsync("docker", "ps -a --format \"{{.ID}}\\t{{.Names}}\\t{{.Image}}\\t{{.Status}}\"");
-
-            if (!result.Started)
+            var (state, found) = await QueryAsync();
+            SetState(state);
+            if (state != DockerState.Ok)
             {
-                SetState(DockerState.NotFound);
                 Containers.Clear();
                 return;
             }
-
-            if (result.ExitCode != 0 || result.StdErr.Contains("Cannot connect", StringComparison.OrdinalIgnoreCase)
-                                       || result.StdErr.Contains("error during connect", StringComparison.OrdinalIgnoreCase))
-            {
-                SetState(DockerState.NotRunning);
-                Containers.Clear();
-                return;
-            }
-
-            SetState(DockerState.Ok);
-
-            var found = result.StdOut
-                .Split('\n', StringSplitOptions.RemoveEmptyEntries)
-                .Select(line => line.Split('\t'))
-                .Where(parts => parts.Length >= 4)
-                .Select(parts => new ContainerInfo { Id = parts[0], Name = parts[1], Image = parts[2], Status = parts[3].TrimEnd('\r') })
-                .ToList();
 
             for (int i = Containers.Count - 1; i >= 0; i--)
                 if (!found.Any(f => f.Id == Containers[i].Id))
@@ -103,6 +82,29 @@ public sealed class DockerModule : IDevBarModule
             }
         }
         finally { _refreshing = false; }
+    }
+
+    internal static async Task<(DockerState State, List<ContainerInfo> Containers)> QueryAsync()
+    {
+        // {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}} — tab-delimited is
+        // trivial to split and Docker's own JSON-per-line format needs no
+        // extra parsing dependency for four flat fields.
+        var result = await ShellOut.RunAsync("docker", "ps -a --format \"{{.ID}}\\t{{.Names}}\\t{{.Image}}\\t{{.Status}}\"");
+
+        if (!result.Started)
+            return (DockerState.NotFound, new());
+
+        if (result.ExitCode != 0 || result.StdErr.Contains("Cannot connect", StringComparison.OrdinalIgnoreCase)
+                                   || result.StdErr.Contains("error during connect", StringComparison.OrdinalIgnoreCase))
+            return (DockerState.NotRunning, new());
+
+        var found = result.StdOut
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+            .Select(line => line.Split('\t'))
+            .Where(parts => parts.Length >= 4)
+            .Select(parts => new ContainerInfo { Id = parts[0], Name = parts[1], Image = parts[2], Status = parts[3].TrimEnd('\r') })
+            .ToList();
+        return (DockerState.Ok, found);
     }
 
     private void SetState(DockerState state)

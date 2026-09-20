@@ -5,6 +5,7 @@ using DevBar.Modules.Claude;
 using DevBar.Modules.ClipboardHistory;
 using DevBar.Modules.Docker;
 using DevBar.Modules.GitStatus;
+using DevBar.Modules.Jarvis;
 using DevBar.Modules.Media;
 using DevBar.Modules.Ports;
 using DevBar.Modules.Shelf;
@@ -16,10 +17,12 @@ internal static class ModuleHost
 {
     public static string PluginDir => Path.Combine(Config.Dir, "modules");
 
-    public static List<IDevBarModule> Build(Config config, StartupArgs args)
+    public static List<IDevBarModule> Build(Config config, StartupArgs args, IJarvisHost jarvisHost)
     {
+        var jarvis = new JarvisModule(config, jarvisHost);
         var all = new List<IDevBarModule>
         {
+            jarvis,
             new ClipboardModule(config),
             new ShelfModule(args.ShelfSeed),
             new ClaudeModule(),
@@ -42,6 +45,7 @@ internal static class ModuleHost
             .Where(m => !config.DisabledModules.Contains(m.Id))
             .ToList();
 
+        jarvis.AttachModules(all);
         return ordered;
     }
 
