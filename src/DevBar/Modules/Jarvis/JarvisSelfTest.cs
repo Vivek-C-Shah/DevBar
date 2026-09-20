@@ -51,7 +51,8 @@ internal static class JarvisSelfTest
         // ---- sentence splitter ----
         var parts = new List<string>();
         var sp = new SentenceSplitter(parts.Add);
-        foreach (var tok in new[] { "Port **3000** is ", "held by node. ", "Shall I kill it? It's", " version 3.5 of the thing." }) sp.Push(tok);
+        foreach (var tok in new[] { "Port **3000** is ", "held by node. ", "Shall I kill it? It's",
+                                    " version 3.5 — a “quick” 0‑to‑1 fix…" }) sp.Push(tok);
         sp.Flush();
         Log("splitter: " + string.Join(" | ", parts));
 

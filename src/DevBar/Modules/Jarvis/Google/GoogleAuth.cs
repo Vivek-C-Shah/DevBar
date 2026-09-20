@@ -83,7 +83,14 @@ internal static class GoogleAuth
         ctx.Response.ContentType = "text/html; charset=utf-8";
         await ctx.Response.OutputStream.WriteAsync(bytes, ct);
         ctx.Response.Close();
-        if (!ok) throw new InvalidOperationException("Google sign-in failed: " + (q["error"] ?? "state mismatch"));
+        if (!ok)
+        {
+            var error = q["error"] ?? "state mismatch";
+            // The usual first-run stumble: the OAuth app is in "Testing" and you aren't on its tester list.
+            if (error.Contains("access_denied", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Google blocked it: add your own address under Google Auth Platform → Audience → Test users, then connect again (or publish the app to avoid weekly re-connects).");
+            throw new InvalidOperationException("Google sign-in failed: " + error);
+        }
 
         using var resp = await Http.PostAsync("https://oauth2.googleapis.com/token", new FormUrlEncodedContent(new Dictionary<string, string>
         {

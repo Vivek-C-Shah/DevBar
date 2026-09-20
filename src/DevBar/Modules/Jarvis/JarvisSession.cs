@@ -745,7 +745,21 @@ internal sealed partial class SentenceSplitter(Action<string> emit)
         if (s.Any(char.IsLetterOrDigit)) emit(s);
     }
 
-    public static string Clean(string s) => Spaces().Replace(Markdown().Replace(s, ""), " ").Trim();
+    public static string Clean(string s) => Spaces().Replace(Markdown().Replace(Punctuation(s), ""), " ").Trim();
+
+    /// <summary>
+    /// Models like to emit typographic punctuation (non-breaking hyphens, en/em
+    /// dashes, smart quotes, ellipses). Speech engines read some of it literally
+    /// or skip it, so flatten to ASCII before speaking.
+    /// </summary>
+    private static string Punctuation(string s) => s
+        .Replace('\u2011', '-')  // non-breaking hyphen (gpt-oss writes these)
+        .Replace('\u2012', '-').Replace('\u2013', '-').Replace('\u2014', '-').Replace('\u2015', '-')
+        .Replace('\u00ad', '-').Replace('\u2212', '-')
+        .Replace('\u2018', '\'').Replace('\u2019', '\'').Replace('\u201a', '\'')
+        .Replace('\u201c', '"').Replace('\u201d', '"')
+        .Replace('\u00a0', ' ')  // non-breaking space
+        .Replace("\u2026", "...");
 
     [GeneratedRegex(@"[*_`#>]|\[(?=[^\]]*\]\()|\]\([^)]*\)")]
     private static partial Regex Markdown();
