@@ -34,7 +34,7 @@ vercel --prod
 
 There is no framework to detect and nothing to build — accept the defaults (Other / no build command / output `.`). The first deploy prints the production URL; use it everywhere below.
 
-To put it on a custom domain, add the domain in the Vercel dashboard, then update the four `https://devbar.vercel.app` strings in `index.html`, `privacy.html` and `terms.html` (canonical + Open Graph URLs).
+To put it on a custom domain, add the domain in the Vercel dashboard, then update the four `https://devbar-neon.vercel.app` strings in `index.html`, `privacy.html` and `terms.html` (canonical + Open Graph URLs).
 
 ## The Google OAuth consent screen
 

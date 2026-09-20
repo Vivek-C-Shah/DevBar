@@ -33,6 +33,7 @@ public partial class JarvisCard : UserControl
             ProblemText.Visibility = Visibility.Collapsed;
         };
         _module.SettingsChanged += RenderIdle;
+        _module.WakeWordChanged += RenderWake;
 
         RenderIdle();
         OnState(JarvisState.Idle);
@@ -46,9 +47,17 @@ public partial class JarvisCard : UserControl
         if (visible && _module.State == JarvisState.Idle) RenderIdle();
     }
 
+    private void RenderWake()
+    {
+        var status = _module.WakeWordStatus;
+        WakeText.Text = status == "off" ? "" : $"hey jarvis · {status}";
+        WakeText.Foreground = (Brush)FindResource(status == "listening" ? "BrushGood" : "BrushWarn");
+    }
+
     private void RenderIdle()
     {
         HotkeyText.Text = _module.Settings.Hotkey;
+        RenderWake();
         if (_module.State != JarvisState.Idle) return;
 
         var missing = _module.MissingSetup();

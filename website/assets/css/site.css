@@ -154,7 +154,8 @@ p { margin: 0; }
   border-color: var(--muted);
   transform: translateY(-1px);
 }
-.btn svg { width: 17px; height: 17px; }
+.btn img,
+.btn svg { width: 17px; height: 17px; flex: none; }
 
 .btn--primary {
   background: var(--accent);
@@ -163,6 +164,7 @@ p { margin: 0; }
   font-weight: 600;
 }
 .btn--primary:hover { background: #7db3ff; border-color: #7db3ff; }
+.btn--primary img,
 .btn--primary svg { filter: brightness(0) saturate(0); opacity: 0.85; }
 
 .btn--ghost { background: transparent; }
@@ -548,8 +550,13 @@ p { margin: 0; }
 .shots {
   margin-top: 44px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
+  /* 640x300 screenshots: below ~440px wide the UI text inside them stops being
+     legible, so two-up beats three-up even though it fits less on screen. */
+  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  gap: 24px;
+}
+@media (max-width: 520px) {
+  .shots { grid-template-columns: 1fr; }
 }
 
 .shot {
@@ -560,13 +567,22 @@ p { margin: 0; }
   transition: border-color 0.2s ease, transform 0.2s ease;
 }
 .shot:hover { border-color: var(--hairline); transform: translateY(-3px); }
-.shot img {
-  width: 100%;
+/* Inset the capture instead of bleeding it to the card edge — the bar has its own
+   rounded corners, and edge-to-edge made it read as cramped. */
+.shot-frame {
+  padding: 16px 16px 0;
+  background: #06080f;
   border-bottom: 1px solid var(--hairline-soft);
-  background: #05070c;
 }
-.shot-meta { padding: 14px 16px 16px; }
+/* Scope to the frame: a bare `.shot img` also matched the 15px title icons and
+   stretched one of them to full card width. */
+.shot-frame img {
+  width: 100%;
+  border-radius: 0 0 8px 8px;
+}
+.shot-meta { padding: 16px 18px 18px; }
 .shot-meta h3 { display: flex; align-items: center; gap: 8px; }
+.shot-meta h3 img,
 .shot-meta h3 svg { width: 15px; height: 15px; flex: none; }
 .shot-meta p { margin-top: 6px; font-size: 0.875rem; color: var(--muted); }
 
@@ -643,7 +659,8 @@ p { margin: 0; }
   color: var(--muted);
   line-height: 1.55;
 }
-.tick-list svg { width: 16px; height: 16px; margin-top: 3px; }
+.tick-list img,
+.tick-list svg { width: 16px; height: 16px; margin-top: 3px; flex: none; }
 .tick-list b { color: var(--text); font-weight: 500; }
 
 /* data-flow panel */
@@ -664,7 +681,8 @@ p { margin: 0; }
   font-size: 0.875rem;
   font-weight: 500;
 }
-.flow-head svg { width: 16px; height: 16px; }
+.flow-head img,
+.flow-head svg { width: 16px; height: 16px; flex: none; }
 .flow-head .tag {
   margin-left: auto;
   font-family: var(--font-mono);
@@ -753,6 +771,7 @@ p { margin: 0; }
   transition: border-color 0.2s ease, transform 0.2s ease;
 }
 .card:hover { border-color: var(--hairline); transform: translateY(-3px); }
+.card > img,
 .card > svg { width: 20px; height: 20px; margin-bottom: 14px; }
 .card p { margin-top: 8px; font-size: 0.875rem; color: var(--muted); line-height: 1.6; flex: 1; }
 .card .go {

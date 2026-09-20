@@ -142,6 +142,11 @@ public sealed class JarvisConfig
     /// </summary>
     public bool WakeWord { get; set; }
     public bool WakeWordOnBattery { get; set; }
+    /// <summary>
+    /// How eagerly the wake word triggers: "strict" (fewest false wakes),
+    /// "balanced" (default), "sensitive" (catches quieter or faster speech, more false wakes).
+    /// </summary>
+    public string WakeWordSensitivity { get; set; } = "balanced";
 
     /// <summary>Seconds to keep listening for a follow-up after Jarvis finishes speaking.</summary>
     public int FollowUpSeconds { get; set; } = 6;
