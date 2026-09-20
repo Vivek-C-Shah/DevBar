@@ -13,3 +13,7 @@ dist/
 # OS
 Thumbs.db
 .DS_Store
+.gstack/
+
+# Vercel CLI
+.vercel/
