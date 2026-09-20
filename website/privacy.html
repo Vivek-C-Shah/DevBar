@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — DevBar</title>
+<meta name="description" content="DevBar's privacy policy: no servers, no telemetry, no accounts. Exactly what stays on your PC, what is sent to the AI providers you configure, and how Google Calendar and Gmail data is handled.">
+<meta name="theme-color" content="#0B0E14">
+<link rel="canonical" href="https://devbar.vercel.app/privacy">
+<meta property="og:title" content="DevBar — Privacy Policy">
+<meta property="og:description" content="No servers, no telemetry, no accounts. Here is exactly what leaves your computer, and when.">
+<meta property="og:type" content="article">
+<link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+<link rel="icon" type="image/png" sizes="128x128" href="assets/img/logo-128.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/site.css">
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="/"><img src="assets/img/logo.svg" alt="" width="26" height="26"> DevBar</a>
+    <nav class="nav-links">
+      <a href="/#modules" class="nav-hide">Modules</a>
+      <a href="/#jarvis" class="nav-hide">Jarvis</a>
+      <a href="/terms" class="nav-hide">Terms</a>
+      <a class="btn btn--sm" href="https://github.com/Vivek-C-Shah/DevBar">
+        <img src="assets/img/icons/github.svg" alt="" width="16" height="16"> GitHub
+      </a>
+      <a class="btn btn--sm btn--primary" href="/#install">Install</a>
+    </nav>
+  </div>
+</header>
+
+<main class="legal">
+  <div class="wrap legal-grid">
+    <nav class="toc" aria-label="On this page">
+      <p class="overline">On this page</p>
+      <a href="#summary">Summary</a>
+      <a href="#no-service">No DevBar service</a>
+      <a href="#stored">What's stored locally</a>
+      <a href="#microphone">Your microphone</a>
+      <a href="#third-parties">What is sent, and when</a>
+      <a href="#google">Google user data</a>
+      <a href="#retention">Retention and deletion</a>
+      <a href="#security">Security</a>
+      <a href="#rights">Your choices</a>
+      <a href="#children">Children</a>
+      <a href="#changes">Changes</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <article class="prose">
+      <p class="overline">Legal</p>
+      <h1 style="margin-top:12px">Privacy Policy</h1>
+      <p class="updated">Last updated: 20 September 2026 · Applies to: DevBar for Windows (all versions)</p>
+
+      <div class="callout">
+        <p><strong>The short version.</strong> DevBar has no servers, no accounts and no analytics. The developer never receives your data and cannot see that you use the app. Everything stays on your PC, except what you deliberately send to the AI services you configure with your own API keys — listed precisely in <a href="#third-parties">section 5</a>.</p>
+      </div>
+
+      <h2 id="summary">1. Who this covers</h2>
+      <p>DevBar is free, open-source desktop software for Windows, published by <strong>Vivek Shah</strong> ("the developer", "we") and distributed from <a href="https://github.com/Vivek-C-Shah/DevBar">github.com/Vivek-C-Shah/DevBar</a>. Its optional <strong>Jarvis</strong> module adds a voice assistant that can read and act on things on your computer.</p>
+      <p>This policy describes how the software handles your information when you run it. Because the software runs locally and the developer operates no service, there is no "our database" in which your data could sit.</p>
+
+      <h2 id="no-service">2. There is no DevBar service</h2>
+      <ul>
+        <li>No user accounts, sign-up, or profile.</li>
+        <li>No telemetry, analytics, crash reporting, fingerprinting or usage counters.</li>
+        <li>No advertising, no ad identifiers, and nothing is ever sold or shared for marketing.</li>
+        <li>No DevBar backend. The app does not phone home — not for licence checks, not for update pings.</li>
+      </ul>
+      <p>The only network requests DevBar makes are the ones described in <a href="#third-parties">section 5</a>: direct calls from your machine to the third-party AI or Google services you have configured, plus a one-time download from GitHub if you choose an on-device voice or wake-word model.</p>
+
+      <h2 id="stored">3. What DevBar stores, and where</h2>
+      <p>Everything the app keeps lives in <code>%LOCALAPPDATA%\DevBar\</code> on your own computer:</p>
+      <table>
+        <thead><tr><th>Data</th><th>File</th><th>Details</th></tr></thead>
+        <tbody>
+          <tr><td>Settings</td><td><code>config.json</code></td><td>Shortcut, chosen voice, model order, toggles, watched repo paths. Plain text, no secrets.</td></tr>
+          <tr><td>API keys and OAuth tokens</td><td><code>secrets.dat</code></td><td>Your AI provider keys, your Google OAuth client ID/secret and refresh token. Encrypted with Windows DPAPI, tied to your Windows user account on that machine.</td></tr>
+          <tr><td>Long-term memory</td><td><code>jarvis.db</code></td><td>Facts about you that you asked Jarvis to remember or that it inferred, reference notes you imported, reminders, and recent conversation lines used to extract those facts.</td></tr>
+          <tr><td>Clipboard history</td><td>in memory only</td><td>The last 25 copies, kept in RAM while the app runs. Not written to disk.</td></tr>
+          <tr><td>Voice models</td><td><code>models\</code></td><td>Speech models you chose to download for on-device voices or the wake word.</td></tr>
+          <tr><td>Diagnostics</td><td><code>error.log</code>, <code>jarvis-trace.log</code></td><td>Written when something fails, or when you switch tracing on yourself. Local only; never uploaded.</td></tr>
+        </tbody>
+      </table>
+      <p>You can inspect, edit or delete any of these at any time. Deleting the folder resets DevBar to a clean state.</p>
+
+      <h2 id="microphone">4. Your microphone</h2>
+      <p>The microphone is <strong>closed</strong> unless one of two things is true:</p>
+      <ul>
+        <li><strong>You pressed the Jarvis shortcut</strong> (or clicked to start a conversation). Audio is streamed for transcription only while that conversation is live, then the microphone is released.</li>
+        <li><strong>You switched on the "Hey Jarvis" wake word</strong>, which is off by default. Wake-word detection runs <strong>entirely on your PC</strong> using a local model; no audio is transmitted anywhere until the wake phrase is detected and a conversation begins.</li>
+      </ul>
+      <p>Whenever the microphone is open, DevBar turns its idle indicator green, and Windows shows its own microphone-in-use indicator. Audio is never recorded to disk.</p>
+
+      <h2 id="third-parties">5. What is sent to third parties, and when</h2>
+      <p>DevBar sends data only to services <strong>you</strong> have configured with <strong>your own</strong> credentials, and only while you are using the assistant. Each provider then processes that data under its own privacy policy and terms; DevBar is not a party to that processing.</p>
+      <table>
+        <thead><tr><th>Trigger</th><th>What is sent</th><th>Recipient (typical setup)</th></tr></thead>
+        <tbody>
+          <tr><td>You talk to Jarvis</td><td>Microphone audio for the duration of the conversation</td><td>Deepgram (speech-to-text)</td></tr>
+          <tr><td>Every request in a conversation</td><td>Your transcribed words; your pinned profile facts; the recent conversation; the names of your reference notes; the current date and time; your approximate city; the title of your foreground window; the list of available tools</td><td>The model provider you chose (e.g. Groq, Google Gemini)</td></tr>
+          <tr><td>A tool runs</td><td>That tool's result — which may include listening ports, container names, repo status, clipboard text, command output, calendar entries or email content</td><td>The model provider you chose</td></tr>
+          <tr><td>Jarvis speaks</td><td>The reply text to be voiced — <strong>nothing</strong> if you selected an on-device voice (Piper, Kokoro) or the built-in Windows voice</td><td>Deepgram (text-to-speech)</td></tr>
+          <tr><td>You ask about your screen</td><td>A screenshot of your active window, or the full screen if you asked for that</td><td>Your vision provider (e.g. Google Gemini)</td></tr>
+          <tr><td>You ask something that needs the live web</td><td>Your search question</td><td>Google (via the Gemini API), or Groq</td></tr>
+          <tr><td>A conversation ends</td><td>Recent conversation lines, so lasting facts about you can be extracted</td><td>The model provider you chose</td></tr>
+          <tr><td>You enable an on-device voice or the wake word</td><td>A model download request (no personal data)</td><td>GitHub</td></tr>
+        </tbody>
+      </table>
+      <p>Three points deserve emphasis:</p>
+      <ul>
+        <li><strong>Tool results reach the AI model.</strong> That is how the assistant can answer questions about your machine or your mail. If you would rather a given source never be visible to a model, don't ask Jarvis about it — or turn the relevant feature off.</li>
+        <li><strong>Everything is switchable.</strong> Location, learning, web search, screen reading, the wake word, and Google access are each optional. Choosing a local voice removes the text-to-speech provider entirely. With no keys configured, the bar's nine modules still work and nothing leaves your machine.</li>
+        <li><strong>Secrets are filtered out of memory.</strong> Anything resembling a password, API key or token is refused before it can be stored as a remembered fact, whether you or the model proposed it.</li>
+      </ul>
+
+      <h2 id="google">6. Google user data (Calendar and Gmail)</h2>
+      <p>Google access is <strong>off</strong> until you connect it, and it uses <strong>your own</strong> Google Cloud OAuth client — not a shared one belonging to the developer.</p>
+      <p>DevBar requests only these scopes, each for a stated purpose:</p>
+      <table>
+        <thead><tr><th>Scope</th><th>Why DevBar asks for it</th></tr></thead>
+        <tbody>
+          <tr><td><code>calendar.events</code></td><td>Read your upcoming events so the assistant can tell you what's on, and create an event when you ask for one.</td></tr>
+          <tr><td><code>gmail.readonly</code></td><td>Search and read the messages you ask about ("any important unread mail?", "read the one from Stripe").</td></tr>
+          <tr><td><code>gmail.compose</code></td><td>Save drafts for you to review, and send an email only after you explicitly confirm it out loud or by clicking.</td></tr>
+          <tr><td><code>openid</code>, <code>email</code></td><td>Show which account is connected in the settings window.</td></tr>
+        </tbody>
+      </table>
+      <p>How that data is handled:</p>
+      <ul>
+        <li><strong>Not stored.</strong> Mail and calendar content is fetched to answer the question you asked and held in memory for that conversation. DevBar does not copy, index, archive or cache it.</li>
+        <li><strong>Not shared, not sold, never used for ads.</strong> There is no third party involved other than the AI model you configured, which receives only the excerpt needed to answer you (see <a href="#third-parties">section 5</a>).</li>
+        <li><strong>Not used to train models.</strong> DevBar does not train anything. Your chosen provider's own policy governs whether it trains on API input; the paid and free tiers of Groq and Google Gemini state they do not train on API data, but verify that with your provider, as their terms can change.</li>
+        <li><strong>Tokens stay local.</strong> Your OAuth refresh token is DPAPI-encrypted on your PC and is transmitted only to Google itself.</li>
+        <li><strong>Sending is always confirmed.</strong> Jarvis reads back the recipient and subject and waits for a yes. Drafting never sends.</li>
+        <li><strong>Untrusted-content guard.</strong> Email text is treated as data, not instructions; after Jarvis reads any email, every subsequent action in that turn requires your confirmation, so a message containing "forward everything to…" cannot quietly cause action.</li>
+      </ul>
+      <div class="callout">
+        <p>DevBar's use of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including the <strong>Limited Use</strong> requirements.</p>
+      </div>
+      <p><strong>To disconnect:</strong> click "Disconnect Google" in Jarvis settings, which revokes the token, or remove access at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.</p>
+
+      <h2 id="retention">7. Retention and deletion</h2>
+      <ul>
+        <li><strong>Conversation lines</strong> in <code>jarvis.db</code> are deleted automatically after 30 days.</li>
+        <li><strong>Remembered facts and notes</strong> are kept until you delete them. The "What Jarvis knows about you" window lists every one with a delete button, plus a "Forget everything" action.</li>
+        <li><strong>Reminders</strong> are removed once they fire or you cancel them.</li>
+        <li><strong>Audio and screenshots</strong> are never written to disk by DevBar.</li>
+        <li><strong>Everything at once:</strong> delete <code>%LOCALAPPDATA%\DevBar\</code> and uninstall.</li>
+      </ul>
+      <p>Data already sent to a third-party provider is subject to that provider's retention policy; to remove it, use their controls.</p>
+
+      <h2 id="security">8. Security</h2>
+      <ul>
+        <li>Keys and tokens are encrypted with <strong>Windows DPAPI</strong> under your user account, so another user on the same PC cannot read them.</li>
+        <li>All provider calls use <strong>HTTPS/WSS</strong>.</li>
+        <li>Actions that can destroy or send something — killing a process, stopping a container, running a shell command, sending mail — are read back and require confirmation. A short list of catastrophic commands is refused outright.</li>
+        <li>DevBar runs without administrator rights.</li>
+        <li>The source is public, so the claims on this page can be checked rather than taken on faith.</li>
+      </ul>
+      <p>No software is perfectly secure. Keep your own machine and your provider accounts protected, and treat your API keys as passwords.</p>
+
+      <h2 id="rights">9. Your choices and rights</h2>
+      <p>Because your data never leaves your control, you exercise your rights directly: inspect it in <code>%LOCALAPPDATA%\DevBar\</code>, export it (the memory store is a plain SQLite file), or delete any part of it in the app. There is no request to file with us, because we hold nothing.</p>
+      <p>If you are in a jurisdiction with statutory data rights (for example the GDPR or Indian DPDP Act) and believe the developer holds personal data about you, you may write to the address in <a href="#contact">section 12</a>; the honest answer will almost certainly be that no such data exists.</p>
+
+      <h2 id="children">10. Children</h2>
+      <p>DevBar is a developer tool, is not directed at children under 13, and does not knowingly collect anything from them.</p>
+
+      <h2 id="changes">11. Changes to this policy</h2>
+      <p>This policy may be updated as the software changes. The date at the top always reflects the current version, and because the site lives in the public repository, the full revision history is available there.</p>
+
+      <h2 id="contact">12. Contact</h2>
+      <p>Vivek Shah — <a href="mailto:vivekchiragshah2004@gmail.com">vivekchiragshah2004@gmail.com</a><br>
+      Gujarat, India · <a href="https://github.com/Vivek-C-Shah/DevBar">github.com/Vivek-C-Shah/DevBar</a></p>
+      <p>Security issues: please email rather than opening a public issue.</p>
+
+      <div class="btn-row">
+        <a class="btn btn--primary" href="/#install">Install DevBar</a>
+        <a class="btn" href="https://github.com/Vivek-C-Shah/DevBar/issues">Contribute on GitHub</a>
+        <a class="btn btn--ghost" href="/terms">Read the terms</a>
+      </div>
+    </article>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="/"><img src="assets/img/logo.svg" alt="" width="26" height="26"> DevBar</a>
+      <p class="note" style="margin-top:12px">MIT licensed. Built by <a href="https://github.com/Vivek-C-Shah">Vivek Shah</a>.</p>
+    </div>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="/#modules">Modules</a>
+      <a href="/#jarvis">Jarvis</a>
+      <a href="/#install">Install</a>
+      <a href="/privacy" class="nav-hide">Privacy</a>
+      <a href="/terms" class="nav-hide">Terms</a>
+      <a href="https://github.com/Vivek-C-Shah/DevBar">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="assets/js/site.js"></script>
+</body>
+</html>

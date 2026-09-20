@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terms of Service — DevBar</title>
+<meta name="description" content="DevBar's terms of service: MIT licensed software provided as-is, you bring your own API keys, and you stay responsible for the actions you approve.">
+<meta name="theme-color" content="#0B0E14">
+<link rel="canonical" href="https://devbar.vercel.app/terms">
+<meta property="og:title" content="DevBar — Terms of Service">
+<meta property="og:description" content="MIT licensed, provided as-is, no service, bring your own keys.">
+<meta property="og:type" content="article">
+<link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+<link rel="icon" type="image/png" sizes="128x128" href="assets/img/logo-128.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/site.css">
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="/"><img src="assets/img/logo.svg" alt="" width="26" height="26"> DevBar</a>
+    <nav class="nav-links">
+      <a href="/#modules" class="nav-hide">Modules</a>
+      <a href="/#jarvis" class="nav-hide">Jarvis</a>
+      <a href="/privacy" class="nav-hide">Privacy</a>
+      <a class="btn btn--sm" href="https://github.com/Vivek-C-Shah/DevBar">
+        <img src="assets/img/icons/github.svg" alt="" width="16" height="16"> GitHub
+      </a>
+      <a class="btn btn--sm btn--primary" href="/#install">Install</a>
+    </nav>
+  </div>
+</header>
+
+<main class="legal">
+  <div class="wrap legal-grid">
+    <nav class="toc" aria-label="On this page">
+      <p class="overline">On this page</p>
+      <a href="#as-is">Provided as-is</a>
+      <a href="#not-service">Not a service</a>
+      <a href="#keys">Your own accounts</a>
+      <a href="#actions">Actions on your PC</a>
+      <a href="#accuracy">Accuracy limits</a>
+      <a href="#acceptable">Acceptable use</a>
+      <a href="#others">Other people's content</a>
+      <a href="#ip">Licence and trademarks</a>
+      <a href="#liability">Liability</a>
+      <a href="#changes">Changes</a>
+      <a href="#law">Governing law</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <article class="prose">
+      <p class="overline">Legal</p>
+      <h1 style="margin-top:12px">Terms of Service</h1>
+      <p class="updated">Last updated: 20 September 2026 · Applies to: DevBar for Windows (all versions)</p>
+
+      <div class="callout">
+        <p><strong>In plain terms.</strong> DevBar is free, open-source software published by Vivek Shah. There is no service behind it and no warranty. You supply your own AI provider keys and remain responsible for the actions you ask it to take and the ones you approve.</p>
+      </div>
+
+      <h2 id="as-is">1. The software is provided as-is</h2>
+      <p>DevBar is licensed under the <a href="https://github.com/Vivek-C-Shah/DevBar/blob/master/LICENSE">MIT License</a>, which governs your rights to use, copy, modify and distribute it. As that licence states, the software is provided <strong>without warranty of any kind</strong>, express or implied, including merchantability, fitness for a particular purpose and non-infringement. Nothing on this site or in the documentation creates a warranty beyond it.</p>
+      <p>By installing or using DevBar you accept these terms. If you don't accept them, don't use it.</p>
+
+      <h2 id="not-service">2. It is not a service</h2>
+      <p>There is no DevBar server, account, subscription or paid tier. Nothing is charged. No availability, uptime, support response or backwards compatibility is promised, and features may change or be removed in any release. Releases are published at the developer's discretion.</p>
+
+      <h2 id="keys">3. You bring your own accounts</h2>
+      <p>The Jarvis assistant works only with credentials you supply — for example Deepgram, Groq, Google Gemini, OpenAI, Anthropic, Cerebras, OpenRouter, or Google Calendar and Gmail through your own Google Cloud OAuth client. You are responsible for:</p>
+      <ul>
+        <li>complying with each provider's terms of service and privacy policy;</li>
+        <li>all usage, charges, quotas and rate limits those providers apply to your account;</li>
+        <li>keeping your keys safe — DevBar encrypts them locally, but a key you paste elsewhere is your responsibility;</li>
+        <li>the lawfulness of the content you send through them.</li>
+      </ul>
+      <p>The developer is not a party to your relationship with those providers and is not responsible for their output, availability, pricing, policies or conduct.</p>
+
+      <h2 id="actions">4. The assistant acts on your computer</h2>
+      <p>Jarvis can take real actions: killing processes, starting and stopping containers, running shell commands, typing into the focused window, opening applications, copying to your clipboard, creating calendar events, saving drafts and sending email. You accept that:</p>
+      <ul>
+        <li><strong>You are responsible for what you ask for and what you approve.</strong> Destructive and outbound actions are read back and require your explicit confirmation; approving one is your decision and its consequences are yours.</li>
+        <li><strong>Safeguards are best-effort.</strong> Confirmation prompts, the refusal list for catastrophic commands and the untrusted-content guard reduce risk; they do not eliminate it.</li>
+        <li><strong>Don't use it where a wrong action would be serious.</strong> DevBar is not intended for safety-critical, medical, financial-execution, legal or other high-stakes use, and must not be relied on as a control system.</li>
+        <li><strong>Keep backups.</strong> Standard practice for any tool that can modify your machine.</li>
+      </ul>
+
+      <h2 id="accuracy">5. AI output is not reliable by default</h2>
+      <p>Jarvis's answers come from third-party language models. They can be wrong, outdated, incomplete or confidently invented; they can misunderstand a request, choose the wrong tool, or mis-transcribe what you said. Web answers depend on whatever the search returned. Treat every answer as a starting point and verify anything that matters before acting on it. The developer makes no representation as to accuracy, completeness or fitness of any generated output.</p>
+
+      <h2 id="acceptable">6. Acceptable use</h2>
+      <p>Don't use DevBar to:</p>
+      <ul>
+        <li>break any applicable law, or infringe anyone's rights;</li>
+        <li>access systems, accounts or data you are not authorised to access;</li>
+        <li>violate the terms of any service it connects to, including automated abuse of a provider's free tier;</li>
+        <li>read, send or act on other people's communications without the authority to do so;</li>
+        <li>build surveillance of people who haven't consented — note that the microphone is user-activated by design, and keeping it that way is your responsibility too.</li>
+      </ul>
+
+      <h2 id="others">7. Other people's content</h2>
+      <p>Content the assistant reads for you — emails, web pages, whatever is on your screen — is authored by other people. DevBar treats it as untrusted data and requires your confirmation before acting after reading it, but no such guard is perfect. Be careful when acting on content from sources you don't trust, and remember that quoting or forwarding someone's message is your action, not the software's.</p>
+
+      <h2 id="ip">8. Licence, contributions and trademarks</h2>
+      <ul>
+        <li><strong>Code:</strong> MIT licensed. You may fork, modify and redistribute it under those terms, including commercially, with the copyright notice retained.</li>
+        <li><strong>Contributions:</strong> anything you submit by pull request is offered under the same MIT licence.</li>
+        <li><strong>This site's text and screenshots:</strong> part of the same repository and licence.</li>
+        <li><strong>Names:</strong> third-party names (Windows, Deepgram, Groq, Google, Gemini, Gmail, Docker, Claude and others) belong to their owners and are used only descriptively. DevBar is not affiliated with, endorsed by or sponsored by any of them.</li>
+      </ul>
+
+      <h2 id="liability">9. Limitation of liability</h2>
+      <p>To the maximum extent permitted by law, the developer is not liable for any indirect, incidental, special, consequential or punitive damages, nor for lost data, lost profits, lost time, deleted files, killed processes, sent messages, provider charges or business interruption, arising from or connected to your use of DevBar — whether or not the developer was advised of the possibility. Where liability cannot be excluded, it is limited to the amount you paid for the software, which is zero.</p>
+      <p>Nothing here limits liability that cannot lawfully be limited, such as for fraud.</p>
+
+      <h2 id="changes">10. Changes to these terms</h2>
+      <p>These terms may be updated. The date at the top reflects the current version, and the full history is public in the repository. Continuing to use DevBar after a change means you accept the updated terms.</p>
+
+      <h2 id="law">11. Governing law</h2>
+      <p>These terms are governed by the laws of India, and the courts of Gujarat, India have exclusive jurisdiction, without prejudice to any mandatory consumer protections in your own country of residence.</p>
+
+      <h2 id="contact">12. Contact</h2>
+      <p>Vivek Shah — <a href="mailto:vivekchiragshah2004@gmail.com">vivekchiragshah2004@gmail.com</a><br>
+      Gujarat, India · <a href="https://github.com/Vivek-C-Shah/DevBar">github.com/Vivek-C-Shah/DevBar</a></p>
+
+      <div class="btn-row">
+        <a class="btn btn--primary" href="/#install">Install DevBar</a>
+        <a class="btn" href="https://github.com/Vivek-C-Shah/DevBar/issues">Contribute on GitHub</a>
+        <a class="btn btn--ghost" href="/privacy">Read the privacy policy</a>
+      </div>
+    </article>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="/"><img src="assets/img/logo.svg" alt="" width="26" height="26"> DevBar</a>
+      <p class="note" style="margin-top:12px">MIT licensed. Built by <a href="https://github.com/Vivek-C-Shah">Vivek Shah</a>.</p>
+    </div>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="/#modules">Modules</a>
+      <a href="/#jarvis">Jarvis</a>
+      <a href="/#install">Install</a>
+      <a href="/privacy" class="nav-hide">Privacy</a>
+      <a href="/terms" class="nav-hide">Terms</a>
+      <a href="https://github.com/Vivek-C-Shah/DevBar">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="assets/js/site.js"></script>
+</body>
+</html>
