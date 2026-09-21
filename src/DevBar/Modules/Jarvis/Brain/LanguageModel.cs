@@ -74,7 +74,7 @@ internal sealed class OpenAiCompatibleLlm
         var body = new JsonObject
         {
             ["model"] = Model,
-            ["messages"] = messages.DeepClone(),
+            ["messages"] = FitToolCallsToProvider((JsonArray)messages.DeepClone()),
             ["stream"] = true,
             ["temperature"] = 0.5,
             // Reasoning models (gpt-oss, Gemini 2.5+) spend part of this on hidden thinking.
@@ -123,6 +123,31 @@ internal sealed class OpenAiCompatibleLlm
             }
             return await ReadStreamAsync(resp, onText, ct);
         }
+    }
+
+    /// <summary>
+    /// History can hold tool calls made by a different brain (Groq answered, then
+    /// the router fell over to Gemini) or ones whose signature never arrived.
+    /// Gemini 3.x 400s on any past call without a thought_signature, so those get
+    /// Google's documented placeholder for foreign history. Everyone else gets the
+    /// Gemini-only field stripped.
+    /// </summary>
+    private JsonArray FitToolCallsToProvider(JsonArray messages)
+    {
+        foreach (var msg in messages)
+        {
+            if (msg?["tool_calls"] is not JsonArray calls) continue;
+            foreach (var call in calls.OfType<JsonObject>())
+            {
+                if (Provider != "gemini") call.Remove("extra_content");
+                else if (call["extra_content"]?["google"]?["thought_signature"] is null)
+                    call["extra_content"] = new JsonObject
+                    {
+                        ["google"] = new JsonObject { ["thought_signature"] = "skip_thought_signature_validator" },
+                    };
+            }
+        }
+        return messages;
     }
 
     private async Task<LlmReply> ReadStreamAsync(HttpResponseMessage resp, Action<string> onText, CancellationToken ct)
