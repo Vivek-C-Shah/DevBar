@@ -41,6 +41,17 @@ internal sealed class JarvisModule : IDevBarModule
 
     public JarvisState State => _session?.State ?? JarvisState.Idle;
 
+    /// <summary>True when the on-device wake word is actually running right now.</summary>
+    public bool WakeWordListening => _wake?.IsListening == true;
+
+    /// <summary>Why the wake word isn't listening, for the card and settings to show.</summary>
+    public string WakeWordStatus =>
+        !Settings.WakeWord ? "off"
+        : !WakeWordListener.IsInstalled ? "model not downloaded"
+        : WakeWordListening ? "listening"
+        : _session != null ? "paused for this conversation"
+        : "not started - restart DevBar";
+
     // Forwarded session events, so the card binds once instead of per conversation.
     public event Action<JarvisState>? StateChanged;
     public event Action<string>? Heard;
@@ -114,6 +125,7 @@ internal sealed class JarvisModule : IDevBarModule
 
     private async Task StartAsync()
     {
+        _startedByWake = false;
         _unloadTimer?.Stop();
         _wake?.Pause(); // the conversation owns the mic now
         _host.SetMicIndicator(false);
@@ -127,7 +139,12 @@ internal sealed class JarvisModule : IDevBarModule
         }
         else if (Settings.TtsEngine == "aura") DeepgramAuraTts.Warm();
 
-        var session = new JarvisSession(Settings, _tools, _router, _memory, Application.Current.Dispatcher);
+        var session = new JarvisSession(Settings, _tools, _router, _memory, Application.Current.Dispatcher)
+        {
+            ActivationNote = Settings.WakeWord && WakeWordListener.IsInstalled
+                ? $"the {Settings.Hotkey} shortcut, or by saying \"Hey Jarvis\" (the on-device wake word is on)"
+                : $"the {Settings.Hotkey} shortcut (the wake word is off, so saying your name does nothing)",
+        };
         session.StateChanged += s => StateChanged?.Invoke(s);
         session.Heard += t => Heard?.Invoke(t);
         session.Reply += t => Reply?.Invoke(t);
@@ -154,6 +171,7 @@ internal sealed class JarvisModule : IDevBarModule
             {
                 _wake.Resume();
                 _host.SetMicIndicator(_wake.IsListening);
+                WakeWordChanged?.Invoke();
             }
             Settings.LastConversation = DateTime.Now;
             Config.Save();
@@ -192,14 +210,19 @@ internal sealed class JarvisModule : IDevBarModule
         ApplyWakeWord();
     }
 
-    /// <summary>Starts/stops the wake-word listener to match settings.</summary>
-    public void ApplyWakeWord()
+    /// <summary>Starts/stops the wake-word listener to match settings. Rebuilds it when sensitivity changed.</summary>
+    public void ApplyWakeWord(bool rebuild = false)
     {
+        if (rebuild)
+        {
+            _wake?.Dispose();
+            _wake = null;
+        }
         if (Settings.WakeWord && WakeWordListener.IsInstalled)
         {
             if (_wake is null)
             {
-                _wake = new WakeWordListener(acOnly: !Settings.WakeWordOnBattery);
+                _wake = new WakeWordListener(acOnly: !Settings.WakeWordOnBattery, Settings.WakeWordSensitivity);
                 _wake.Detected += kw => Application.Current.Dispatcher.BeginInvoke(() => OnWake(kw));
             }
             if (_session is null)
@@ -214,7 +237,13 @@ internal sealed class JarvisModule : IDevBarModule
             _wake = null;
         }
         _host.SetMicIndicator(_wake?.IsListening == true);
+        JarvisSession.Trace($"wake word status: {WakeWordStatus}");
+        WakeWordChanged?.Invoke();
     }
+
+    public event Action? WakeWordChanged;
+
+    private bool _startedByWake;
 
     private void OnWake(string keyword)
     {
@@ -222,6 +251,7 @@ internal sealed class JarvisModule : IDevBarModule
         if (_session != null) return;
         _ = JarvisSession.ChimeAsync();
         _ = StartAsync();
+        _startedByWake = true;
     }
 
     private async Task DeliverNoticeAsync(string text, bool speak, bool show)
@@ -242,6 +272,16 @@ internal sealed class JarvisModule : IDevBarModule
         Reply?.Invoke(text);
         await Task.Delay(TimeSpan.FromSeconds(6));
         if (_session is null) _host.ReleaseJarvis();
+    }
+
+    /// <summary>Releases the mic so the settings window's wake-word test can use it.</summary>
+    public void PauseWakeWordForTest(bool paused)
+    {
+        if (_wake is null) return;
+        if (paused) _wake.Pause();
+        else _wake.Resume();
+        _host.SetMicIndicator(_wake.IsListening);
+        WakeWordChanged?.Invoke();
     }
 
     /// <summary>Debug: push a notice through the same etiquette as real ones.</summary>

@@ -146,6 +146,14 @@
             <CheckBox x:Name="WakeBox" Style="{StaticResource Toggle}" Content="Say &quot;Hey Jarvis&quot;" Click="WakeBox_Click"/>
             <CheckBox x:Name="WakeBatteryBox" Style="{StaticResource Toggle}" Content="Also on battery"/>
         </WrapPanel>
+        <WrapPanel Margin="0,2,0,0">
+            <RadioButton x:Name="WakeStrict" GroupName="wakeSens" Style="{StaticResource Seg}" Content="Strict"/>
+            <RadioButton x:Name="WakeBalanced" GroupName="wakeSens" Style="{StaticResource Seg}" Content="Balanced"/>
+            <RadioButton x:Name="WakeSensitive" GroupName="wakeSens" Style="{StaticResource Seg}" Content="Sensitive"/>
+            <Button x:Name="WakeTestBtn" Style="{StaticResource ChipButton}" Margin="6,0,0,6" Click="WakeTest_Click">
+                <TextBlock x:Name="WakeTestText" Text="Test: say &quot;Hey Jarvis&quot;" Style="{StaticResource Body}"/>
+            </Button>
+        </WrapPanel>
         <TextBlock x:Name="WakeStatus" Style="{StaticResource BodyMuted}" FontSize="11" TextWrapping="Wrap"
                    Text="Keeps the mic open while idle, on-device only (~0.3% CPU); nothing leaves your PC until you say it. The bar's idle mark turns green while it listens."/>
 

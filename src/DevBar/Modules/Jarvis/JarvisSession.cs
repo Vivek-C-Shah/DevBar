@@ -71,6 +71,9 @@ internal sealed partial class JarvisSession
     private bool _audioStarted;
     private bool _turnTainted; // untrusted content (email/web/screen) was read this turn
 
+    /// <summary>How this session can be started, so the model never has to guess.</summary>
+    public string? ActivationNote { get; set; }
+
     public JarvisSession(JarvisConfig cfg, List<JarvisTool> tools, ProviderRouter router, ConversationMemory memory, Dispatcher ui)
     {
         _cfg = cfg;
@@ -466,6 +469,7 @@ internal sealed partial class JarvisSession
             If the request is ambiguous, ask one short question. If you can't do something, say so plainly.
             Destructive tools (killing processes, stopping containers, running commands) are confirmed with {name} automatically — just call them.
             When {name} tells you something lasting about themselves, save it with the remember tool (never passwords or keys).
+            How {name} reaches you: {ActivationNote ?? $"the {_cfg.Hotkey} shortcut"}. Never guess at your own setup — this line is the truth about it.
             Current time: {DateTime.Now:dddd d MMMM yyyy, h:mm tt} ({TimeZoneInfo.Local.StandardName}).
             {(place is null ? "Location unknown." : $"{name} is in {place.Describe()} (from {place.Source}).")}
             Foreground window: "{ForegroundTitle()}".

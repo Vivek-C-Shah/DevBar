@@ -26,10 +26,20 @@ internal sealed class WakeWordListener : IDisposable
     // come up in ordinary speech/video audio, so it needs a stronger match.
     // Labels after '@' must not contain spaces: sherpa-onnx treats them as tokens,
     // and a bad keyword line makes the native library exit the whole process.
-    private const string Keywords =
-        "▁HE Y ▁JA R VI S :1.5 #0.12 @HEY_JARVIS\n" +
-        "▁O K ▁JA R VI S :1.5 #0.12 @OK_JARVIS\n" +
-        "▁JA R VI S :1.2 #0.30 @JARVIS\n";
+    private static string KeywordsFor(string sensitivity)
+    {
+        // Thresholds were tuned against synthesized voices; a real voice may need
+        // "sensitive", which is why this is a setting rather than a constant.
+        var (two, one) = sensitivity switch
+        {
+            "strict" => ("#0.20", "#0.45"),
+            "sensitive" => ("#0.06", "#0.20"),
+            _ => ("#0.12", "#0.30"),
+        };
+        return $"▁HE Y ▁JA R VI S :1.5 {two} @HEY_JARVIS\n" +
+               $"▁O K ▁JA R VI S :1.5 {two} @OK_JARVIS\n" +
+               $"▁JA R VI S :1.2 {one} @JARVIS\n";
+    }
 
     public event Action<string>? Detected;
 
@@ -40,15 +50,18 @@ internal sealed class WakeWordListener : IDisposable
     private readonly object _gate = new();
     private bool _paused;
 
-    public WakeWordListener(bool acOnly)
+    private readonly string _sensitivity;
+
+    public WakeWordListener(bool acOnly, string sensitivity = "balanced")
     {
         _acOnly = acOnly;
+        _sensitivity = sensitivity;
         SystemEvents.PowerModeChanged += OnPowerChanged;
     }
 
     public bool IsListening => _mic != null;
 
-    public static KeywordSpotter CreateSpotter()
+    public static KeywordSpotter CreateSpotter(string sensitivity = "balanced")
     {
         var config = new KeywordSpotterConfig();
         config.FeatConfig.SampleRate = MicCapture.SampleRate;
@@ -63,8 +76,8 @@ internal sealed class WakeWordListener : IDisposable
         config.NumTrailingBlanks = 1;
         config.KeywordsScore = 1.0f;
         config.KeywordsThreshold = 0.25f;
-        var kwFile = Path.Combine(ModelDir, "jarvis-keywords.txt");
-        File.WriteAllText(kwFile, Keywords);
+        var kwFile = Path.Combine(ModelDir, $"jarvis-keywords-{sensitivity}.txt");
+        File.WriteAllText(kwFile, KeywordsFor(sensitivity));
         config.KeywordsFile = kwFile;
         return new KeywordSpotter(config);
     }
@@ -75,7 +88,7 @@ internal sealed class WakeWordListener : IDisposable
         {
             if (!IsInstalled || _mic != null || _paused) return;
             if (_acOnly && SystemInformationOnBattery()) return;
-            _spotter ??= CreateSpotter();
+            _spotter ??= CreateSpotter(_sensitivity);
             _stream = _spotter.CreateStream();
             _mic = new MicCapture();
             _mic.Data += OnAudio;

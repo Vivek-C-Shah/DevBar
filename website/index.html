@@ -6,18 +6,18 @@
 <title>DevBar — a hover-expand command strip for Windows developers</title>
 <meta name="description" content="A 125-pixel pill at the top of your screen. Hover it for your clipboard, ports, containers, repos and Claude sessions. Press a key and Jarvis answers out loud. Free, open source, 0% CPU at idle.">
 <meta name="theme-color" content="#0B0E14">
-<link rel="canonical" href="https://devbar.vercel.app/">
+<link rel="canonical" href="https://devbar-neon.vercel.app/">
 
 <!-- Open Graph / X -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="DevBar — the toolbar that gets out of your way">
 <meta property="og:description" content="Clipboard, ports, containers, repos and Claude sessions in a pill at the top of your screen — plus a voice assistant that can actually act. Free and open source.">
-<meta property="og:image" content="https://devbar.vercel.app/assets/img/shots/09_jarvis.png">
-<meta property="og:url" content="https://devbar.vercel.app/">
+<meta property="og:image" content="https://devbar-neon.vercel.app/assets/img/shots/09_jarvis.png">
+<meta property="og:url" content="https://devbar-neon.vercel.app/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="DevBar — the toolbar that gets out of your way">
 <meta name="twitter:description" content="A tiny Windows toolbar with a real voice assistant. 0% CPU at idle. Open source.">
-<meta name="twitter:image" content="https://devbar.vercel.app/assets/img/shots/09_jarvis.png">
+<meta name="twitter:image" content="https://devbar-neon.vercel.app/assets/img/shots/09_jarvis.png">
 
 <!-- Google Search Console: paste your verification meta tag here to verify this domain
      for the OAuth consent screen (see website/README.md).
@@ -159,56 +159,56 @@
 
     <div class="shots" data-reveal-group>
       <figure class="shot" style="margin:0">
-        <img src="assets/img/shots/09_jarvis.png" alt="DevBar's Jarvis tab: an orb, the transcript of what you said, and Jarvis's spoken reply" loading="lazy" width="640" height="300">
+        <div class="shot-frame"><img src="assets/img/shots/09_jarvis.png" alt="DevBar's Jarvis tab: an orb, the transcript of what you said, and Jarvis's spoken reply" loading="lazy" width="640" height="300"></div>
         <div class="shot-meta">
           <h3><img src="assets/img/icons/mic.svg" alt="" width="15" height="15"> Jarvis</h3>
           <p>Press the shortcut, talk. It answers out loud and can act — with a confirmation for anything destructive.</p>
         </div>
       </figure>
       <figure class="shot" style="margin:0">
-        <img src="assets/img/shots/05_ports.png" alt="Ports module listing listening TCP ports with process names and PIDs" loading="lazy" width="640" height="300">
+        <div class="shot-frame"><img src="assets/img/shots/05_ports.png" alt="Ports module listing listening TCP ports with process names and PIDs" loading="lazy" width="640" height="300"></div>
         <div class="shot-meta">
           <h3><img src="assets/img/icons/network.svg" alt="" width="15" height="15"> Ports</h3>
           <p>Every listening TCP port with the process holding it. One click to kill the stuck dev server.</p>
         </div>
       </figure>
       <figure class="shot" style="margin:0">
-        <img src="assets/img/shots/03_clipboard.png" alt="Clipboard module showing recent copies tagged by type" loading="lazy" width="640" height="300">
+        <div class="shot-frame"><img src="assets/img/shots/03_clipboard.png" alt="Clipboard module showing recent copies tagged by type" loading="lazy" width="640" height="300"></div>
         <div class="shot-meta">
           <h3><img src="assets/img/icons/clipboard.svg" alt="" width="15" height="15"> Clipboard</h3>
           <p>Your last 25 copies, type-tagged. Click a chip to re-copy, × to forget it.</p>
         </div>
       </figure>
       <figure class="shot" style="margin:0">
-        <img src="assets/img/shots/04_claude.png" alt="Claude Code module showing sessions in working, waiting and idle states" loading="lazy" width="640" height="300">
+        <div class="shot-frame"><img src="assets/img/shots/04_claude.png" alt="Claude Code module showing sessions in working, waiting and idle states" loading="lazy" width="640" height="300"></div>
         <div class="shot-meta">
           <h3><img src="assets/img/icons/bot.svg" alt="" width="15" height="15"> Claude Code</h3>
           <p>Which sessions are working, idle, or waiting on you. Connect the hook and Jarvis says so out loud.</p>
         </div>
       </figure>
       <figure class="shot" style="margin:0">
-        <img src="assets/img/shots/06_docker.png" alt="Docker module listing containers with start and stop buttons" loading="lazy" width="640" height="300">
+        <div class="shot-frame"><img src="assets/img/shots/06_docker.png" alt="Docker module listing containers with start and stop buttons" loading="lazy" width="640" height="300"></div>
         <div class="shot-meta">
           <h3><img src="assets/img/icons/box.svg" alt="" width="15" height="15"> Docker</h3>
           <p>Containers with start/stop per row, and honest states for "not installed" versus "not running".</p>
         </div>
       </figure>
       <figure class="shot" style="margin:0">
-        <img src="assets/img/shots/07_git.png" alt="Git status module showing a watched repo, its branch and dirty state" loading="lazy" width="640" height="300">
+        <div class="shot-frame"><img src="assets/img/shots/07_git.png" alt="Git status module showing a watched repo, its branch and dirty state" loading="lazy" width="640" height="300"></div>
         <div class="shot-meta">
           <h3><img src="assets/img/icons/git-branch.svg" alt="" width="15" height="15"> Git status</h3>
           <p>Dirty or clean, ahead or behind, for the repos you choose to watch. Click to open the folder.</p>
         </div>
       </figure>
       <figure class="shot" style="margin:0">
-        <img src="assets/img/shots/02_shelf.png" alt="Shelf module with three files dropped onto it" loading="lazy" width="640" height="300">
+        <div class="shot-frame"><img src="assets/img/shots/02_shelf.png" alt="Shelf module with three files dropped onto it" loading="lazy" width="640" height="300"></div>
         <div class="shot-meta">
           <h3><img src="assets/img/icons/folder-open.svg" alt="" width="15" height="15"> Shelf</h3>
           <p>Drag files in, drag them out somewhere else. Clears on restart, on purpose.</p>
         </div>
       </figure>
       <figure class="shot" style="margin:0">
-        <img src="assets/img/shots/01_idle.png" alt="DevBar idle: a small pill docked to the top edge of the screen" loading="lazy" width="640" height="120">
+        <div class="shot-frame"><img src="assets/img/shots/01_idle.png" alt="DevBar idle: a small pill docked to the top edge of the screen" loading="lazy" width="640" height="120"></div>
         <div class="shot-meta">
           <h3><img src="assets/img/icons/eye.svg" alt="" width="15" height="15"> Idle</h3>
           <p>This is what's on your screen all day: 125 × 22 pixels. Every pixel around it stays click-through.</p>

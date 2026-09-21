@@ -72,6 +72,7 @@ public partial class JarvisSettingsWindow : Window
         QuietBox.Text = s.QuietHours;
         WakeBox.IsChecked = s.WakeWord;
         WakeBatteryBox.IsChecked = s.WakeWordOnBattery;
+        (s.WakeWordSensitivity switch { "strict" => WakeStrict, "sensitive" => WakeSensitive, _ => WakeBalanced }).IsChecked = true;
         RenderClaudeHook();
         // Fixed height inside the work area: with SizeToContent the ScrollViewer is measured
         // unbounded and the bottom sections become unreachable.
@@ -298,7 +299,16 @@ public partial class JarvisSettingsWindow : Window
         _module.Settings.QuietHours = QuietBox.Text.Trim();
         _module.Settings.WakeWord = WakeBox.IsChecked == true && Speech.WakeWordListener.IsInstalled;
         _module.Settings.WakeWordOnBattery = WakeBatteryBox.IsChecked == true;
-        _module.ApplyWakeWord();
+        var sensitivity = WakeStrict.IsChecked == true ? "strict" : WakeSensitive.IsChecked == true ? "sensitive" : "balanced";
+        bool rebuildWake = _module.Settings.WakeWordSensitivity != sensitivity;
+        _module.Settings.WakeWordSensitivity = sensitivity;
+        _module.ApplyWakeWord(rebuildWake);
+        WakeStatus.Text = _module.Settings.WakeWord
+            ? $"Wake word: {_module.WakeWordStatus}."
+            : "Wake word off - press the shortcut to talk.";
+        WakeStatus.Text = _module.Settings.WakeWord
+            ? $"Wake word: {_module.WakeWordStatus}."
+            : "Wake word off - press the shortcut to talk.";
         if (placeChanged) { LocationService.Invalidate(); _ = ShowLocationAsync(); }
         _module.SaveSettings();
         if (_pendingHotkey != _module.Settings.Hotkey) ApplyHotkey_Click(sender, e);
@@ -459,6 +469,54 @@ public partial class JarvisSettingsWindow : Window
         }
         GoogleBtn.IsEnabled = true;
         RenderGoogle();
+    }
+
+    /// <summary>
+    /// Listens for 10s at the selected sensitivity and reports what it heard — the
+    /// only honest way to check the wake word against a real voice in a real room.
+    /// </summary>
+    private async void WakeTest_Click(object sender, RoutedEventArgs e)
+    {
+        if (!Speech.WakeWordListener.IsInstalled)
+        {
+            WakeStatus.Text = "Download the wake-word model first (tick the box above).";
+            return;
+        }
+        var sensitivity = WakeStrict.IsChecked == true ? "strict" : WakeSensitive.IsChecked == true ? "sensitive" : "balanced";
+        WakeTestBtn.IsEnabled = false;
+        bool wasListening = _module.WakeWordListening;
+        try
+        {
+            _module.PauseWakeWordForTest(true); // one mic stream at a time
+            using var probe = new Speech.WakeWordListener(acOnly: false, sensitivity);
+            var heard = new TaskCompletionSource<string>();
+            probe.Detected += kw => heard.TrySetResult(kw);
+            probe.Start();
+            if (!probe.IsListening)
+            {
+                WakeStatus.Text = "Couldn't open the microphone for the test.";
+                return;
+            }
+            for (int i = 10; i > 0 && !heard.Task.IsCompleted; i--)
+            {
+                WakeTestText.Text = $"Listening... {i}s";
+                await Task.WhenAny(heard.Task, Task.Delay(1000));
+            }
+            WakeStatus.Text = heard.Task.IsCompleted
+                ? $"Heard it: \"{heard.Task.Result.Replace('_', ' ').ToLowerInvariant()}\" at {sensitivity} sensitivity."
+                : $"Nothing caught at {sensitivity} sensitivity. Say \"Hey Jarvis\" a touch slower, or try Sensitive.";
+        }
+        catch (Exception ex)
+        {
+            WakeStatus.Text = "Test failed: " + ex.Message;
+        }
+        finally
+        {
+            _module.PauseWakeWordForTest(false);
+            if (wasListening) _module.ApplyWakeWord();
+            WakeTestText.Text = "Test: say \"Hey Jarvis\"";
+            WakeTestBtn.IsEnabled = true;
+        }
     }
 
     /// <summary>First time on: fetch the 19MB on-device model, then Save applies it.</summary>
