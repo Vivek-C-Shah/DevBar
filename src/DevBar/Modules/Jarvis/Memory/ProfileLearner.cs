@@ -8,7 +8,7 @@ namespace DevBar.Modules.Jarvis.Memory;
 
 /// <summary>
 /// After a conversation ends, reads the new transcript lines and updates the
-/// fact list — the "learns who you are" part. One small-model request per
+/// fact list - the "learns who you are" part. One small-model request per
 /// conversation, in the background, never while you're talking. Anything
 /// that looks like a secret is dropped even if the model proposes it.
 /// </summary>

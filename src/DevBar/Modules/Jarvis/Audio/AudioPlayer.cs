@@ -6,7 +6,7 @@ namespace DevBar.Modules.Jarvis.Audio;
 /// Streaming playback of 24 kHz mono PCM16 to the Windows default output
 /// device. A fresh output is opened per reply, so if headphones were plugged
 /// in (and Windows made them default) the next reply goes to them; otherwise
-/// speakers. Stop() is instant — that's what makes interrupting Jarvis work.
+/// speakers. Stop() is instant - that's what makes interrupting Jarvis work.
 /// </summary>
 internal sealed class AudioPlayer : IDisposable
 {

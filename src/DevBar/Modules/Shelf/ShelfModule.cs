@@ -5,7 +5,7 @@ using DevBar.Sdk;
 namespace DevBar.Modules.Shelf;
 
 /// <summary>
-/// Ephemeral drag-and-drop scratch space. In-memory only, by design — it
+/// Ephemeral drag-and-drop scratch space. In-memory only, by design - it
 /// resets on restart. This is a shelf, not a filing cabinet.
 /// </summary>
 public sealed class ShelfModule : IDevBarModule

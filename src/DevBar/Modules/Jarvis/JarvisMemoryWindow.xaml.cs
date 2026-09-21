@@ -8,7 +8,7 @@ using DevBar.Modules.Jarvis.Memory;
 namespace DevBar.Modules.Jarvis;
 
 /// <summary>
-/// The user's window into Jarvis's long-term memory — everything it has been
+/// The user's window into Jarvis's long-term memory - everything it has been
 /// told or has learned, each deletable. Learning you can't see or undo is
 /// creepy; this makes it a feature.
 /// </summary>
@@ -36,7 +36,7 @@ public partial class JarvisMemoryWindow : Window
         LocationText.Text = "Location: looking…";
         var place = await LocationService.GetAsync(_module.Settings);
         LocationText.Text = place is null
-            ? "Location: unknown — set a home location in Jarvis settings."
+            ? "Location: unknown - set a home location in Jarvis settings."
             : $"Location: {place.Describe()}  ·  from {place.Source}";
     }
 
@@ -53,7 +53,7 @@ public partial class JarvisMemoryWindow : Window
 
         CountText.Text = facts.Count switch
         {
-            0 => "Nothing yet — talk to me, or add something below",
+            0 => "Nothing yet - talk to me, or add something below",
             1 => "1 thing",
             _ => $"{facts.Count} things",
         };

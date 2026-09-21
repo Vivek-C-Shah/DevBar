@@ -1,7 +1,7 @@
-/* DevBar site — tokens taken verbatim from .tastemaker/style-lock.md (the desktop app's
+/* DevBar site - tokens taken verbatim from .tastemaker/style-lock.md (the desktop app's
    locked palette), so the site and the product read as one thing. The lock forbids
    gradients and drop shadows: depth here comes from 1px hairlines, one elevated surface,
-   and the app's own blurred accent "mesh" blobs — the same device the bar uses. */
+   and the app's own blurred accent "mesh" blobs - the same device the bar uses. */
 
 :root {
   --bg: #0b0e14;
@@ -347,7 +347,7 @@ p { margin: 0; }
   justify-content: center;
 }
 
-/* the bar: pill collapsed, card expanded — rounded only at the bottom, like the real one */
+/* the bar: pill collapsed, card expanded - rounded only at the bottom, like the real one */
 .bar {
   width: min(560px, 100%);
   background: rgba(11, 14, 20, 0.86);
@@ -567,7 +567,7 @@ p { margin: 0; }
   transition: border-color 0.2s ease, transform 0.2s ease;
 }
 .shot:hover { border-color: var(--hairline); transform: translateY(-3px); }
-/* Inset the capture instead of bleeding it to the card edge — the bar has its own
+/* Inset the capture instead of bleeding it to the card edge - the bar has its own
    rounded corners, and edge-to-edge made it read as cramped. */
 .shot-frame {
   padding: 16px 16px 0;
@@ -923,7 +923,7 @@ p { margin: 0; }
 
 /* ---------- motion defaults (JS adds the real choreography) ---------- */
 
-/* Only hide reveal targets when JS is present to un-hide them — without this,
+/* Only hide reveal targets when JS is present to un-hide them - without this,
    a JS-blocked visitor (or a full-page screenshot tool) sees empty sections. */
 .js [data-reveal] { opacity: 0; }
 

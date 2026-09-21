@@ -1,4 +1,4 @@
-# DevBar — Terms of Service
+# DevBar - Terms of Service
 
 **Last updated: 20 September 2026**
 
@@ -16,7 +16,7 @@ There is no DevBar server, account or subscription. Nothing is charged, and no u
 
 ## 3. You bring your own accounts
 
-DevBar's assistant works only with API keys and accounts you supply — for example Deepgram, Groq, Google Gemini, OpenAI, Anthropic, or Google Calendar and Gmail. You are responsible for:
+DevBar's assistant works only with API keys and accounts you supply - for example Deepgram, Groq, Google Gemini, OpenAI, Anthropic, or Google Calendar and Gmail. You are responsible for:
 
 - complying with each provider's own terms and privacy policy;
 - any usage, costs or rate limits those providers charge you;
@@ -38,7 +38,7 @@ Do not use DevBar to break the law, to access systems or accounts you are not au
 
 ## 6. Other people's content
 
-Text the assistant reads on your behalf — emails, web pages, what's on your screen — is treated as untrusted data, and Jarvis requires your confirmation before acting after reading it. Even so, no safeguard is perfect; be careful when acting on content from people you don't trust.
+Text the assistant reads on your behalf - emails, web pages, what's on your screen - is treated as untrusted data, and Jarvis requires your confirmation before acting after reading it. Even so, no safeguard is perfect; be careful when acting on content from people you don't trust.
 
 ## 7. Changes to these terms
 
@@ -50,4 +50,4 @@ These terms are governed by the laws of India, with courts in Gujarat, India hav
 
 ## 9. Contact
 
-Vivek Shah — vivekchiragshah2004@gmail.com · [github.com/Vivek-C-Shah/DevBar](https://github.com/Vivek-C-Shah/DevBar)
+Vivek Shah - vivekchiragshah2004@gmail.com · [github.com/Vivek-C-Shah/DevBar](https://github.com/Vivek-C-Shah/DevBar)

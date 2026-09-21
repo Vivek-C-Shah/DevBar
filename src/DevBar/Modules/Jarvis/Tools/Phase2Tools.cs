@@ -26,7 +26,7 @@ internal sealed class RememberTool : JarvisTool
     public override Task<string> RunAsync(JsonElement args)
     {
         var fact = Str(args, "fact");
-        if (!ProfileLearner.IsKeepable(fact)) return Task.FromResult("Not saved — that looks like a secret or is empty. Never store passwords or keys.");
+        if (!ProfileLearner.IsKeepable(fact)) return Task.FromResult("Not saved - that looks like a secret or is empty. Never store passwords or keys.");
         MemoryStore.AddFact(fact, "told");
         return Task.FromResult("Remembered.");
     }
@@ -48,7 +48,7 @@ internal sealed class RecallTool : JarvisTool
 internal sealed class ReadNoteTool : JarvisTool
 {
     public override string Name => "read_note";
-    public override string Description => "Open one of the user's reference notes (listed in your prompt) — e.g. their outreach playbook or resume — before doing work that depends on it.";
+    public override string Description => "Open one of the user's reference notes (listed in your prompt) - e.g. their outreach playbook or resume - before doing work that depends on it.";
     protected override (string, string, string)[] Params => new[] { ("name", "string", "Note name exactly as listed") };
 
     public override Task<string> RunAsync(JsonElement args)
@@ -82,7 +82,7 @@ internal sealed class ForgetTool : JarvisTool
 
 /// <summary>
 /// Persistent reminders. Exactly one DispatcherTimer is armed, for the next
-/// one due — no polling. Reminders that came due while the PC was off are
+/// one due - no polling. Reminders that came due while the PC was off are
 /// spoken shortly after DevBar starts (if under a day late).
 /// </summary>
 internal static class ReminderScheduler
@@ -109,7 +109,7 @@ internal static class ReminderScheduler
         {
             MemoryStore.CompleteReminder(r.Id);
             if (now - r.DueLocal < TimeSpan.FromDays(1))
-                _announce?.Invoke(startup ? $"While you were away — reminder: {r.Text}." : $"Reminder: {r.Text}.");
+                _announce?.Invoke(startup ? $"While you were away - reminder: {r.Text}." : $"Reminder: {r.Text}.");
         }
 
         var next = pending.Where(r => r.DueLocal > now).MinBy(r => r.DueLocal);
@@ -196,7 +196,7 @@ internal sealed class WeatherTool(JarvisConfig cfg) : JarvisTool
     {
         var name = Str(args, "place");
         var place = name.Length > 0 ? await LocationService.GeocodeAsync(name) : await LocationService.GetAsync(cfg);
-        if (place is null) return name.Length > 0 ? $"Couldn't find {name}." : "I don't know where you are — set Home location in Jarvis settings.";
+        if (place is null) return name.Length > 0 ? $"Couldn't find {name}." : "I don't know where you are - set Home location in Jarvis settings.";
 
         var url = FormattableString.Invariant($"https://api.open-meteo.com/v1/forecast?latitude={place.Lat}&longitude={place.Lon}")
                   + "&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,is_day"
@@ -288,7 +288,7 @@ internal sealed class LookAtScreenTool(ProviderRouter vision) : JarvisTool
     public override string Name => "look_at_screen";
     public override bool IsSlow => true;
     public override bool ReadsUntrusted => true;
-    public override string Description => "See what's in the user's current window (or whole screen) and answer a question about it — errors, code, a page. Only when the user refers to what's on screen.";
+    public override string Description => "See what's in the user's current window (or whole screen) and answer a question about it - errors, code, a page. Only when the user refers to what's on screen.";
     protected override (string, string, string)[] Params => new[]
     {
         ("question", "string", "What to find out, e.g. 'What does the error say and where?'"),
@@ -355,7 +355,7 @@ internal sealed class TypeTextTool : JarvisTool
 }
 
 /// <summary>
-/// Runs a shell command — always spoken back and confirmed first, and a
+/// Runs a shell command - always spoken back and confirmed first, and a
 /// short list of catastrophic patterns is refused outright.
 /// </summary>
 internal sealed partial class RunCommandTool(Config config) : JarvisTool

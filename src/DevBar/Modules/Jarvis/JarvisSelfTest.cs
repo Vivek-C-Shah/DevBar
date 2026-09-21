@@ -17,7 +17,7 @@ using NAudio.Wave.SampleProviders;
 namespace DevBar.Modules.Jarvis;
 
 /// <summary>
-/// `DevBar.exe --jarvis-selftest [outDir]` — exercises the voice pipeline
+/// `DevBar.exe --jarvis-selftest [outDir]` - exercises the voice pipeline
 /// end-to-end without a mic or speakers: each TTS engine renders a WAV,
 /// Deepgram transcribes the Aura render back (loopback), every read-only tool
 /// runs, and the brain is asked a tool-using question if a key exists.
@@ -52,7 +52,7 @@ internal static class JarvisSelfTest
         var parts = new List<string>();
         var sp = new SentenceSplitter(parts.Add);
         foreach (var tok in new[] { "Port **3000** is ", "held by node. ", "Shall I kill it? It's",
-                                    " version 3.5 — a “quick” 0‑to‑1 fix…" }) sp.Push(tok);
+                                    " version 3.5 - a “quick” 0‑to‑1 fix…" }) sp.Push(tok);
         sp.Flush();
         Log("splitter: " + string.Join(" | ", parts));
 
@@ -362,7 +362,7 @@ internal static class JarvisSelfTest
         }
         catch (Exception ex) { Log("vision: FAIL " + ex.Message); }
 
-        // prompt size with the full Phase 2 tool set — the free tier's per-minute token budget
+        // prompt size with the full Phase 2 tool set - the free tier's per-minute token budget
         try
         {
             var llm = OpenAiCompatibleLlm.Parse(cfg.Llm[0])!;

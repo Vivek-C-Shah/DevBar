@@ -107,7 +107,7 @@ internal static class GoogleAuth
         using var doc = JsonDocument.Parse(json);
         var r = doc.RootElement;
         if (!r.TryGetProperty("refresh_token", out var refresh))
-            throw new InvalidOperationException("Google didn't return a refresh token — remove Jarvis's access at myaccount.google.com/permissions and connect again.");
+            throw new InvalidOperationException("Google didn't return a refresh token - remove Jarvis's access at myaccount.google.com/permissions and connect again.");
         SecretStore.Set(RefreshKey, refresh.GetString());
         _accessToken = r.GetProperty("access_token").GetString();
         _accessExpires = DateTime.UtcNow.AddSeconds(r.GetProperty("expires_in").GetInt32() - 60);
@@ -135,7 +135,7 @@ internal static class GoogleAuth
         try
         {
             if (_accessToken != null && DateTime.UtcNow < _accessExpires) return _accessToken;
-            var refresh = SecretStore.Get(RefreshKey) ?? throw new InvalidOperationException("Google isn't connected — connect it in Jarvis settings.");
+            var refresh = SecretStore.Get(RefreshKey) ?? throw new InvalidOperationException("Google isn't connected - connect it in Jarvis settings.");
             using var resp = await Http.PostAsync("https://oauth2.googleapis.com/token", new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 ["client_id"] = SecretStore.Get(ClientIdKey) ?? "",
@@ -149,7 +149,7 @@ internal static class GoogleAuth
                 if (json.Contains("invalid_grant"))
                 {
                     SecretStore.Set(RefreshKey, null);
-                    throw new InvalidOperationException("Google access expired or was revoked — reconnect it in Jarvis settings. (If your OAuth app is in 'Testing', Google expires access weekly; publish it to 'In production'.)");
+                    throw new InvalidOperationException("Google access expired or was revoked - reconnect it in Jarvis settings. (If your OAuth app is in 'Testing', Google expires access weekly; publish it to 'In production'.)");
                 }
                 throw new InvalidOperationException("Google token refresh failed: " + json);
             }
@@ -172,7 +172,7 @@ internal static class GoogleAuth
         if (!resp.IsSuccessStatusCode)
         {
             var hint = json.Contains("SERVICE_DISABLED") || json.Contains("has not been used in project")
-                ? " — enable the Gmail API / Google Calendar API in your Google Cloud project." : "";
+                ? " - enable the Gmail API / Google Calendar API in your Google Cloud project." : "";
             throw new InvalidOperationException($"Google API {(int)resp.StatusCode}{hint}: {(json.Length > 240 ? json[..240] : json)}");
         }
         return JsonDocument.Parse(json.Length == 0 ? "{}" : json);

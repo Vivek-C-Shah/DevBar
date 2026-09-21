@@ -8,7 +8,7 @@ namespace DevBar.Modules.Jarvis.Proactive;
 /// <summary>
 /// Claude Code session state, pushed by the DevBar hook (see ClaudeHook) into
 /// %LOCALAPPDATA%\DevBar\claude-sessions. A FileSystemWatcher is an OS
-/// notification — zero cost until a file actually changes.
+/// notification - zero cost until a file actually changes.
 ///   anything → waiting : "Claude Code in X needs you."
 ///   working  → idle    : "Claude Code in X has finished."
 /// </summary>
@@ -118,7 +118,7 @@ internal sealed class BuildWatcher : IDisposable
                 fsw.EnableRaisingEvents = true;
                 _watchers.Add(fsw);
             }
-            catch { /* unreadable target — skip */ }
+            catch { /* unreadable target - skip */ }
         }
     }
 

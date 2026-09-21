@@ -31,12 +31,12 @@ internal static class TtsFactory
             case "aura":
                 var key = SecretStore.Get("deepgram");
                 if (key != null) return new DeepgramAuraTts(key, cfg.AuraVoice);
-                warning = "No Deepgram key — using the Windows voice.";
+                warning = "No Deepgram key - using the Windows voice.";
                 break;
             case "piper" or "kokoro":
                 var voice = LocalTts.Find(cfg.TtsEngine, cfg.TtsEngine == "kokoro" ? cfg.KokoroVoice : cfg.PiperVoice);
                 if (voice.IsInstalled) return new LocalTts(voice);
-                warning = $"The {voice.Label} voice isn't downloaded yet (Jarvis settings) — using the Windows voice.";
+                warning = $"The {voice.Label} voice isn't downloaded yet (Jarvis settings) - using the Windows voice.";
                 break;
         }
         return new WindowsTts();
@@ -55,7 +55,7 @@ internal sealed class DeepgramAuraTts(string apiKey, string voice) : ITextToSpee
     public string Name => "Aura-2";
 
     /// <summary>
-    /// The TLS handshake to Deepgram measured 0.6–1.1s from here — more than
+    /// The TLS handshake to Deepgram measured 0.6–1.1s from here - more than
     /// the synthesis itself. A free request at hotkey time opens the pooled
     /// connection so the first spoken sentence doesn't pay for it.
     /// </summary>
@@ -77,7 +77,7 @@ internal sealed class DeepgramAuraTts(string apiKey, string voice) : ITextToSpee
     public async Task SpeakAsync(string sentence, Action<byte[]> onPcm, CancellationToken ct)
     {
         // Deepgram closes idle keep-alive connections after a few seconds, and .NET
-        // won't transparently retry a POST on a stale pooled connection — so one
+        // won't transparently retry a POST on a stale pooled connection - so one
         // retry here (nothing has been played yet) turns that into a non-event.
         try
         {
@@ -131,8 +131,8 @@ internal sealed record LocalVoice(string Engine, string Id, string Label, string
 /// <summary>
 /// Free, fully local voices via sherpa-onnx. Two engines, measured on this
 /// class of laptop CPU (i5-13450HX):
-///   Piper  — ~0.05x real-time (a 3.6s sentence renders in ~180ms). Snappy; the local default.
-///   Kokoro — ~1x real-time. Noticeably more natural, but the first sentence
+///   Piper  - ~0.05x real-time (a 3.6s sentence renders in ~180ms). Snappy; the local default.
+///   Kokoro - ~1x real-time. Noticeably more natural, but the first sentence
 ///            lags ~1s and long replies can stutter. (The int8 build was 2.6x
 ///            slower than real-time here, so the full-precision model is used.)
 /// One model is kept loaded (~100–300MB RAM) after first use; switching voice reloads.
@@ -205,7 +205,7 @@ internal sealed class LocalTts : ITextToSpeech
         }
     }
 
-    /// <summary>Frees the loaded model (~100–300MB) — called after a few idle minutes.</summary>
+    /// <summary>Frees the loaded model (~100–300MB) - called after a few idle minutes.</summary>
     public static void Unload()
     {
         lock (EngineGate)
@@ -303,7 +303,7 @@ internal sealed class LocalTts : ITextToSpeech
     }
 }
 
-/// <summary>Windows' built-in voice (WinRT) — zero dependencies, the always-works fallback.</summary>
+/// <summary>Windows' built-in voice (WinRT) - zero dependencies, the always-works fallback.</summary>
 internal sealed class WindowsTts : ITextToSpeech
 {
     public string Name => "Windows voice";

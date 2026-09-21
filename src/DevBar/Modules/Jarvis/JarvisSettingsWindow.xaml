@@ -98,7 +98,7 @@
         </Grid>
 
         <!-- shortcut -->
-        <TextBlock Style="{StaticResource Section}" Text="Shortcut — press to talk, press again to stop"/>
+        <TextBlock Style="{StaticResource Section}" Text="Shortcut - press to talk, press again to stop"/>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -207,7 +207,7 @@
         </Button>
 
         <!-- keys -->
-        <TextBlock Style="{StaticResource Section}" Text="API keys — stored encrypted for your Windows account"/>
+        <TextBlock Style="{StaticResource Section}" Text="API keys - stored encrypted for your Windows account"/>
         <Grid x:Name="KeysGrid">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="92"/>

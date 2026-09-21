@@ -1,4 +1,4 @@
-; DevBar installer — single .exe, no admin required, per-user install so it
+; DevBar installer - single .exe, no admin required, per-user install so it
 ; just works with a double-click. Creates a Start Menu entry so typing
 ; "devbar" in Windows Search finds and launches it, matching a normal
 ; installed Windows app.
@@ -19,7 +19,7 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={localappdata}\Programs\DevBar
 DisableProgramGroupPage=yes
-; No admin required — installs entirely to the current user's profile,
+; No admin required - installs entirely to the current user's profile,
 ; so it's a plain double-click-and-go install like the user asked for.
 PrivilegesRequired=lowest
 OutputDir=..\dist

@@ -60,7 +60,7 @@ internal sealed partial class JarvisSession
     private TaskCompletionSource<bool>? _uiConfirm;
 
     // Barge-in: while Jarvis thinks/speaks the mic stays live (if enabled) and
-    // real speech — not Jarvis's own voice leaking from the speakers — cancels
+    // real speech - not Jarvis's own voice leaking from the speakers - cancels
     // the turn. What you said then becomes the next utterance.
     private string _replyText = "";
     private string _currentUserText = "";
@@ -135,13 +135,13 @@ internal sealed partial class JarvisSession
             while (!ct.IsCancellationRequested)
             {
                 var text = await NextUtteranceAsync(timeout, ct);
-                if (text is null) break; // silence — conversation's over
+                if (text is null) break; // silence - conversation's over
                 timeout = TimeSpan.FromSeconds(Math.Max(2, _cfg.FollowUpSeconds));
 
                 if (Dismissal().IsMatch(text.Trim()))
                     break;
                 if (WakePrefix().Replace(text, "").Trim().Length == 0)
-                    continue; // just "Jarvis" — keep listening for the actual request
+                    continue; // just "Jarvis" - keep listening for the actual request
 
                 _turnCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
                 _bargedIn = false;
@@ -151,7 +151,7 @@ internal sealed partial class JarvisSession
                 }
                 catch (OperationCanceledException) when (!ct.IsCancellationRequested)
                 {
-                    _player.Stop(); // interrupted (hotkey or talking over) — straight back to listening
+                    _player.Stop(); // interrupted (hotkey or talking over) - straight back to listening
                     if (_bargedIn && !_audioStarted)
                     {
                         // You kept talking before Jarvis said anything: treat both parts as one request.
@@ -183,7 +183,7 @@ internal sealed partial class JarvisSession
         catch (Exception ex)
         {
             Error?.Invoke(ex is System.Net.WebSockets.WebSocketException
-                ? "Couldn't connect to Deepgram — check the key and your connection."
+                ? "Couldn't connect to Deepgram - check the key and your connection."
                 : ex.Message);
         }
         finally
@@ -216,7 +216,7 @@ internal sealed partial class JarvisSession
     /// <summary>Debug: behave as if this was just heard.</summary>
     public void InjectUtterance(string text) => _nextUtterance?.TrySetResult(text);
 
-    /// <summary>Debug: behave as if the mic just heard this (partial, then final) — exercises barge-in.</summary>
+    /// <summary>Debug: behave as if the mic just heard this (partial, then final) - exercises barge-in.</summary>
     public void SimulateHeard(string text)
     {
         OnInterim(text);
@@ -345,7 +345,7 @@ internal sealed partial class JarvisSession
             if (!ok)
             {
                 ToolActivity?.Invoke(label, false);
-                return $"{_cfg.UserName} said no — do not do it. Acknowledge briefly.";
+                return $"{_cfg.UserName} said no - do not do it. Acknowledge briefly.";
             }
         }
 
@@ -429,7 +429,7 @@ internal sealed partial class JarvisSession
         try { await player.WaitDrainedAsync(CancellationToken.None); } catch { }
     }
 
-    /// <summary>Speaks outside a conversation (timers). Standalone — owns its own player.</summary>
+    /// <summary>Speaks outside a conversation (timers). Standalone - owns its own player.</summary>
     public static async Task AnnounceAsync(JarvisConfig cfg, string text)
     {
         using var player = new AudioPlayer();
@@ -455,7 +455,7 @@ internal sealed partial class JarvisSession
             : "";
         var curiosity = facts.Count < 12
             ? $"You're still getting to know {name}. When a conversation reaches a natural pause, you may ask ONE brief, friendly question about them " +
-              "(their work, projects, routine, preferences) — at most one per conversation, never when they're busy or mid-task. Use the remember tool for what they tell you."
+              "(their work, projects, routine, preferences) - at most one per conversation, never when they're busy or mid-task. Use the remember tool for what they tell you."
             : "";
         var system = $"""
             You are JARVIS, a voice assistant built into DevBar on {name}'s Windows PC. {name} is a software developer.
@@ -463,13 +463,13 @@ internal sealed partial class JarvisSession
             - Reply in one or two short sentences unless asked for more. No markdown, lists, emoji, code blocks or URLs read out.
             - Say numbers and times the way a person would ("half past three", "port three thousand").
             Personality: calm, competent, quietly witty, British understatement; never sycophantic, never gushing. Address {name} by name occasionally, not every reply.
-            You're a companion as much as a tool: chat, stories, explanations, opinions and general questions are all welcome — answer them.
+            You're a companion as much as a tool: chat, stories, explanations, opinions and general questions are all welcome - answer them.
             Never read long written output aloud (emails, messages, posts, code, lists): put it on the clipboard with copy_to_clipboard, or save it as a Gmail draft when asked for an email and Gmail is connected, then say in one sentence where it is and what it says in gist.
             Use tools to act or check real state instead of guessing. After a tool runs, confirm the outcome in a few words.
             If the request is ambiguous, ask one short question. If you can't do something, say so plainly.
-            Destructive tools (killing processes, stopping containers, running commands) are confirmed with {name} automatically — just call them.
+            Destructive tools (killing processes, stopping containers, running commands) are confirmed with {name} automatically - just call them.
             When {name} tells you something lasting about themselves, save it with the remember tool (never passwords or keys).
-            How {name} reaches you: {ActivationNote ?? $"the {_cfg.Hotkey} shortcut"}. Never guess at your own setup — this line is the truth about it.
+            How {name} reaches you: {ActivationNote ?? $"the {_cfg.Hotkey} shortcut"}. Never guess at your own setup - this line is the truth about it.
             Current time: {DateTime.Now:dddd d MMMM yyyy, h:mm tt} ({TimeZoneInfo.Local.StandardName}).
             {(place is null ? "Location unknown." : $"{name} is in {place.Describe()} (from {place.Source}).")}
             Foreground window: "{ForegroundTitle()}".
@@ -482,7 +482,7 @@ internal sealed partial class JarvisSession
         return _memory.BuildMessages(system);
     }
 
-    /// <summary>Pinned facts always, then the newest others — capped so the prompt stays inside free-tier token budgets.</summary>
+    /// <summary>Pinned facts always, then the newest others - capped so the prompt stays inside free-tier token budgets.</summary>
     private static List<Fact> SafeFacts()
     {
         try
@@ -638,7 +638,7 @@ internal sealed class SpeechQueue
     private ITextToSpeech _tts;
     private int _pending;
 
-    /// <param name="onAudio">Raised as each sentence starts playing (not just the first) — a
+    /// <param name="onAudio">Raised as each sentence starts playing (not just the first) - a
     /// confirmation question in between moves the state away from Speaking.</param>
     public SpeechQueue(ITextToSpeech tts, AudioPlayer player, Action onAudio, Action<string> onError, CancellationToken ct)
     {
@@ -680,12 +680,12 @@ internal sealed class SpeechQueue
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException && _tts is not WindowsTts)
                 {
-                    _onError($"{_tts.Name} failed ({ex.Message}) — switching to the Windows voice.");
+                    _onError($"{_tts.Name} failed ({ex.Message}) - switching to the Windows voice.");
                     _tts = new WindowsTts();
                     await _tts.SpeakAsync(sentence, pcm => chunks.Writer.TryWrite(pcm), _ct);
                 }
             }
-            catch { /* cancelled or even the fallback failed — skip this sentence */ }
+            catch { /* cancelled or even the fallback failed - skip this sentence */ }
             finally
             {
                 chunks.Writer.TryComplete();

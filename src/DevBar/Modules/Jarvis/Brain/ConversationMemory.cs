@@ -5,7 +5,7 @@ namespace DevBar.Modules.Jarvis.Brain;
 /// <summary>
 /// Short-term memory: the last few exchanges, kept across hotkey presses so
 /// "and restart it" works a minute later, forgotten after a quiet spell.
-/// Small on purpose — free-tier token-per-minute limits are the real budget.
+/// Small on purpose - free-tier token-per-minute limits are the real budget.
 /// (Long-term "remember that…" facts are Phase 2, in SQLite.)
 /// </summary>
 internal sealed class ConversationMemory
@@ -66,7 +66,7 @@ internal sealed class ConversationMemory
         _messages.Add(msg);
         _lastActivity = DateTime.UtcNow;
 
-        // Trim from the front, but only ever cut at a user message — an orphaned
+        // Trim from the front, but only ever cut at a user message - an orphaned
         // tool result without its assistant tool_call is rejected by every API.
         while (_messages.Count > MaxMessages)
         {

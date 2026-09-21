@@ -7,7 +7,7 @@ namespace DevBar.Core;
 
 /// <summary>
 /// API keys, encrypted at rest with DPAPI (current Windows user only) in
-/// %LOCALAPPDATA%\DevBar\secrets.dat — never in config.json, which people
+/// %LOCALAPPDATA%\DevBar\secrets.dat - never in config.json, which people
 /// paste into bug reports. Falls back to a {NAME}_API_KEY environment
 /// variable so a key already exported in a dev shell just works.
 /// </summary>
@@ -42,7 +42,7 @@ internal static class SecretStore
         }
     }
 
-    /// <summary>"••••c79" — enough to recognise which key is saved, never the key.</summary>
+    /// <summary>"••••c79" - enough to recognise which key is saved, never the key.</summary>
     public static string Mask(string? value) =>
         string.IsNullOrEmpty(value) ? "" : "••••" + value[^Math.Min(4, value.Length)..];
 
@@ -56,7 +56,7 @@ internal static class SecretStore
             var plain = ProtectedData.Unprotect(File.ReadAllBytes(FilePath), Entropy, DataProtectionScope.CurrentUser);
             _cache = JsonSerializer.Deserialize<Dictionary<string, string>>(Encoding.UTF8.GetString(plain)) ?? new();
         }
-        catch { /* unreadable (other user / corrupt) — start empty rather than crash */ }
+        catch { /* unreadable (other user / corrupt) - start empty rather than crash */ }
     }
 
     private static void Save()

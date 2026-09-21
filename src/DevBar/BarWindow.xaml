@@ -7,7 +7,7 @@
         SizeToContent="Manual">
 
     <!-- A small floating toolbar, flush to the top edge, centered on screen.
-         The Window itself is fixed at the max (expanded) size — animating a
+         The Window itself is fixed at the max (expanded) size - animating a
          WPF Window's own Width/Height live is unreliable, the HWND surface can
          lag the layout. Instead only the inner Panel border animates size, and
          WM_NCHITTEST (see WndProc) makes the empty margin around it click-through
@@ -27,11 +27,11 @@
             <!-- "Liquid glass" mesh: four soft, asymmetrically-placed,
                  independently-drifting accent-hued blobs behind everything
                  else, each blurred at radius 24. This is what gives the
-                 surface its shifting, organic color — real backdrop blur
+                 surface its shifting, organic color - real backdrop blur
                  (GlassEffect.cs) makes the *desktop* behind the bar illegible;
                  this layer is what makes the *bar itself* feel alive. Built
                  from our own accent color, not sampled from live desktop
-                 pixels — continuous screen-capture-based color sampling would
+                 pixels - continuous screen-capture-based color sampling would
                  cost real CPU on every frame, the same tax that made
                  permanent blur-behind a non-starter (see GlassEffect.cs).
                  Position/opacity animations only run while expanded, same
@@ -121,9 +121,9 @@
                          full height of the card, so every module's content
                          sits in the same fixed footprint regardless of how
                          much content it actually has (short content centers
-                         itself — see each module's empty-state markup).
+                         itself - see each module's empty-state markup).
                          Also pages on a touchpad's two-finger horizontal
-                         swipe — see WM_MOUSEHWHEEL in WndProc. -->
+                         swipe - see WM_MOUSEHWHEEL in WndProc. -->
                     <Grid Grid.Row="1" x:Name="Viewport" ClipToBounds="True" Margin="0,6,0,0"
                           SizeChanged="Viewport_SizeChanged">
                         <StackPanel x:Name="Track" Orientation="Horizontal" HorizontalAlignment="Left">
@@ -134,7 +134,7 @@
                     </Grid>
 
                     <!-- prev/next: direct-tap paging alongside the tab strip
-                         and swipe/wheel — dots were dropped in favor of the
+                         and swipe/wheel - dots were dropped in favor of the
                          tab strip above, which already shows position. -->
                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center"
                                 VerticalAlignment="Center">

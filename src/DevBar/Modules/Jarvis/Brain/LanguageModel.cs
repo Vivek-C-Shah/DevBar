@@ -10,7 +10,7 @@ using DevBar.Core;
 namespace DevBar.Modules.Jarvis.Brain;
 
 /// <param name="Extra">
-/// Provider data that must be echoed back verbatim with the call — Gemini 3.x
+/// Provider data that must be echoed back verbatim with the call - Gemini 3.x
 /// puts a thought_signature here and rejects the follow-up request without it.
 /// </param>
 internal sealed record ToolCall(string Id, string Name, string ArgumentsJson, JsonNode? Extra = null);
@@ -25,9 +25,9 @@ internal sealed record LlmReply(string Text, List<ToolCall> ToolCalls, string Pr
 internal sealed class ProviderUnavailableException(string message) : Exception(message);
 
 /// <summary>
-/// Every provider we care about speaks the OpenAI chat-completions dialect —
+/// Every provider we care about speaks the OpenAI chat-completions dialect -
 /// Groq, Gemini (its /openai endpoint), OpenAI, OpenRouter, Cerebras, Ollama,
-/// LM Studio — so one streaming client covers all of them.
+/// LM Studio - so one streaming client covers all of them.
 /// </summary>
 internal sealed class OpenAiCompatibleLlm
 {
@@ -116,7 +116,7 @@ internal sealed class OpenAiCompatibleLlm
                 var msg = $"{Label} returned {(int)resp.StatusCode}: {err}";
                 if (resp.StatusCode is HttpStatusCode.TooManyRequests or HttpStatusCode.Unauthorized
                         or HttpStatusCode.Forbidden or HttpStatusCode.NotFound || (int)resp.StatusCode >= 500
-                    // Groq rejects a malformed tool call from its model with a 400 — another model may do better.
+                    // Groq rejects a malformed tool call from its model with a 400 - another model may do better.
                     || err.Contains("tool_use_failed", StringComparison.OrdinalIgnoreCase))
                     throw new ProviderUnavailableException(msg);
                 throw new InvalidOperationException(msg);
@@ -199,7 +199,7 @@ internal sealed class ProviderRouter(Func<List<string>> chain)
         var errors = new List<string>();
         var candidates = chain().Select(OpenAiCompatibleLlm.Parse).OfType<OpenAiCompatibleLlm>().Where(l => l.HasKey).ToList();
         if (candidates.Count == 0)
-            throw new InvalidOperationException("No brain configured — add a Groq or Gemini key in Jarvis settings.");
+            throw new InvalidOperationException("No brain configured - add a Groq or Gemini key in Jarvis settings.");
 
         var ready = candidates.Where(l => !_coolDown.TryGetValue(l.Label, out var until) || until < DateTime.UtcNow).ToList();
         if (ready.Count == 0) ready = candidates; // everything cooling: try anyway rather than refuse

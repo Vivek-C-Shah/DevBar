@@ -50,7 +50,7 @@ internal static class BuiltInTools
             new ClipboardRecentTool(modules),
             new CopyToClipboardTool(),
         };
-        // Google tools only when connected — unused schemas still cost prompt tokens.
+        // Google tools only when connected - unused schemas still cost prompt tokens.
         if (Google.GoogleAuth.IsConnected) tools.AddRange(Google.GoogleToolSet.All());
         tools.Add(new DailyBriefTool(config, tools));
         return tools;
@@ -86,7 +86,7 @@ internal sealed class ListPortsTool : JarvisTool
         parts.Add(dev.Count == 0 ? "No dev servers or databases are listening."
             : "Dev servers: " + string.Join("; ", dev.Select(p => $"{p.Port} {p.ProcessName} (pid {p.Pid})")));
         if (other.Count > 0)
-            parts.Add($"Also {other.Count} background apps listening ({string.Join(", ", other.Take(8))}) — only mention if asked.");
+            parts.Add($"Also {other.Count} background apps listening ({string.Join(", ", other.Take(8))}) - only mention if asked.");
         return string.Join(" ", parts);
     }
 }

@@ -19,13 +19,13 @@ internal interface IJarvisHost
     void ReleaseJarvis();
     /// <summary>Re-register the global shortcut; false if unparseable or taken by another app.</summary>
     bool RebindJarvisHotkey(string hotkey);
-    /// <summary>Tint the idle pill while the wake word keeps the mic open — the user can always see it.</summary>
+    /// <summary>Tint the idle pill while the wake word keeps the mic open - the user can always see it.</summary>
     void SetMicIndicator(bool on);
 }
 
 /// <summary>
 /// The voice assistant tab. Exception to the module contract, deliberately:
-/// a conversation already in progress keeps running if the bar collapses —
+/// a conversation already in progress keeps running if the bar collapses -
 /// but nothing at all runs between conversations (the hotkey is a Windows
 /// message, not a hook), so idle cost is still zero.
 /// </summary>
@@ -104,7 +104,7 @@ internal sealed class JarvisModule : IDevBarModule
         }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
     }
 
-    /// <summary>Called once all modules exist — some tools read other modules (clipboard history).</summary>
+    /// <summary>Called once all modules exist - some tools read other modules (clipboard history).</summary>
     public void AttachModules(IReadOnlyList<IDevBarModule> modules) => _modules = modules;
 
     public UserControl BuildCard() => _card ??= new JarvisCard(this);
@@ -193,14 +193,14 @@ internal sealed class JarvisModule : IDevBarModule
         _unloadTimer!.Stop();
         if (_session != null) return;
         LocalTts.Unload();
-        GC.Collect(); // hand the audio/network buffers back too — this runs once, minutes after use
+        GC.Collect(); // hand the audio/network buffers back too - this runs once, minutes after use
     }
 
     public void ConfirmFromUi(bool yes) => _session?.ConfirmFromUi(yes);
 
     // ---------------- proactive ----------------
 
-    /// <summary>Event-driven only (file-change notifications) — nothing polls.</summary>
+    /// <summary>Event-driven only (file-change notifications) - nothing polls.</summary>
     private void StartProactive()
     {
         var ui = Application.Current.Dispatcher;

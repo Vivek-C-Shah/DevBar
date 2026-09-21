@@ -9,7 +9,7 @@ using DevBar.Sdk;
 namespace DevBar.Modules.GitStatus;
 
 /// <summary>
-/// Watches a small user-configured list of repos (Config.GitWatchedRepos —
+/// Watches a small user-configured list of repos (Config.GitWatchedRepos -
 /// empty by default, opt-in via config.json) for dirty/clean state and
 /// ahead/behind counts. Refreshes on a longer interval than Ports/Claude
 /// (20s, not 3-4s): `git status`/`rev-list` shelling out per repo is

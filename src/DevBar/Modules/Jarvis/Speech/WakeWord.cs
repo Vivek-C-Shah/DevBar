@@ -70,7 +70,7 @@ internal sealed class WakeWordListener : IDisposable
         config.ModelConfig.Transducer.Decoder = Path.Combine(ModelDir, "decoder-epoch-12-avg-2-chunk-16-left-64.int8.onnx");
         config.ModelConfig.Transducer.Joiner = Path.Combine(ModelDir, "joiner-epoch-12-avg-2-chunk-16-left-64.int8.onnx");
         config.ModelConfig.Tokens = Path.Combine(ModelDir, "tokens.txt");
-        config.ModelConfig.NumThreads = 1; // continuous, tiny model — one thread keeps idle cost lowest
+        config.ModelConfig.NumThreads = 1; // continuous, tiny model - one thread keeps idle cost lowest
         config.ModelConfig.Provider = "cpu";
         config.MaxActivePaths = 4;
         config.NumTrailingBlanks = 1;

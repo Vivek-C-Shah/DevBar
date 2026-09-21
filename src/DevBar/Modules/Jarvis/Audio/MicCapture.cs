@@ -5,7 +5,7 @@ namespace DevBar.Modules.Jarvis.Audio;
 /// <summary>
 /// 16 kHz mono PCM16 from the Windows default recording device (WAVE_MAPPER,
 /// so plugging in a headset mic just works). Only exists while a Jarvis
-/// session is live — the mic is never open at idle.
+/// session is live - the mic is never open at idle.
 /// </summary>
 internal sealed class MicCapture : IDisposable
 {

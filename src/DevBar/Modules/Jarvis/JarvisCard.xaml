@@ -7,7 +7,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- The orb: flat rings only (style lock — no gradients/shadows).
+        <!-- The orb: flat rings only (style lock - no gradients/shadows).
              Halo scales with mic level while listening and with Jarvis's
              own voice while speaking; Core breathes while thinking. Every
              animation here runs only during a live session. -->

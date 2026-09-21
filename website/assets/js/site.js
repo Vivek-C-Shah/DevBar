@@ -52,7 +52,7 @@
   mm.add('(prefers-reduced-motion: no-preference)', () => {
     const ease = 'power3.out';
 
-    // Ambient blobs: slow, staggered, never synchronised — same idea as the app's
+    // Ambient blobs: slow, staggered, never synchronised - same idea as the app's
     // mesh layer, which drifts position only (cheap) rather than animating opacity.
     document.querySelectorAll('.mesh span, .bar-mesh span').forEach((blob, i) => {
       gsap.to(blob, {
@@ -110,7 +110,7 @@
       hero
         .to('.hero-copy > *', { opacity: 1, y: 0, duration: 0.7, stagger: 0.08 })
         .to('.mock-frame', { opacity: 1, y: 0, duration: 0.7 }, 0.15)
-        // idle pill sits there first — that's how you actually meet DevBar
+        // idle pill sits there first - that's how you actually meet DevBar
         .from('.bar-idle i', { scaleX: 0.2, opacity: 0, duration: 0.5 }, 0.5)
         .to({}, { duration: 0.45 })
         // ...then the shade unrolls: width settles fast, height keeps going

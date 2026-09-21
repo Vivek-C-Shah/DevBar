@@ -1,6 +1,6 @@
 # DevBar website
 
-Static marketing site plus the legal pages Google's OAuth consent screen requires. No build step, no framework, no dependencies to install — three HTML files, one stylesheet, one script, and the product's own screenshots.
+Static marketing site plus the legal pages Google's OAuth consent screen requires. No build step, no framework, no dependencies to install - three HTML files, one stylesheet, one script, and the product's own screenshots.
 
 ```
 website/
@@ -32,7 +32,7 @@ vercel login           # one-time, opens the browser
 vercel --prod
 ```
 
-There is no framework to detect and nothing to build — accept the defaults (Other / no build command / output `.`). The first deploy prints the production URL; use it everywhere below.
+There is no framework to detect and nothing to build - accept the defaults (Other / no build command / output `.`). The first deploy prints the production URL; use it everywhere below.
 
 To put it on a custom domain, add the domain in the Vercel dashboard, then update the four `https://devbar-neon.vercel.app` strings in `index.html`, `privacy.html` and `terms.html` (canonical + Open Graph URLs).
 
@@ -53,16 +53,16 @@ Google rejected the earlier GitHub links because the home page domain wasn't ver
 
 1. Open [Google Search Console](https://search.google.com/search-console) and add a **URL prefix** property for your deployed URL.
 2. Choose the **HTML tag** method and copy the `<meta name="google-site-verification" …>` tag.
-3. Paste it into `index.html` — there's a commented placeholder in `<head>` marked for exactly this — then redeploy and click Verify.
+3. Paste it into `index.html` - there's a commented placeholder in `<head>` marked for exactly this - then redeploy and click Verify.
 
 A custom domain you actually own (e.g. `devbar.yourdomain.dev`) is the smoothest path; Google is fussier about shared suffixes like `vercel.app`.
 
 ## Keeping it honest
 
-Numbers on the landing page are measured, not marketing: 0.0% idle CPU and ~130 MB working set come from sampling the running process, and the Jarvis latencies come from the trace log (~500 ms speech end-detection, ~400 ms to the model's first token, ~350 ms to Aura's first audio once warm). If the product changes, update the copy — a landing page that overstates the thing is worse than no landing page.
+Numbers on the landing page are measured, not marketing: 0.0% idle CPU and ~130 MB working set come from sampling the running process, and the Jarvis latencies come from the trace log (~500 ms speech end-detection, ~400 ms to the model's first token, ~350 ms to Aura's first audio once warm). If the product changes, update the copy - a landing page that overstates the thing is worse than no landing page.
 
 ## Credits
 
-- **Icons** — [Lucide](https://lucide.dev) (ISC) fetched via Iconify; no attribution required, credited here as a courtesy.
-- **Screenshots** — captured from DevBar running on Windows 11. Nothing is mocked up; the hero "bar" is rebuilt in DOM so it can animate like the real one.
-- **Fonts** — Inter and JetBrains Mono via Google Fonts, chosen as the web equivalents of the app's Segoe UI Variable / Cascadia Mono pairing.
+- **Icons** - [Lucide](https://lucide.dev) (ISC) fetched via Iconify; no attribution required, credited here as a courtesy.
+- **Screenshots** - captured from DevBar running on Windows 11. Nothing is mocked up; the hero "bar" is rebuilt in DOM so it can animate like the real one.
+- **Fonts** - Inter and JetBrains Mono via Google Fonts, chosen as the web equivalents of the app's Segoe UI Variable / Cascadia Mono pairing.

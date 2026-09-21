@@ -9,10 +9,10 @@ namespace DevBar.Modules.CiPulse;
 
 /// <summary>
 /// A quiet, glanceable status light per watched build target (Config.CiWatchTargets
-/// — empty by default, opt-in). Deliberately minimal for v1, on purpose, not
+/// - empty by default, opt-in). Deliberately minimal for v1, on purpose, not
 /// as a placeholder: watching a directory/file's last-write time can honestly
 /// tell you "something was built recently" (Success) or "nothing recent"
-/// (Idle) — it cannot tell you *Running* or *Failed* without a real signal
+/// (Idle) - it cannot tell you *Running* or *Failed* without a real signal
 /// (a CI API, or parsing build output), and showing those states from mtime
 /// alone would mean fabricating information this module doesn't actually
 /// have. A real CI/GitHub Actions integration is future work, not this.
@@ -84,7 +84,7 @@ public sealed class CiPulseModule : IDevBarModule
                     .OrderByDescending(f => f.LastWriteTime)
                     .FirstOrDefault()?.LastWriteTime;
         }
-        catch { /* inaccessible path — treat as no signal */ }
+        catch { /* inaccessible path - treat as no signal */ }
         return null;
     }
 }

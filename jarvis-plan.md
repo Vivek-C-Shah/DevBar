@@ -1,4 +1,4 @@
-# Jarvis for DevBar — plan
+# Jarvis for DevBar - plan
 
 A voice assistant that lives in DevBar as a new tab (🎙 **Jarvis**). You press a global shortcut you can change, it starts listening right away, answers out loud, and can **act on your machine**. It gets those abilities from the modules DevBar already has (ports, docker, git, clipboard, media, Claude sessions), plus new tools.
 
@@ -40,7 +40,7 @@ Your machine: **RTX 3050 6GB, 16GB RAM, i5-13450HX.** That's enough to run the *
 | **Speech-to-text** | **Deepgram Nova-3 streaming** (your $200 credit, about $0.0077/min ≈ **430 hours**). Or **Deepgram Flux**, which is built for voice agents and detects end-of-turn itself | **Groq Whisper-large-v3-turbo**: free, 2,000 req/day, 2h of audio/hour. It works per utterance, so it needs local VAD to cut the audio | **Whisper (small/base) via sherpa-onnx**, local on CPU/GPU | Deepgram paid, AssemblyAI, OpenAI |
 | **LLM brain** | **Groq**: `openai/gpt-oss-120b` or `llama-3.3-70b` for tool calling (free, ~1K req/day each). `llama-3.1-8b-instant` for fast small jobs (14.4K req/day) | **Gemini 2.5 Flash / Flash-Lite**, free tier (250–1,000 req/day). Also the **vision** model for "look at my screen" | **Ollama + Qwen3-4B / Gemma-3-4B (Q4)**. Fits in 6GB and does ~40–60 tok/s. Fine for chat and simple commands, unreliable for chained tools | Claude, OpenAI, Gemini paid, OpenRouter |
 | **Text-to-speech** | **Deepgram Aura-2** `aura-2-draco-en` (your choice; credit, ~$0.03 per 1k chars). Measured about 350ms to first audio once the connection is warm | **Piper via sherpa-onnx** (local, free). Measured ~200ms per sentence, about 20× faster than real time on this laptop. **Kokoro** is also offered: it sounds nicer but only runs at about real time on this CPU, and the int8 build was 2.6× *slower* than real time | Windows built-in `SpeechSynthesizer`: zero dependencies, always works | ElevenLabs, OpenAI TTS |
-| **Voice activity detection** | **Silero VAD via sherpa-onnx** (local) | — | same | — |
+| **Voice activity detection** | **Silero VAD via sherpa-onnx** (local) | - | same | - |
 | **Wake word (opt-in)** | **sherpa-onnx keyword spotter**, custom phrase "Jarvis" | openWakeWord | same | Picovoice Porcupine |
 
 **Why sherpa-onnx:** it's one NuGet package (`org.k2fsa.sherpa.onnx`) with native C# bindings. It covers VAD, local Whisper, Kokoro/Piper TTS, and wake word. That gives you all the local pieces without a Python sidecar.

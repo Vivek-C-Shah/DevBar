@@ -1,7 +1,7 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- Locked palette — see .tastemaker/style-lock.md. Flat only: no gradients, no shadows. -->
+    <!-- Locked palette - see .tastemaker/style-lock.md. Flat only: no gradients, no shadows. -->
     <Color x:Key="ColBg">#0B0E14</Color>
     <Color x:Key="ColBgElevated">#141926</Color>
     <Color x:Key="ColHairline">#232B3B</Color>
@@ -13,11 +13,11 @@
 
     <SolidColorBrush x:Key="BrushBg" Color="{StaticResource ColBg}"/>
     <!-- The bar's own translucency over the real OS acrylic blur (see
-         GlassEffect.cs) — genuinely blurred, so nothing behind is legible
+         GlassEffect.cs) - genuinely blurred, so nothing behind is legible
          through it, unlike a plain alpha blend over crisp desktop pixels. -->
     <SolidColorBrush x:Key="BrushPanelGlass" Color="#C80B0E14"/>
     <!-- Accessibility fallback when Windows' "Transparency effects" setting
-         is off (see Accessibility.PrefersReducedTransparency) — fully
+         is off (see Accessibility.PrefersReducedTransparency) - fully
          opaque, no blur, no mesh-gradient layer. -->
     <SolidColorBrush x:Key="BrushPanelOpaque" Color="{StaticResource ColBg}"/>
     <SolidColorBrush x:Key="BrushBgElevated" Color="{StaticResource ColBgElevated}"/>

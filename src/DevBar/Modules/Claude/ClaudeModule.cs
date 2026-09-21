@@ -11,11 +11,11 @@ namespace DevBar.Modules.Claude;
 /// <summary>
 /// Tracks active Claude Code CLI sessions. Two detection tiers, cheapest first:
 ///
-/// 1. Status files — if the CLI (or a shell wrapper/hook) drops JSON files under
+/// 1. Status files - if the CLI (or a shell wrapper/hook) drops JSON files under
 ///    %LOCALAPPDATA%\DevBar\claude-sessions\*.json, we read those directly
 ///    (see README "Claude Code integration" for the tiny shape). No polling cost
 ///    beyond a directory listing.
-/// 2. Process enumeration fallback — look for terminal-hosted processes whose
+/// 2. Process enumeration fallback - look for terminal-hosted processes whose
 ///    window title mentions Claude/claude. Best-effort; only runs while this
 ///    module is actually in view, and never runs while collapsed.
 ///

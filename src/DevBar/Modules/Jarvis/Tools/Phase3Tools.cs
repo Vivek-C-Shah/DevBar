@@ -24,7 +24,7 @@ internal sealed class WebSearchTool(JarvisConfig cfg) : JarvisTool
 internal sealed class ShowSearchTool : JarvisTool
 {
     public override string Name => "show_search_in_browser";
-    public override string Description => "Open a Google results page in the browser — only when the user explicitly asks to see/open the results.";
+    public override string Description => "Open a Google results page in the browser - only when the user explicitly asks to see/open the results.";
     protected override (string, string, string)[] Params => new[] { ("query", "string", "Search terms") };
     public override Risk RiskOf(JsonElement args) => Risk.Reversible;
 

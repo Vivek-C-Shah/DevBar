@@ -6,7 +6,7 @@ using static DevBar.Core.NativeMethods;
 namespace DevBar.Core;
 
 /// <summary>
-/// Hand-rolled Shell_NotifyIcon tray icon — avoids pulling the whole WinForms
+/// Hand-rolled Shell_NotifyIcon tray icon - avoids pulling the whole WinForms
 /// stack into memory for one icon. Icon comes from the exe's own embedded .ico.
 /// </summary>
 internal sealed class TrayIcon : IDisposable

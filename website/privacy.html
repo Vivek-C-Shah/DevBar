@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Privacy Policy — DevBar</title>
+<title>Privacy Policy - DevBar</title>
 <meta name="description" content="DevBar's privacy policy: no servers, no telemetry, no accounts. Exactly what stays on your PC, what is sent to the AI providers you configure, and how Google Calendar and Gmail data is handled.">
 <meta name="theme-color" content="#0B0E14">
 <link rel="canonical" href="https://devbar-neon.vercel.app/privacy">
-<meta property="og:title" content="DevBar — Privacy Policy">
+<meta property="og:title" content="DevBar - Privacy Policy">
 <meta property="og:description" content="No servers, no telemetry, no accounts. Here is exactly what leaves your computer, and when.">
 <meta property="og:type" content="article">
 <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
@@ -59,7 +59,7 @@
       <p class="updated">Last updated: 20 September 2026 · Applies to: DevBar for Windows (all versions)</p>
 
       <div class="callout">
-        <p><strong>The short version.</strong> DevBar has no servers, no accounts and no analytics. The developer never receives your data and cannot see that you use the app. Everything stays on your PC, except what you deliberately send to the AI services you configure with your own API keys — listed precisely in <a href="#third-parties">section 5</a>.</p>
+        <p><strong>The short version.</strong> DevBar has no servers, no accounts and no analytics. The developer never receives your data and cannot see that you use the app. Everything stays on your PC, except what you deliberately send to the AI services you configure with your own API keys - listed precisely in <a href="#third-parties">section 5</a>.</p>
       </div>
 
       <h2 id="summary">1. Who this covers</h2>
@@ -71,7 +71,7 @@
         <li>No user accounts, sign-up, or profile.</li>
         <li>No telemetry, analytics, crash reporting, fingerprinting or usage counters.</li>
         <li>No advertising, no ad identifiers, and nothing is ever sold or shared for marketing.</li>
-        <li>No DevBar backend. The app does not phone home — not for licence checks, not for update pings.</li>
+        <li>No DevBar backend. The app does not phone home - not for licence checks, not for update pings.</li>
       </ul>
       <p>The only network requests DevBar makes are the ones described in <a href="#third-parties">section 5</a>: direct calls from your machine to the third-party AI or Google services you have configured, plus a one-time download from GitHub if you choose an on-device voice or wake-word model.</p>
 
@@ -105,8 +105,8 @@
         <tbody>
           <tr><td>You talk to Jarvis</td><td>Microphone audio for the duration of the conversation</td><td>Deepgram (speech-to-text)</td></tr>
           <tr><td>Every request in a conversation</td><td>Your transcribed words; your pinned profile facts; the recent conversation; the names of your reference notes; the current date and time; your approximate city; the title of your foreground window; the list of available tools</td><td>The model provider you chose (e.g. Groq, Google Gemini)</td></tr>
-          <tr><td>A tool runs</td><td>That tool's result — which may include listening ports, container names, repo status, clipboard text, command output, calendar entries or email content</td><td>The model provider you chose</td></tr>
-          <tr><td>Jarvis speaks</td><td>The reply text to be voiced — <strong>nothing</strong> if you selected an on-device voice (Piper, Kokoro) or the built-in Windows voice</td><td>Deepgram (text-to-speech)</td></tr>
+          <tr><td>A tool runs</td><td>That tool's result - which may include listening ports, container names, repo status, clipboard text, command output, calendar entries or email content</td><td>The model provider you chose</td></tr>
+          <tr><td>Jarvis speaks</td><td>The reply text to be voiced - <strong>nothing</strong> if you selected an on-device voice (Piper, Kokoro) or the built-in Windows voice</td><td>Deepgram (text-to-speech)</td></tr>
           <tr><td>You ask about your screen</td><td>A screenshot of your active window, or the full screen if you asked for that</td><td>Your vision provider (e.g. Google Gemini)</td></tr>
           <tr><td>You ask something that needs the live web</td><td>Your search question</td><td>Google (via the Gemini API), or Groq</td></tr>
           <tr><td>A conversation ends</td><td>Recent conversation lines, so lasting facts about you can be extracted</td><td>The model provider you chose</td></tr>
@@ -115,13 +115,13 @@
       </table>
       <p>Three points deserve emphasis:</p>
       <ul>
-        <li><strong>Tool results reach the AI model.</strong> That is how the assistant can answer questions about your machine or your mail. If you would rather a given source never be visible to a model, don't ask Jarvis about it — or turn the relevant feature off.</li>
+        <li><strong>Tool results reach the AI model.</strong> That is how the assistant can answer questions about your machine or your mail. If you would rather a given source never be visible to a model, don't ask Jarvis about it - or turn the relevant feature off.</li>
         <li><strong>Everything is switchable.</strong> Location, learning, web search, screen reading, the wake word, and Google access are each optional. Choosing a local voice removes the text-to-speech provider entirely. With no keys configured, the bar's nine modules still work and nothing leaves your machine.</li>
         <li><strong>Secrets are filtered out of memory.</strong> Anything resembling a password, API key or token is refused before it can be stored as a remembered fact, whether you or the model proposed it.</li>
       </ul>
 
       <h2 id="google">6. Google user data (Calendar and Gmail)</h2>
-      <p>Google access is <strong>off</strong> until you connect it, and it uses <strong>your own</strong> Google Cloud OAuth client — not a shared one belonging to the developer.</p>
+      <p>Google access is <strong>off</strong> until you connect it, and it uses <strong>your own</strong> Google Cloud OAuth client - not a shared one belonging to the developer.</p>
       <p>DevBar requests only these scopes, each for a stated purpose:</p>
       <table>
         <thead><tr><th>Scope</th><th>Why DevBar asks for it</th></tr></thead>
@@ -160,7 +160,7 @@
       <ul>
         <li>Keys and tokens are encrypted with <strong>Windows DPAPI</strong> under your user account, so another user on the same PC cannot read them.</li>
         <li>All provider calls use <strong>HTTPS/WSS</strong>.</li>
-        <li>Actions that can destroy or send something — killing a process, stopping a container, running a shell command, sending mail — are read back and require confirmation. A short list of catastrophic commands is refused outright.</li>
+        <li>Actions that can destroy or send something - killing a process, stopping a container, running a shell command, sending mail - are read back and require confirmation. A short list of catastrophic commands is refused outright.</li>
         <li>DevBar runs without administrator rights.</li>
         <li>The source is public, so the claims on this page can be checked rather than taken on faith.</li>
       </ul>
@@ -177,7 +177,7 @@
       <p>This policy may be updated as the software changes. The date at the top always reflects the current version, and because the site lives in the public repository, the full revision history is available there.</p>
 
       <h2 id="contact">12. Contact</h2>
-      <p>Vivek Shah — <a href="mailto:vivekchiragshah2004@gmail.com">vivekchiragshah2004@gmail.com</a><br>
+      <p>Vivek Shah - <a href="mailto:vivekchiragshah2004@gmail.com">vivekchiragshah2004@gmail.com</a><br>
       Gujarat, India · <a href="https://github.com/Vivek-C-Shah/DevBar">github.com/Vivek-C-Shah/DevBar</a></p>
       <p>Security issues: please email rather than opening a public issue.</p>
 

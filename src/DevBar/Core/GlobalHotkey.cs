@@ -5,7 +5,7 @@ namespace DevBar.Core;
 
 /// <summary>
 /// A system-wide shortcut via RegisterHotKey. Windows delivers WM_HOTKEY to
-/// our window only when the chord is pressed — no keyboard hook, no polling,
+/// our window only when the chord is pressed - no keyboard hook, no polling,
 /// zero idle cost. Text form is "Ctrl+Alt+Space" / "Win+Shift+J" / "F9".
 /// </summary>
 internal sealed class GlobalHotkey : IDisposable

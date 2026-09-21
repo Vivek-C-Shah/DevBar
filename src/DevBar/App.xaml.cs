@@ -11,7 +11,7 @@ public partial class App : Application
 
     protected override async void OnStartup(StartupEventArgs e)
     {
-        // Diagnostics mode — runs alongside a live DevBar, so it's checked before the single-instance lock.
+        // Diagnostics mode - runs alongside a live DevBar, so it's checked before the single-instance lock.
         int selfTest = Array.IndexOf(e.Args, "--jarvis-selftest");
         if (selfTest >= 0)
         {
@@ -121,7 +121,7 @@ public partial class App : Application
 /// <summary>Debug/demo command line flags. Documented in CONTRIBUTING notes of the README.</summary>
 public sealed class StartupArgs
 {
-    /// <summary>--demo [moduleId]: start pinned open (optionally on a module) — used for screenshots.</summary>
+    /// <summary>--demo [moduleId]: start pinned open (optionally on a module) - used for screenshots.</summary>
     public bool Demo { get; }
     public string? DemoModuleId { get; }
     /// <summary>--shelf-seed "path;path": pre-populate the shelf (debug only; shelf is normally drag-in).</summary>

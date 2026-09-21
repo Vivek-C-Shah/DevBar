@@ -19,7 +19,7 @@ function Find-Dotnet {
 
     # winget installs the SDK to Program Files and adds it to the machine
     # PATH, but a terminal opened before the install won't see that until
-    # it's restarted — fall back to the well-known path so this script
+    # it's restarted - fall back to the well-known path so this script
     # works even in that stale-session case.
     $candidate = "$env:ProgramFiles\dotnet\dotnet.exe"
     if (Test-Path $candidate) { return $candidate }

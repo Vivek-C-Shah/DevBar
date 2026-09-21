@@ -23,7 +23,7 @@ internal abstract class JarvisTool
 
     /// <summary>
     /// Returns text written by other people (emails, web pages, screens). After such a
-    /// tool runs, every further action in that turn needs the user's yes — so a
+    /// tool runs, every further action in that turn needs the user's yes - so a
     /// prompt injection inside an email can't quietly make Jarvis act.
     /// </summary>
     public virtual bool ReadsUntrusted => false;

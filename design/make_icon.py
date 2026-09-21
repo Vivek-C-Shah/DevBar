@@ -1,7 +1,7 @@
 """
 Constructs the DevBar mark: a dark rounded tile, a bright accent bar docked
 to the top edge (the strip), with two muted lines beneath it (the desktop
-content it sits above). Encodes the product concept directly — no
+content it sits above). Encodes the product concept directly - no
 letter-in-a-box. Exports SVG + a full favicon/icon set.
 
 Palette from .tastemaker/style-lock.md.

@@ -17,7 +17,7 @@ internal sealed class DeepgramStt : IAsyncDisposable
 {
     /// <summary>Everything heard so far in the current utterance, including the unstable tail.</summary>
     public event Action<string>? Interim;
-    /// <summary>A complete utterance — you stopped talking.</summary>
+    /// <summary>A complete utterance - you stopped talking.</summary>
     public event Action<string>? Utterance;
     public event Action<string>? Failed;
 
@@ -78,7 +78,7 @@ internal sealed class DeepgramStt : IAsyncDisposable
                 }
                 catch (OperationCanceledException) when (!_cts.IsCancellationRequested)
                 {
-                    // nothing to send for 4s (muted while speaking) — Deepgram drops idle sockets at ~10s
+                    // nothing to send for 4s (muted while speaking) - Deepgram drops idle sockets at ~10s
                     await _ws.SendAsync(keepAlive, WebSocketMessageType.Text, true, _cts.Token);
                 }
             }

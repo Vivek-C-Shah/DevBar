@@ -47,7 +47,7 @@ public partial class BarWindow : Window, IJarvisHost
     // A small floating toolbar, not a taskbar-style edge strip: the window is
     // always sized to exactly its visible content, idle or expanded, so there's
     // never a dead invisible zone eating clicks meant for whatever's underneath.
-    // ExpandedHeight is the SAME for every module — paging never resizes the
+    // ExpandedHeight is the SAME for every module - paging never resizes the
     // bar. Modules with less content center it in that fixed footprint rather
     // than the card shrinking to fit (see each module's card XAML).
     private const double IdleWidth = 124;
@@ -60,7 +60,7 @@ public partial class BarWindow : Window, IJarvisHost
     // tooltip/topmost-window plumbing) can produce a spurious one-frame
     // MouseLeave even while the cursor is still sitting still over the bar.
     // Debouncing the actual collapse means a leave has to persist briefly
-    // before it's trusted — cheap insurance against the bar vanishing under
+    // before it's trusted - cheap insurance against the bar vanishing under
     // a developer's cursor while they're still looking at it.
     private const int HideDebounceMs = 220;
 
@@ -87,7 +87,7 @@ public partial class BarWindow : Window, IJarvisHost
         _hideTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(HideDebounceMs) };
         _hideTimer.Tick += (_, _) => { _hideTimer.Stop(); if (!_pinned && !_heldByJarvis && !Panel.IsMouseOver) Collapse(); };
 
-        // The Window itself is fixed at the max size and centered, always —
+        // The Window itself is fixed at the max size and centered, always -
         // only the inner Panel border resizes. See WM_NCHITTEST in WndProc for
         // why the dead margin around a small idle Panel doesn't eat clicks.
         Top = 0;
@@ -193,7 +193,7 @@ public partial class BarWindow : Window, IJarvisHost
     /// The Window is always fixed at the max (expanded) footprint, but the
     /// visible Panel inside it is usually much smaller (the idle pill). Without
     /// this, the whole fixed-size window would eat every click/hover in that
-    /// empty margin — exactly the "gets in the developer's way" failure this
+    /// empty margin - exactly the "gets in the developer's way" failure this
     /// tool exists to avoid. Points outside the Panel's current bounds are
     /// reported transparent so they fall through to whatever's underneath.
     /// Assumes 100% display scaling (physical pixels == DIPs); see README.
@@ -217,7 +217,7 @@ public partial class BarWindow : Window, IJarvisHost
     /// <summary>
     /// Builds the four blob fills from the live accent color (hue-rotated for
     /// a multi-color "mesh" feel, asymmetric hue spacing so no two blobs read
-    /// as mirrors of each other) — done once, since the accent color itself
+    /// as mirrors of each other) - done once, since the accent color itself
     /// only changes if the user changes their Windows theme.
     /// </summary>
     private void SetupMeshGradient()
@@ -240,7 +240,7 @@ public partial class BarWindow : Window, IJarvisHost
     }
 
     /// <summary>
-    /// Slow, organic drift — each blob gets a different duration, direction,
+    /// Slow, organic drift - each blob gets a different duration, direction,
     /// and fixed opacity so they never sync up into something mechanical or
     /// read as uniform brightness. Only ever running while the bar is
     /// expanded (see Expand/Collapse): a Forever-repeating animation is cheap
@@ -299,7 +299,7 @@ public partial class BarWindow : Window, IJarvisHost
         bool expanding = height > Panel.Height;
 
         // Expanding: the width settles almost immediately while height keeps
-        // growing — reads as a tray/shade dropping down from the idle pill,
+        // growing - reads as a tray/shade dropping down from the idle pill,
         // not the whole card stretching diagonally. Collapsing: pull both back
         // up quickly together, since leaving should feel instant.
         var widthDuration = TimeSpan.FromMilliseconds(expanding ? 90 : 110);
@@ -333,7 +333,7 @@ public partial class BarWindow : Window, IJarvisHost
 
     private void Panel_DragEnter(object sender, DragEventArgs e)
     {
-        // Dragging a file over the idle pill should reveal the bar immediately —
+        // Dragging a file over the idle pill should reveal the bar immediately -
         // that's how you get something onto the Shelf.
         if (!_expanded) { _showTimer.Stop(); Expand(); }
     }
@@ -346,7 +346,7 @@ public partial class BarWindow : Window, IJarvisHost
         if (!_reduceTransparency)
         {
             // Blur-behind and the mesh-gradient drift only run while actually
-            // visible/expanded — both cost real idle CPU/GPU if left on, see
+            // visible/expanded - both cost real idle CPU/GPU if left on, see
             // GlassEffect's doc comment.
             GlassEffect.Enable(_hwnd, (Color)FindResource("ColBg"), tintOpacity: 175);
             MeshGradient.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(260)) { BeginTime = TimeSpan.FromMilliseconds(60) });
@@ -405,7 +405,7 @@ public partial class BarWindow : Window, IJarvisHost
     // ---------------- carousel / tab strip ----------------
 
     /// <summary>
-    /// One small icon-only tab per module — click jumps straight there. Lives
+    /// One small icon-only tab per module - click jumps straight there. Lives
     /// in a horizontally-scrolling (never wrapping) ScrollViewer so it holds
     /// up regardless of module count; replaces the old dot indicators, which
     /// only showed position, not identity.
@@ -504,7 +504,7 @@ public partial class BarWindow : Window, IJarvisHost
 
     /// <summary>
     /// Every module's card fills the full viewport, width and height, so the
-    /// fixed card footprint (Part 1) is enforced at the shell level — a
+    /// fixed card footprint (Part 1) is enforced at the shell level - a
     /// module can't accidentally cause a size jump by returning a shorter
     /// control. Short content centers itself within that space; see each
     /// module's card XAML/VerticalAlignment.
@@ -567,7 +567,7 @@ public partial class BarWindow : Window, IJarvisHost
         _heldByJarvis = false;
         _jarvisCancelHotkey?.Unregister();
 
-        // Leave the last reply on screen for a moment, then get out of the way —
+        // Leave the last reply on screen for a moment, then get out of the way -
         // unless another conversation started, or the user is hovering/pinned.
         int version = _jarvisHoldVersion;
         var linger = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };

@@ -55,7 +55,7 @@
     </UserControl.Resources>
 
     <Grid>
-        <!-- distinct empty states — "nothing running" reads very differently
+        <!-- distinct empty states - "nothing running" reads very differently
              from "Docker isn't even installed", so they're not allowed to
              look the same. -->
         <StackPanel x:Name="EmptyState" HorizontalAlignment="Center" VerticalAlignment="Center">

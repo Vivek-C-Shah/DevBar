@@ -8,7 +8,7 @@ using DevBar.Modules.Jarvis.Brain;
 namespace DevBar.Modules.Jarvis.Context;
 
 /// <summary>
-/// "What's this error?" — grabs the window you're working in (or the whole
+/// "What's this error?" - grabs the window you're working in (or the whole
 /// screen) and asks a vision model about it. Only ever runs when you ask
 /// something that needs it; the image goes to the configured vision
 /// provider (Gemini by default) and is not stored anywhere.

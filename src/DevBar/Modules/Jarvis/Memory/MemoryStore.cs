@@ -13,11 +13,11 @@ internal sealed record Reminder(long Id, DateTime DueLocal, string Text);
 
 /// <summary>
 /// Jarvis's long-term memory: %LOCALAPPDATA%\DevBar\jarvis.db, local only.
-///   facts      — durable things about the user ("works on ClientPulse", "prefers tea").
+///   facts      - durable things about the user ("works on ClientPulse", "prefers tea").
 ///                source = 'told' (you said "remember…") or 'learned' (picked up after a chat).
-///   reminders  — survive restarts; one timer is armed for the next one due.
-///   turns      — recent conversation lines, the raw material for learning; pruned to 30 days.
-///   notes      — reference documents, read on demand (never all pasted into every prompt).
+///   reminders  - survive restarts; one timer is armed for the next one due.
+///   turns      - recent conversation lines, the raw material for learning; pruned to 30 days.
+///   notes      - reference documents, read on demand (never all pasted into every prompt).
 /// Pinned facts are always in the prompt; the rest fill up to a budget, newest first.
 /// Every call opens and closes its own connection: usage is a handful of
 /// queries per conversation, and nothing stays open while DevBar idles.

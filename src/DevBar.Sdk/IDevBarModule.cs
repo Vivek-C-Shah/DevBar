@@ -8,7 +8,7 @@ namespace DevBar.Sdk;
 ///
 /// The lifecycle is the performance contract: a module must do NOTHING
 /// (no timers, no polling, no I/O) between OnCollapsed and the next
-/// OnExpanded. DevBar stays invisible most of the day — modules that
+/// OnExpanded. DevBar stays invisible most of the day - modules that
 /// poll in the background get the whole app uninstalled.
 /// </summary>
 public interface IDevBarModule
@@ -24,7 +24,7 @@ public interface IDevBarModule
 
     /// <summary>
     /// Build the card shown when this module is paged into view.
-    /// Called once, lazily, on first view — cache your control.
+    /// Called once, lazily, on first view - cache your control.
     /// </summary>
     UserControl BuildCard();
 

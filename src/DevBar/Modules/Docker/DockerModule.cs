@@ -9,7 +9,7 @@ namespace DevBar.Modules.Docker;
 public enum DockerState { Ok, NotFound, NotRunning }
 
 /// <summary>
-/// Local Docker Desktop containers via `docker ps -a` (shelled out — no
+/// Local Docker Desktop containers via `docker ps -a` (shelled out - no
 /// Docker.DotNet dependency, matching this app's bias toward fewer NuGet
 /// packages over a lighter footprint). Polls on a timer while expanded, same
 /// pattern as Ports/Claude, rather than streaming `docker events`: this
@@ -86,7 +86,7 @@ public sealed class DockerModule : IDevBarModule
 
     internal static async Task<(DockerState State, List<ContainerInfo> Containers)> QueryAsync()
     {
-        // {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}} — tab-delimited is
+        // {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}} - tab-delimited is
         // trivial to split and Docker's own JSON-per-line format needs no
         // extra parsing dependency for four flat fields.
         var result = await ShellOut.RunAsync("docker", "ps -a --format \"{{.ID}}\\t{{.Names}}\\t{{.Image}}\\t{{.Status}}\"");

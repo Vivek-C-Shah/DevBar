@@ -7,7 +7,7 @@ using DevBar.Core;
 namespace DevBar.Modules.Jarvis.Context;
 
 /// <summary>
-/// Answers questions that need the live web — no browser window. Gemini with
+/// Answers questions that need the live web - no browser window. Gemini with
 /// Google Search grounding does the searching and reading (free tier, ~3s,
 /// and it reports its sources); Groq's compound-mini is the last resort.
 /// </summary>

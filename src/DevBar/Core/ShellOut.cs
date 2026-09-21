@@ -7,11 +7,11 @@ internal static class ShellOut
     public sealed record Result(bool Started, int ExitCode, string StdOut, string StdErr);
 
     /// <summary>
-    /// Runs a command and captures output. Never throws — a missing exe
+    /// Runs a command and captures output. Never throws - a missing exe
     /// (docker.exe, git.exe not on PATH) comes back as Started=false rather
     /// than an exception, so callers can distinguish "not installed" from
     /// "installed but returned an error" cleanly. Always call from a
-    /// background thread (Task.Run) — this blocks until the process exits.
+    /// background thread (Task.Run) - this blocks until the process exits.
     /// </summary>
     public static async Task<Result> RunAsync(string exe, string args, string? workingDir = null, TimeSpan? timeout = null)
     {

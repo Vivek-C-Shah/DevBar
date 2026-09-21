@@ -21,13 +21,13 @@ public sealed class Config
         { "jarvis", "clipboard", "shelf", "claude", "ports", "docker", "git", "ci", "media" };
     public int ClipboardHistorySize { get; set; } = 25;
 
-    /// <summary>Repo paths the Git status module watches. Empty by default — opt-in.</summary>
+    /// <summary>Repo paths the Git status module watches. Empty by default - opt-in.</summary>
     public List<string> GitWatchedRepos { get; set; } = new();
 
-    /// <summary>Directories/files the Build/CI pulse module watches for a "just built" signal via mtime. Empty by default — opt-in.</summary>
+    /// <summary>Directories/files the Build/CI pulse module watches for a "just built" signal via mtime. Empty by default - opt-in.</summary>
     public List<CiWatchTarget> CiWatchTargets { get; set; } = new();
 
-    /// <summary>Voice assistant settings. API keys are NOT here — see SecretStore.</summary>
+    /// <summary>Voice assistant settings. API keys are NOT here - see SecretStore.</summary>
     public JarvisConfig Jarvis { get; set; } = new();
 
     public static string Dir =>
@@ -120,7 +120,7 @@ public sealed class JarvisConfig
 
     /// <summary>Let Jarvis know roughly where you are (Windows location, else IP city).</summary>
     public bool UseLocation { get; set; } = true;
-    /// <summary>Optional fixed place, e.g. "Pune, India" — overrides detection (useful on a VPN).</summary>
+    /// <summary>Optional fixed place, e.g. "Pune, India" - overrides detection (useful on a VPN).</summary>
     public string HomeLocation { get; set; } = "";
 
     /// <summary>After each conversation, pick out lasting facts about you and remember them.</summary>
@@ -133,7 +133,7 @@ public sealed class JarvisConfig
     public string Proactive { get; set; } = "speak";
     /// <summary>No speaking (notices still show) during these hours, "HH:mm-HH:mm"; empty = never quiet.</summary>
     public string QuietHours { get; set; } = "23:00-08:00";
-    /// <summary>Date of the last conversation — the first one of a day gets offered a brief.</summary>
+    /// <summary>Date of the last conversation - the first one of a day gets offered a brief.</summary>
     public DateTime? LastConversation { get; set; }
 
     /// <summary>

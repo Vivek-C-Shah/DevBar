@@ -30,7 +30,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Column header row — labels every value so "60" and "1884" don't
+        <!-- Column header row - labels every value so "60" and "1884" don't
              read as two mystery numbers. Mirrors the row template's column
              widths exactly so labels line up with their values. -->
         <Grid Grid.Row="0" Margin="10,0,10,4" x:Name="HeaderRow">

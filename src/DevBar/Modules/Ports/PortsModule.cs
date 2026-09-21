@@ -11,7 +11,7 @@ namespace DevBar.Modules.Ports;
 /// <summary>
 /// Bound TCP listener ports via GetExtendedTcpTable (the managed equivalent of
 /// `netstat -ano`, no process shell-out). Only polls while expanded, and the
-/// scan itself runs off the UI thread — on a dev box with a lot of listeners
+/// scan itself runs off the UI thread - on a dev box with a lot of listeners
 /// and processes, walking the table + resolving every owning PID can take long
 /// enough to visibly stall the UI if done inline, which is exactly what this
 /// tool is not allowed to do.

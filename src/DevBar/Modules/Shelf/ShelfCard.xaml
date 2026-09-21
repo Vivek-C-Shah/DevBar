@@ -37,7 +37,7 @@
                 Visibility="Collapsed" IsHitTestVisible="False"/>
 
         <!-- Empty state: a real drop-target treatment, not a caption in a
-             mostly-dead panel — a dashed outline roughly the size of the
+             mostly-dead panel - a dashed outline roughly the size of the
              card, a large glyph, and the instruction beneath it, all
              centered. Rectangle (not Border) because only Rectangle
              supports a dashed stroke in WPF. -->

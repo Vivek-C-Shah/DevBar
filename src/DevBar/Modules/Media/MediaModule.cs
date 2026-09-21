@@ -9,7 +9,7 @@ using Windows.Storage.Streams;
 namespace DevBar.Modules.Media;
 
 /// <summary>
-/// Now-playing + transport, sourced from Windows' own SMTC session manager —
+/// Now-playing + transport, sourced from Windows' own SMTC session manager -
 /// the same data feeding the Windows 11 volume flyout. We don't touch any
 /// app's audio pipeline directly, just read/command the OS-level session.
 /// </summary>

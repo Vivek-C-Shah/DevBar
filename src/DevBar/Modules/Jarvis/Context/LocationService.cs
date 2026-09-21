@@ -16,7 +16,7 @@ internal sealed record Place(string City, string Region, string Country, double 
 /// general grounding. Order: a place typed in settings → Windows location
 /// services (precise, only if "Let desktop apps access your location" is on)
 /// → IP geolocation (city-level, can be off if you're on a VPN). Looked up
-/// at most every 30 minutes, only when a conversation starts — never polled.
+/// at most every 30 minutes, only when a conversation starts - never polled.
 /// </summary>
 internal static class LocationService
 {
@@ -92,7 +92,7 @@ internal static class LocationService
                 $"https://geocoding-api.open-meteo.com/v1/search?name={Uri.EscapeDataString(city)}&count=5&language=en&format=json"));
             if (!doc.RootElement.TryGetProperty("results", out var results) || results.GetArrayLength() == 0) return null;
 
-            // "Pune, India" — prefer the result whose country/region matches the rest of the text.
+            // "Pune, India" - prefer the result whose country/region matches the rest of the text.
             var hint = name.Contains(',') ? name[(name.IndexOf(',') + 1)..].Trim() : "";
             var best = results.EnumerateArray().FirstOrDefault(x =>
                 hint.Length > 0 && (Str(x, "country").Contains(hint, StringComparison.OrdinalIgnoreCase)

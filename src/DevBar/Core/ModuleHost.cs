@@ -77,7 +77,7 @@ internal static class ModuleHost
                 }
             }
         }
-        catch { /* plugin dir unreadable — run with built-ins */ }
+        catch { /* plugin dir unreadable - run with built-ins */ }
         return found;
     }
 }

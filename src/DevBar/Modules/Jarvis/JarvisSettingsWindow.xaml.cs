@@ -8,7 +8,7 @@ using DevBar.Modules.Jarvis.Speech;
 namespace DevBar.Modules.Jarvis;
 
 /// <summary>
-/// A normal, focusable window — the bar itself is WS_EX_NOACTIVATE and can
+/// A normal, focusable window - the bar itself is WS_EX_NOACTIVATE and can
 /// never take keyboard input, which shortcut capture and key entry need.
 /// </summary>
 public partial class JarvisSettingsWindow : Window
@@ -129,7 +129,7 @@ public partial class JarvisSettingsWindow : Window
             HotkeyStatus.Text = $"{_pendingHotkey} is live.";
         else
         {
-            HotkeyStatus.Text = $"{_pendingHotkey} is taken by another app — try another.";
+            HotkeyStatus.Text = $"{_pendingHotkey} is taken by another app - try another.";
             HotkeyBox.Text = _module.Settings.Hotkey;
             _pendingHotkey = _module.Settings.Hotkey;
         }
@@ -142,9 +142,9 @@ public partial class JarvisSettingsWindow : Window
         _engine = sender == EnginePiper ? "piper" : sender == EngineKokoro ? "kokoro" : sender == EngineWindows ? "windows" : "aura";
         EngineNote.Text = _engine switch
         {
-            "aura" => "Deepgram Aura-2 — most natural. Uses your Deepgram credit (~$0.03 per 1,000 characters).",
-            "piper" => "Free and offline. Renders ~20x faster than real-time on this laptop — the snappiest option.",
-            "kokoro" => "Free and offline, more natural than Piper — but only about real-time on this CPU, so replies start ~1s later.",
+            "aura" => "Deepgram Aura-2 - most natural. Uses your Deepgram credit (~$0.03 per 1,000 characters).",
+            "piper" => "Free and offline. Renders ~20x faster than real-time on this laptop - the snappiest option.",
+            "kokoro" => "Free and offline, more natural than Piper - but only about real-time on this CPU, so replies start ~1s later.",
             _ => "Windows' built-in voice. Always available, no setup, but robotic.",
         };
 
@@ -192,7 +192,7 @@ public partial class JarvisSettingsWindow : Window
         LocalDownloadBtn.Visibility = v.IsInstalled ? Visibility.Collapsed : Visibility.Visible;
         LocalDownloadBtn.IsEnabled = true;
         LocalDownloadText.Text = $"Download {v.Label} ({v.ApproxMb} MB)";
-        LocalStatus.Text = v.IsInstalled ? "Installed — runs entirely on this PC." : "";
+        LocalStatus.Text = v.IsInstalled ? "Installed - runs entirely on this PC." : "";
     }
 
     private async void LocalDownload_Click(object sender, RoutedEventArgs e)
@@ -386,7 +386,7 @@ public partial class JarvisSettingsWindow : Window
         var spec = BrainNewBox.Text.Trim();
         if (Brain.OpenAiCompatibleLlm.Parse(spec) is null)
         {
-            BrainStatus.Text = "Use provider:model — providers are groq, gemini, openai, anthropic, openrouter, cerebras, ollama.";
+            BrainStatus.Text = "Use provider:model - providers are groq, gemini, openai, anthropic, openrouter, cerebras, ollama.";
             return;
         }
         if (!_brain.Contains(spec)) _brain.Add(spec);
@@ -399,7 +399,7 @@ public partial class JarvisSettingsWindow : Window
         if (e.Key == Key.Enter) BrainAdd_Click(sender, e);
     }
 
-    /// <summary>One tiny request per model, in order, so a typo or a missing key shows up here — not mid-conversation.</summary>
+    /// <summary>One tiny request per model, in order, so a typo or a missing key shows up here - not mid-conversation.</summary>
     private async void BrainTest_Click(object sender, RoutedEventArgs e)
     {
         SaveKeys();
@@ -439,7 +439,7 @@ public partial class JarvisSettingsWindow : Window
         GoogleBtnText.Text = connected ? "Disconnect Google" : "Connect Google";
         GoogleStatus.Text = connected
             ? $"Connected as {Google.GoogleAuth.Account ?? "your account"}."
-            : Google.GoogleAuth.HasClient ? "Ready to connect — your browser will ask for permission."
+            : Google.GoogleAuth.HasClient ? "Ready to connect - your browser will ask for permission."
             : "Paste the client ID and secret from your Google Cloud 'Desktop app' OAuth client.";
     }
 
@@ -472,7 +472,7 @@ public partial class JarvisSettingsWindow : Window
     }
 
     /// <summary>
-    /// Listens for 10s at the selected sensitivity and reports what it heard — the
+    /// Listens for 10s at the selected sensitivity and reports what it heard - the
     /// only honest way to check the wake word against a real voice in a real room.
     /// </summary>
     private async void WakeTest_Click(object sender, RoutedEventArgs e)
@@ -528,7 +528,7 @@ public partial class JarvisSettingsWindow : Window
         {
             var progress = new Progress<double>(p => WakeStatus.Text = p < 0.95 ? $"Downloading wake-word model… {p:P0}" : "Unpacking…");
             await Speech.WakeWordListener.DownloadAsync(progress, CancellationToken.None);
-            WakeStatus.Text = "Ready — press Save to start listening for \"Hey Jarvis\".";
+            WakeStatus.Text = "Ready - press Save to start listening for \"Hey Jarvis\".";
         }
         catch (Exception ex)
         {
@@ -543,7 +543,7 @@ public partial class JarvisSettingsWindow : Window
         bool on = Proactive.ClaudeHook.IsInstalled;
         ClaudeHookText.Text = on ? "Disconnect Claude Code" : "Connect Claude Code";
         if (ClaudeHookStatus.Text.Length == 0)
-            ClaudeHookStatus.Text = on ? "Connected — new sessions report to Jarvis." : "Not connected.";
+            ClaudeHookStatus.Text = on ? "Connected - new sessions report to Jarvis." : "Not connected.";
     }
 
     private async void ClaudeHook_Click(object sender, RoutedEventArgs e)

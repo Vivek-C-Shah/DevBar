@@ -5,7 +5,7 @@ namespace DevBar.Core;
 
 /// <summary>
 /// Real OS-compositor blur behind the window (Windows' "Acrylic" material),
-/// not a fake alpha-blend trick — the latter is exactly what leaked crisp
+/// not a fake alpha-blend trick - the latter is exactly what leaked crisp
 /// background content through the bar earlier in this project. Genuine DWM/
 /// compositor blur makes whatever's behind illegible by design, which is both
 /// the look the user asked for ("glass like iPhone/Mac apps") and the safe
@@ -14,21 +14,21 @@ namespace DevBar.Core;
 /// Uses the long-standing undocumented-but-stable SetWindowCompositionAttribute
 /// API rather than the newer DWMWA_SYSTEMBACKDROP_TYPE (Mica), because that
 /// newer API requires AllowsTransparency="False" and DWM-level corner
-/// rounding — a different window model than the AllowsTransparency=True +
+/// rounding - a different window model than the AllowsTransparency=True +
 /// WM_NCHITTEST click-through setup this app already relies on. This one
 /// composites correctly with a layered (AllowsTransparency) window, which is
 /// exactly the scenario it was originally built for.
 ///
-/// IMPORTANT: live blur-behind is not free — DWM has to keep re-sampling
+/// IMPORTANT: live blur-behind is not free - DWM has to keep re-sampling
 /// whatever's behind the window for as long as blur is enabled, which costs
 /// real idle CPU (measured ~40% of a core here, vs. 0.0% with it off).
 /// That's a direct conflict with this app's "never cost CPU while idle"
 /// requirement, so callers must only enable it while the bar is expanded
 /// (call <see cref="Enable"/> in Expand(), <see cref="Disable"/> in
-/// Collapse()) — never leave it on for the ~99% of the time the bar sits
+/// Collapse()) - never leave it on for the ~99% of the time the bar sits
 /// idle as a small pill. There's a brief settling cost right after each
 /// toggle as DWM tears down/rebuilds its compositor swap chain, but it's
-/// gone within a couple of seconds — measured 0.0% once settled.
+/// gone within a couple of seconds - measured 0.0% once settled.
 /// </summary>
 internal static class GlassEffect
 {
@@ -63,7 +63,7 @@ internal static class GlassEffect
     /// Enables acrylic blur-behind, tinted with <paramref name="tint"/> at
     /// <paramref name="tintOpacity"/> (0-255). Falls back to plain blur (no
     /// acrylic noise/tint layer) on Windows versions that don't support
-    /// acrylic, and no-ops silently if the whole API is unavailable — a
+    /// acrylic, and no-ops silently if the whole API is unavailable - a
     /// missing blur effect should never be a reason this app fails to start.
     /// Call <see cref="Disable"/> as soon as the bar collapses.
     /// </summary>
@@ -80,7 +80,7 @@ internal static class GlassEffect
 
             if (!Send(hwnd, accent))
             {
-                // Acrylic unsupported on this build (e.g. pre-1803) — plain blur still works.
+                // Acrylic unsupported on this build (e.g. pre-1803) - plain blur still works.
                 accent.AccentState = AccentState.ACCENT_ENABLE_BLURBEHIND;
                 Send(hwnd, accent);
             }
@@ -91,7 +91,7 @@ internal static class GlassEffect
         }
     }
 
-    /// <summary>Turns blur-behind back off — this is what keeps idle CPU at 0%.</summary>
+    /// <summary>Turns blur-behind back off - this is what keeps idle CPU at 0%.</summary>
     public static void Disable(IntPtr hwnd)
     {
         try

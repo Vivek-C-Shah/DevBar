@@ -62,7 +62,7 @@ public partial class JarvisCard : UserControl
 
         var missing = _module.MissingSetup();
         if (missing.Count > 0)
-            ShowProblem("To get going I need " + string.Join(", ", missing) + " — tap the gear.");
+            ShowProblem("To get going I need " + string.Join(", ", missing) + " - tap the gear.");
         else if (ProblemText.Text.StartsWith("To get going"))
             ProblemText.Visibility = Visibility.Collapsed;
 

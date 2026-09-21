@@ -66,7 +66,7 @@ internal static class ClaudeHook
             });
         }
         Save(root);
-        return node.Started && node.ExitCode == 0 ? "Connected (Node hook)." : "Connected (PowerShell hook — install Node for snappier hooks).";
+        return node.Started && node.ExitCode == 0 ? "Connected (Node hook)." : "Connected (PowerShell hook - install Node for snappier hooks).";
     }
 
     public static void Uninstall()
@@ -94,7 +94,7 @@ internal static class ClaudeHook
         existed = File.Exists(SettingsPath);
         if (!existed) return new JsonObject();
         var node = JsonNode.Parse(File.ReadAllText(SettingsPath), documentOptions: new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true });
-        return node as JsonObject ?? throw new InvalidOperationException("~/.claude/settings.json isn't a JSON object — not touching it.");
+        return node as JsonObject ?? throw new InvalidOperationException("~/.claude/settings.json isn't a JSON object - not touching it.");
     }
 
     private static void Save(JsonObject root)
@@ -104,7 +104,7 @@ internal static class ClaudeHook
     }
 
     // Both scripts: read the hook JSON from stdin, map the event to a state, write/delete
-    // claude-sessions/<session>.json. They must never fail loudly — a hook error would
+    // claude-sessions/<session>.json. They must never fail loudly - a hook error would
     // show up in the user's Claude Code session.
     private const string NodeSource = """
         // DevBar: reports Claude Code session state to %LOCALAPPDATA%\DevBar\claude-sessions (devbar-claude-status)
@@ -120,7 +120,7 @@ internal static class ClaudeHook
             const id = String(e.session_id || 'unknown').replace(/[^a-zA-Z0-9-]/g, '');
             const file = path.join(dir, id + '.json');
             if (ev === 'SessionEnd') { try { fs.unlinkSync(file); } catch {} return; }
-            // "waiting for your input" is just the idle nag after a finished turn — not news.
+            // "waiting for your input" is just the idle nag after a finished turn - not news.
             if (ev === 'Notification' && /waiting for your input/i.test(e.message || '')) return;
             const state = ev === 'Notification' ? 'waiting' : ev === 'Stop' ? 'idle' : 'working';
             let pid = 0; for (const ch of id) pid = (pid * 31 + ch.charCodeAt(0)) % 2000000000;
