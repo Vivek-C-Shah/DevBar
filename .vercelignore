@@ -1,0 +1,6 @@
+# This repo is a Windows desktop app; only the website folder is deployable.
+# Without this, `vercel deploy` from the repo root tries to upload build output
+# (the published single-file exe alone is ~185 MB) and hits the 100 MB limit.
+/*
+!/website
+!/vercel.json
