@@ -491,6 +491,8 @@ public partial class JarvisSettingsWindow : Window
             using var probe = new Speech.WakeWordListener(acOnly: false, sensitivity);
             var heard = new TaskCompletionSource<string>();
             probe.Detected += kw => heard.TrySetResult(kw);
+            var clip = System.IO.Path.Combine(Core.Config.Dir, "wake-test.wav");
+            probe.RecordPath = clip;
             probe.Start();
             if (!probe.IsListening)
             {
@@ -502,9 +504,15 @@ public partial class JarvisSettingsWindow : Window
                 WakeTestText.Text = $"Listening... {i}s";
                 await Task.WhenAny(heard.Task, Task.Delay(1000));
             }
+            probe.Stop(); // flush the recording
+            int peak = (int)Math.Round(probe.PeakLevel * 100);
+            var levelNote = peak < 8
+                ? $"Mic level peaked at only {peak}% - I'm barely hearing you. Check Windows' default recording device and its input volume."
+                : $"Mic level peaked at {peak}%, so the mic is working.";
+            JarvisSession.Trace($"wake test ({sensitivity}): {(heard.Task.IsCompleted ? heard.Task.Result : "nothing")}, peak {peak}%, clip {clip}");
             WakeStatus.Text = heard.Task.IsCompleted
-                ? $"Heard it: \"{heard.Task.Result.Replace('_', ' ').ToLowerInvariant()}\" at {sensitivity} sensitivity."
-                : $"Nothing caught at {sensitivity} sensitivity. Say \"Hey Jarvis\" a touch slower, or try Sensitive.";
+                ? $"Heard it: \"{heard.Task.Result.Replace('_', ' ').ToLowerInvariant()}\" at {sensitivity} sensitivity. {levelNote}"
+                : $"Nothing caught at {sensitivity} sensitivity. {levelNote} The clip is saved locally for diagnosis (wake-test.wav).";
         }
         catch (Exception ex)
         {

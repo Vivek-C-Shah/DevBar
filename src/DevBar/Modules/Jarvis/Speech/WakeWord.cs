@@ -2,6 +2,7 @@ using System.IO;
 using System.Net.Http;
 using DevBar.Core;
 using DevBar.Modules.Jarvis.Audio;
+using NAudio.Wave;
 using Microsoft.Win32;
 using SherpaOnnx;
 
@@ -61,6 +62,18 @@ internal sealed class WakeWordListener : IDisposable
 
     public bool IsListening => _mic != null;
 
+    /// <summary>
+    /// Diagnostics for the settings "Test" button only: when set before Start(),
+    /// the raw mic audio is also written to this WAV (local disk, never uploaded)
+    /// so a miss can be told apart from "the mic isn't hearing anything".
+    /// </summary>
+    public string? RecordPath { get; set; }
+
+    /// <summary>Loudest 50ms chunk heard so far, 0..1 (same scale as the orb).</summary>
+    public float PeakLevel { get; private set; }
+
+    private WaveFileWriter? _recorder;
+
     public static KeywordSpotter CreateSpotter(string sensitivity = "balanced")
     {
         var config = new KeywordSpotterConfig();
@@ -90,8 +103,10 @@ internal sealed class WakeWordListener : IDisposable
             if (_acOnly && SystemInformationOnBattery()) return;
             _spotter ??= CreateSpotter(_sensitivity);
             _stream = _spotter.CreateStream();
-            _mic = new MicCapture();
+            _mic = new MicCapture(raw: true); // unprocessed audio: driver noise suppression defeats the spotter
             _mic.Data += OnAudio;
+            if (RecordPath != null)
+                _recorder = new WaveFileWriter(RecordPath, new WaveFormat(MicCapture.SampleRate, 16, 1));
             _mic.Start();
         }
         JarvisSession.Trace("wake word: listening");
@@ -106,6 +121,8 @@ internal sealed class WakeWordListener : IDisposable
             _mic.Data -= OnAudio;
             _mic.Dispose();
             _mic = null;
+            _recorder?.Dispose();
+            _recorder = null;
             _stream?.Dispose();
             _stream = null;
         }
@@ -117,6 +134,9 @@ internal sealed class WakeWordListener : IDisposable
 
     private void OnAudio(byte[] pcm)
     {
+        var level = Pcm.Rms(pcm, pcm.Length);
+        if (level > PeakLevel) PeakLevel = level;
+        lock (_gate) _recorder?.Write(pcm, 0, pcm.Length);
         var samples = new float[pcm.Length / 2];
         for (int i = 0; i < samples.Length; i++) samples[i] = BitConverter.ToInt16(pcm, i * 2) / 32768f;
 
