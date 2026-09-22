@@ -1,23 +1,21 @@
-/* DevBar site motion.
-   Choreography deliberately copies the product's own: the card "unrolls" from the
-   idle pill (height first, no overshoot), blobs drift slowly out of sync, nothing
-   bounces. Everything is wrapped in gsap.matchMedia so reduced-motion users get a
-   finished, static page instead of a broken one. */
+/* DevBar site behaviour. No dependencies.
+   Motion copies the product: the card unrolls from the idle pill, hide is faster than
+   show, nothing bounces. Every animation here has a job: the hero demonstrates the one
+   interaction the product is built on, the tabs switch state, the rail shows sequence. */
 
 (() => {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  // ---------- nav border once the page has scrolled (no scroll listener) ----------
   const nav = document.querySelector('.nav');
-  if (nav) {
-    const onScroll = () => nav.classList.toggle('is-stuck', window.scrollY > 8);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
+  const sentinel = document.querySelector('.nav-sentinel');
+  if (nav && sentinel) {
+    new IntersectionObserver(([e]) => nav.classList.toggle('is-stuck', !e.isIntersecting)).observe(sentinel);
   }
 
-  // Legal pages: highlight the section you're reading.
+  // ---------- legal pages: highlight the section you're reading ----------
   const tocLinks = [...document.querySelectorAll('.toc a')];
   if (tocLinks.length) {
-    const headings = tocLinks
-      .map((a) => document.querySelector(a.getAttribute('href')))
-      .filter(Boolean);
     const spy = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -29,160 +27,202 @@
       },
       { rootMargin: '-80px 0px -70% 0px' }
     );
-    headings.forEach((h) => spy.observe(h));
+    tocLinks
+      .map((a) => document.querySelector(a.getAttribute('href')))
+      .filter(Boolean)
+      .forEach((h) => spy.observe(h));
   }
 
-  if (!window.gsap) return;
-  const { gsap } = window;
-  if (window.ScrollTrigger) gsap.registerPlugin(window.ScrollTrigger);
+  // ---------- hero: the bar, docked to the stage's top edge ----------
+  const stage = document.querySelector('[data-stage]');
+  if (stage) {
+    const bar = stage.querySelector('.bar');
+    const shots = [...stage.querySelectorAll('.bar-card img')];
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    let index = 0;
+    let timer = 0;
+    let hovering = false;
+    let visible = true;
 
-  const mm = gsap.matchMedia();
+    const hint = stage.querySelector('.stage-hint');
+    if (hint && !finePointer) hint.textContent = 'Tap the pill to open or close it.';
 
-  // ---------- reduced motion: show everything, animate nothing ----------
-  mm.add('(prefers-reduced-motion: reduce)', () => {
-    gsap.set('[data-reveal]', { opacity: 1, y: 0 });
-    gsap.set('.bar', { height: 'auto' });
-    document.querySelectorAll('[data-type]').forEach((el) => (el.textContent = el.dataset.type));
-    document.querySelectorAll('.step').forEach((s) => s.classList.add('is-lit'));
-    document.querySelectorAll('[data-count]').forEach((el) => (el.textContent = el.dataset.count));
-    gsap.set('.chip', { opacity: 1, y: 0 });
-  });
+    const setOpen = (open) => {
+      bar.classList.toggle('is-open', open);
+      stage.classList.toggle('is-open', open);
+      bar.setAttribute('aria-expanded', String(open));
+    };
+    const show = (i) => shots.forEach((img, n) => img.classList.toggle('is-on', n === i));
 
-  // ---------- full motion ----------
-  mm.add('(prefers-reduced-motion: no-preference)', () => {
-    const ease = 'power3.out';
+    // Idle, open on a module, hold, close, next module. Paused while you hover
+    // (you're in control then), off-screen, or in a background tab.
+    const HOLD_CLOSED = 1600;
+    const HOLD_OPEN = 3600;
+    // one pending timer at a time, whoever schedules it
+    const schedule = (fn, ms) => {
+      clearTimeout(timer);
+      timer = setTimeout(fn, ms);
+    };
+    const next = () => {
+      index = (index + 1) % shots.length;
+      show(index);
+      step();
+    };
+    const step = () => {
+      clearTimeout(timer);
+      if (hovering || !visible || document.hidden) return;
+      if (bar.classList.contains('is-open')) {
+        setOpen(false);
+        schedule(next, HOLD_CLOSED);
+      } else {
+        setOpen(true);
+        schedule(step, HOLD_OPEN);
+      }
+    };
 
-    // Ambient blobs: slow, staggered, never synchronised - same idea as the app's
-    // mesh layer, which drifts position only (cheap) rather than animating opacity.
-    document.querySelectorAll('.mesh span, .bar-mesh span').forEach((blob, i) => {
-      gsap.to(blob, {
-        x: `random(-40, 40)`,
-        y: `random(-30, 30)`,
-        duration: 14 + i * 3,
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-        delay: i * 0.6,
+    if (reduce.matches) {
+      setOpen(true);
+    } else {
+      // the observer fires once on load, which starts the loop
+      new IntersectionObserver(([e]) => {
+        visible = e.isIntersecting;
+        if (visible) schedule(step, 700);
+        else clearTimeout(timer);
+      }).observe(stage);
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) clearTimeout(timer);
+        else if (visible) schedule(step, 500);
       });
-    });
-
-    // ---- hero: the bar drops open, then holds a short conversation ----
-    const bar = document.querySelector('.bar');
-    if (bar) {
-      const idle = bar.querySelector('.bar-idle');
-      const expanded = bar.querySelector('.bar-expanded');
-      const said = bar.querySelector('[data-type="What is running on port three thousand?"]');
-      const reply = bar.querySelector('[data-type="Port three thousand is held by node, process 8936."]');
-      const caretA = bar.querySelector('.caret--a');
-      const caretB = bar.querySelector('.caret--b');
-
-      gsap.set(expanded, { display: 'none' });
-      gsap.set('.hero-copy > *', { opacity: 0, y: 14 });
-      gsap.set('.mock-frame', { opacity: 0, y: 20 });
-      gsap.set('.chip', { opacity: 0, y: 6 });
-
-      const label = bar.querySelector('.orb-label');
-      const setLabel = (t) => {
-        if (!label) return;
-        label.textContent = t;
-        // colour tracks the app: green while it listens, accent while it works
-        label.style.color = t === 'LISTENING' ? 'var(--good)' : 'var(--accent)';
-      };
-
-      const type = (el, caret, text, speed = 0.032) => {
-        const tl = gsap.timeline();
-        if (!el) return tl;
-        tl.set(caret, { opacity: 1 })
-          .to(caret, { opacity: 0, duration: 0.45, repeat: -1, yoyo: true, ease: 'none' }, 0)
-          .to(el, {
-            duration: text.length * speed,
-            ease: 'none',
-            onUpdate() {
-              const n = Math.round(this.progress() * text.length);
-              el.textContent = text.slice(0, n);
-            },
-          }, 0)
-          .set(caret, { opacity: 0 });
-        return tl;
-      };
-
-      const hero = gsap.timeline({ defaults: { ease } });
-      hero
-        .to('.hero-copy > *', { opacity: 1, y: 0, duration: 0.7, stagger: 0.08 })
-        .to('.mock-frame', { opacity: 1, y: 0, duration: 0.7 }, 0.15)
-        // idle pill sits there first - that's how you actually meet DevBar
-        .from('.bar-idle i', { scaleX: 0.2, opacity: 0, duration: 0.5 }, 0.5)
-        .to({}, { duration: 0.45 })
-        // ...then the shade unrolls: width settles fast, height keeps going
-        .set(expanded, { display: 'block' })
-        .set(idle, { display: 'none' })
-        .fromTo(
-          bar,
-          { height: 22 },
-          { height: () => expanded.scrollHeight + 22, duration: 0.42, ease: 'power2.out' }
-        )
-        .from('.tab', { opacity: 0, y: -4, duration: 0.3, stagger: 0.035 }, '-=0.15')
-        .from('.orb i', { scale: 0.7, opacity: 0, duration: 0.45, stagger: 0.07 }, '-=0.25')
-        .add(type(said, caretA, 'What is running on port three thousand?'), '+=0.25')
-        .call(() => setLabel('THINKING'))
-        .add(gsap.timeline().to('.orb .core', { opacity: 0.5, scale: 1.12, duration: 0.5, yoyo: true, repeat: 3, ease: 'sine.inOut' }), '+=0.05')
-        .to('.chip', { opacity: 1, y: 0, duration: 0.3, stagger: 0.1 }, '-=1.4')
-        .call(() => setLabel('SPEAKING'))
-        .add(type(reply, caretB, 'Port three thousand is held by node, process 8936.'), '-=0.4')
-        .call(() => setLabel('READY'), undefined, '+=0.4')
-        .set(bar, { height: 'auto' });
     }
 
-    if (!window.ScrollTrigger) return;
+    if (finePointer) {
+      let leaveTimer = 0;
+      stage.addEventListener('pointerenter', () => {
+        clearTimeout(timer);
+        clearTimeout(leaveTimer);
+        hovering = true;
+        setOpen(true);
+      });
+      stage.addEventListener('pointerleave', () => {
+        hovering = false;
+        // the app waits a beat before collapsing, so a wobble off the edge doesn't close it
+        leaveTimer = setTimeout(() => {
+          if (reduce.matches) return;
+          setOpen(false);
+          schedule(next, HOLD_CLOSED);
+        }, 300);
+      });
+    }
 
-    // ---- section reveals ----
-    document.querySelectorAll('[data-reveal]').forEach((el) => {
-      gsap.to(el, {
-        opacity: 1,
-        y: 0,
-        duration: 0.7,
-        ease,
-        scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+    // Touch and keyboard: the bar is a button, so a tap or Enter toggles it.
+    bar.addEventListener('click', () => {
+      if (finePointer && hovering) return; // hover already opened it
+      clearTimeout(timer);
+      setOpen(!bar.classList.contains('is-open'));
+    });
+  }
+
+  // ---------- modules: a tab strip, like the bar's own ----------
+  const viewer = document.querySelector('[data-viewer]');
+  if (viewer) {
+    const tabs = [...viewer.querySelectorAll('[role="tab"]')];
+    const frame = viewer.querySelector('.viewer-frame');
+    const shots = [...frame.querySelectorAll('img')];
+    const desc = viewer.querySelector('.viewer-desc');
+
+    const select = (tab, focus) => {
+      tabs.forEach((t) => {
+        const on = t === tab;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+      });
+      const n = Number(tab.dataset.shot);
+      shots.forEach((img, i) => img.classList.toggle('is-on', i === n));
+      frame.setAttribute('aria-labelledby', tab.id);
+      if (desc) desc.textContent = tab.querySelector('.desc').textContent;
+      if (focus) {
+        tab.focus();
+        tab.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: reduce.matches ? 'auto' : 'smooth' });
+      }
+    };
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(tab, false));
+      tab.addEventListener('keydown', (e) => {
+        const next = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
+        if (next) {
+          e.preventDefault();
+          select(tabs[(i + next + tabs.length) % tabs.length], true);
+        } else if (e.key === 'Home' || e.key === 'End') {
+          e.preventDefault();
+          select(tabs[e.key === 'Home' ? 0 : tabs.length - 1], true);
+        }
       });
     });
-    gsap.set('[data-reveal]', { y: 18 });
+  }
 
-    document.querySelectorAll('[data-reveal-group]').forEach((group) => {
-      const kids = group.children;
-      gsap.set(kids, { opacity: 0, y: 18 });
-      gsap.to(kids, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        ease,
-        stagger: 0.07,
-        scrollTrigger: { trigger: group, start: 'top 85%', once: true },
+  // ---------- Jarvis rail: the loop lights up in order as it scrolls in ----------
+  const rail = document.querySelector('[data-rail]');
+  if (rail) {
+    const legs = [...rail.querySelectorAll('.leg')];
+    const light = () => {
+      legs.forEach((leg, i) => {
+        setTimeout(() => {
+          leg.classList.add('is-lit');
+          rail.style.setProperty('--lit', String(i / (legs.length - 1)));
+        }, reduce.matches ? 0 : i * 220);
       });
-    });
+    };
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      io.disconnect();
+      light();
+    }, { rootMargin: '0px 0px -25% 0px' });
+    io.observe(rail);
+  }
 
-    // ---- counters ----
-    document.querySelectorAll('[data-count]').forEach((el) => {
-      const target = parseFloat(el.dataset.count);
-      const decimals = (el.dataset.count.split('.')[1] || '').length;
-      const suffix = el.dataset.suffix || '';
-      const obj = { v: 0 };
-      gsap.to(obj, {
-        v: target,
-        duration: 1.1,
-        ease: 'power2.out',
-        scrollTrigger: { trigger: el, start: 'top 92%', once: true },
-        onUpdate: () => (el.textContent = obj.v.toFixed(decimals) + suffix),
-      });
-    });
+  // ---------- entrances ----------
+  // Visible by default. Only elements still below the fold get hidden, and only just
+  // before they arrive, so nothing is ever blank for a crawler or a screenshot.
+  if (reduce.matches || !('IntersectionObserver' in window)) return;
 
-    // ---- voice pipeline lights up as it scrolls through ----
-    document.querySelectorAll('.step').forEach((step, i) => {
-      window.ScrollTrigger.create({
-        trigger: step,
-        start: 'top 78%',
-        once: true,
-        onEnter: () => gsap.delayedCall(i * 0.12, () => step.classList.add('is-lit')),
+  const targets = [];
+  document.querySelectorAll('[data-reveal]').forEach((el) => targets.push([el, 0]));
+  document.querySelectorAll('[data-reveal-group]').forEach((group) =>
+    [...group.children].forEach((el, i) => targets.push([el, i]))
+  );
+
+  // `near` hides an element while it is still just below the viewport; `arrive` plays
+  // the entrance once it is actually on screen.
+  const arrive = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        arrive.unobserve(el);
+        // two frames: commit the hidden state, then transition out of it
+        requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('revealed')));
       });
-    });
+    },
+    { rootMargin: '0px 0px -8% 0px' }
+  );
+  const near = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        near.unobserve(el);
+        el.classList.add('will-reveal');
+        arrive.observe(el);
+      });
+    },
+    { rootMargin: '0px 0px 35% 0px' }
+  );
+
+  const fold = window.innerHeight;
+  targets.forEach(([el, i]) => {
+    if (el.getBoundingClientRect().top < fold * 1.35) return; // on or near screen at load: leave it be
+    el.style.setProperty('--d', String(i));
+    near.observe(el);
   });
 })();

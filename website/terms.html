@@ -5,37 +5,38 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Terms of Service - DevBar</title>
 <meta name="description" content="DevBar's terms of service: MIT licensed software provided as-is, you bring your own API keys, and you stay responsible for the actions you approve.">
-<meta name="theme-color" content="#0B0E14">
+<meta name="theme-color" content="#111113">
 <link rel="canonical" href="https://devbar-neon.vercel.app/terms">
 <meta property="og:title" content="DevBar - Terms of Service">
 <meta property="og:description" content="MIT licensed, provided as-is, no service, bring your own keys.">
 <meta property="og:type" content="article">
 <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
 <link rel="icon" type="image/png" sizes="128x128" href="assets/img/logo-128.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/site.css">
+<link rel="preload" href="assets/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/site.css?v=3">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
 
+<a class="skip" href="#main">Skip to content</a>
+<span class="nav-sentinel" aria-hidden="true"></span>
+
 <header class="nav">
   <div class="wrap">
     <a class="brand" href="/"><img src="assets/img/logo.svg" alt="" width="26" height="26"> DevBar</a>
-    <nav class="nav-links">
+    <nav class="nav-links" aria-label="Primary">
       <a href="/#modules" class="nav-hide">Modules</a>
       <a href="/#jarvis" class="nav-hide">Jarvis</a>
       <a href="/privacy" class="nav-hide">Privacy</a>
-      <a class="btn btn--sm" href="https://github.com/Vivek-C-Shah/DevBar">
-        <img src="assets/img/icons/github.svg" alt="" width="16" height="16"> GitHub
+      <a class="btn btn--sm btn--ghost" href="https://github.com/Vivek-C-Shah/DevBar">
+        <span class="i i-github" aria-hidden="true"></span> GitHub
       </a>
-      <a class="btn btn--sm btn--primary" href="/#install">Install</a>
+      <a class="btn btn--sm btn--primary" href="/#install">Download</a>
     </nav>
   </div>
 </header>
 
-<main class="legal">
+<main class="legal" id="main">
   <div class="wrap legal-grid">
     <nav class="toc" aria-label="On this page">
       <p class="overline">On this page</p>
@@ -127,7 +128,7 @@
       Gujarat, India · <a href="https://github.com/Vivek-C-Shah/DevBar">github.com/Vivek-C-Shah/DevBar</a></p>
 
       <div class="btn-row">
-        <a class="btn btn--primary" href="/#install">Install DevBar</a>
+        <a class="btn btn--primary" href="/#install">Download</a>
         <a class="btn" href="https://github.com/Vivek-C-Shah/DevBar/issues">Contribute on GitHub</a>
         <a class="btn btn--ghost" href="/privacy">Read the privacy policy</a>
       </div>
@@ -152,8 +153,6 @@
   </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-<script src="assets/js/site.js"></script>
+<script src="assets/js/site.js?v=3" defer></script>
 </body>
 </html>

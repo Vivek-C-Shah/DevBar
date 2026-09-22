@@ -1,6 +1,6 @@
 # DevBar website
 
-Static marketing site plus the legal pages Google's OAuth consent screen requires. No build step, no framework, no dependencies to install - three HTML files, one stylesheet, one script, and the product's own screenshots.
+Static marketing site plus the legal pages Google's OAuth consent screen requires. No build step, no framework, no dependencies, no third-party requests - three HTML files, one stylesheet, one script, self-hosted fonts, and the product's own screenshots.
 
 ```
 website/
@@ -9,8 +9,9 @@ website/
   terms.html          terms of service → /terms
   vercel.json         clean URLs + cache/security headers
   assets/css/site.css tokens copied from ../.tastemaker/style-lock.md
-  assets/js/site.js    GSAP + ScrollTrigger choreography
-  assets/img/          logo, product screenshots, Lucide icons
+  assets/js/site.js    hero bar demo, module tabs, reveals (vanilla, no libraries)
+  assets/fonts/        Geist + Geist Mono, self-hosted
+  assets/img/          logo, product screenshots, Phosphor icons
 ```
 
 ## Run it locally
@@ -63,6 +64,10 @@ Numbers on the landing page are measured, not marketing: 0.0% idle CPU and ~130 
 
 ## Credits
 
-- **Icons** - [Lucide](https://lucide.dev) (ISC) fetched via Iconify; no attribution required, credited here as a courtesy.
-- **Screenshots** - captured from DevBar running on Windows 11. Nothing is mocked up; the hero "bar" is rebuilt in DOM so it can animate like the real one.
-- **Fonts** - Inter and JetBrains Mono via Google Fonts, chosen as the web equivalents of the app's Segoe UI Variable / Cascadia Mono pairing.
+- **Icons** - [Phosphor](https://phosphoricons.com) (MIT), tinted in CSS through a mask so they follow text colour.
+- **Screenshots** - captured from DevBar running on Windows 11. Nothing is mocked up; the hero unrolls the real screenshots through a clip-path so it moves like the bar does.
+- **Fonts** - [Geist and Geist Mono](https://vercel.com/font) (OFL), self-hosted from `assets/fonts/`.
+
+## Cache busting
+
+`vercel.json` serves `/assets/*` as immutable for a year. When you change `site.css` or `site.js`, bump the `?v=` on their `<link>`/`<script>` tags in all three HTML files, or returning visitors keep the old file.

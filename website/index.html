@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DevBar - a hover-expand command strip for Windows developers</title>
 <meta name="description" content="A 125-pixel pill at the top of your screen. Hover it for your clipboard, ports, containers, repos and Claude sessions. Press a key and Jarvis answers out loud. Free, open source, 0% CPU at idle.">
-<meta name="theme-color" content="#0B0E14">
+<meta name="theme-color" content="#111113">
 <link rel="canonical" href="https://devbar-neon.vercel.app/">
 
 <!-- Open Graph / X -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="DevBar - the toolbar that gets out of your way">
-<meta property="og:description" content="Clipboard, ports, containers, repos and Claude sessions in a pill at the top of your screen - plus a voice assistant that can actually act. Free and open source.">
+<meta property="og:description" content="Clipboard, ports, containers, repos and Claude sessions in a pill at the top of your screen, plus a voice assistant that can actually act. Free and open source.">
 <meta property="og:image" content="https://devbar-neon.vercel.app/assets/img/shots/09_jarvis.png">
 <meta property="og:url" content="https://devbar-neon.vercel.app/">
 <meta name="twitter:card" content="summary_large_image">
@@ -27,16 +27,19 @@
 <link rel="icon" type="image/png" sizes="128x128" href="assets/img/logo-128.png">
 <link rel="apple-touch-icon" href="assets/img/logo-512.png">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/site.css">
+<link rel="preload" href="assets/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/img/shots/09_jarvis.png" as="image">
+<!-- ?v= busts the year-long immutable cache vercel.json sets on /assets -->
+<link rel="stylesheet" href="assets/css/site.css?v=3">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
 
-<!-- Icons: Lucide (ISC) via Iconify - no attribution required, credited here as a courtesy.
-     Product screenshots: captured from DevBar running on Windows 11; nothing mocked up. -->
+<!-- Icons: Phosphor (MIT). Product screenshots: captured from DevBar running on
+     Windows 11; nothing mocked up. -->
+
+<a class="skip" href="#main">Skip to content</a>
+<span class="nav-sentinel" aria-hidden="true"></span>
 
 <header class="nav">
   <div class="wrap">
@@ -44,106 +47,62 @@
       <img src="assets/img/logo.svg" alt="" width="26" height="26">
       DevBar
     </a>
-    <nav class="nav-links">
+    <nav class="nav-links" aria-label="Primary">
       <a href="#modules" class="nav-hide">Modules</a>
       <a href="#jarvis" class="nav-hide">Jarvis</a>
       <a href="#privacy" class="nav-hide">Your data</a>
       <a href="#contribute" class="nav-hide">Contribute</a>
-      <a class="btn btn--sm" href="https://github.com/Vivek-C-Shah/DevBar">
-        <img src="assets/img/icons/github.svg" alt="" width="16" height="16">
+      <a class="btn btn--sm btn--ghost" href="https://github.com/Vivek-C-Shah/DevBar">
+        <span class="i i-github" aria-hidden="true"></span>
         GitHub
       </a>
-      <a class="btn btn--sm btn--primary" href="#install">Install</a>
+      <a class="btn btn--sm btn--primary" href="#install">Download</a>
     </nav>
   </div>
 </header>
 
+<main id="main">
+
 <!-- ───────────────────────── hero ───────────────────────── -->
 <section class="hero">
-  <div class="mesh" aria-hidden="true"><span class="b1"></span><span class="b2"></span><span class="b3"></span><span class="b4"></span></div>
   <div class="wrap">
+    <h1>The toolbar that gets out of <span class="accent">your way</span>.</h1>
     <div class="hero-grid">
       <div class="hero-copy">
-        <span class="hero-badge"><i class="dot"></i> <b>0.0% CPU</b> while you're not using it</span>
-        <h1>The toolbar that<br>gets out of <span class="accent">your way</span>.</h1>
-        <p class="lead">
-          DevBar is a 125-pixel pill at the top of your screen. Hover it and it drops into a
-          card with your clipboard, listening ports, containers, repos and Claude Code sessions.
-          Press <span class="kbd">Ctrl</span> <span class="kbd">Alt</span> <span class="kbd">Space</span>
-          and Jarvis listens, answers out loud, and can actually do the thing.
-        </p>
+        <p class="lead">A 125-pixel pill at the top of your screen. Hover for ports, clipboard, containers and Claude sessions, or ask Jarvis.</p>
         <div class="btn-row">
           <a class="btn btn--primary" href="#install">
-            <img src="assets/img/icons/download.svg" alt="" width="17" height="17">
-            Install DevBar
+            <span class="i i-download" aria-hidden="true"></span>
+            Download
           </a>
           <a class="btn" href="https://github.com/Vivek-C-Shah/DevBar">
-            <img src="assets/img/icons/github.svg" alt="" width="17" height="17">
-            Star on GitHub
+            <span class="i i-github" aria-hidden="true"></span>
+            View on GitHub
           </a>
         </div>
-        <p class="note" style="margin-top:18px">Windows 10/11 · no admin rights · MIT licensed · no account, ever</p>
       </div>
 
-      <!-- Not a video: the real bar, rebuilt in DOM so it animates exactly like the product. -->
-      <div class="mock" data-reveal>
-        <div class="mock-frame">
-          <div class="mock-topbar" aria-hidden="true">
-            <i></i><i></i><i></i><span>your screen, top edge</span>
-          </div>
-          <div class="mock-stage">
-            <div class="bar" role="img" aria-label="DevBar expanded on the Jarvis tab, answering a question about port 3000">
-              <div class="bar-mesh" aria-hidden="true"><span class="m1"></span><span class="m2"></span><span class="m3"></span><span class="m4"></span></div>
-              <div class="bar-inner">
-                <div class="bar-rail"></div>
-                <div class="bar-body">
-                  <div class="bar-idle"><i></i></div>
-                  <div class="bar-expanded">
-                    <div class="tabs">
-                      <span class="tab is-active"><img src="assets/img/icons/mic.svg" alt="Jarvis" width="14" height="14"></span>
-                      <span class="tab"><img src="assets/img/icons/clipboard.svg" alt="Clipboard" width="14" height="14"></span>
-                      <span class="tab"><img src="assets/img/icons/folder-open.svg" alt="Shelf" width="14" height="14"></span>
-                      <span class="tab"><img src="assets/img/icons/bot.svg" alt="Claude Code" width="14" height="14"></span>
-                      <span class="tab"><img src="assets/img/icons/network.svg" alt="Ports" width="14" height="14"></span>
-                      <span class="tab"><img src="assets/img/icons/box.svg" alt="Docker" width="14" height="14"></span>
-                      <span class="tab"><img src="assets/img/icons/git-branch.svg" alt="Git" width="14" height="14"></span>
-                      <span class="tab"><img src="assets/img/icons/check-circle.svg" alt="Build pulse" width="14" height="14"></span>
-                      <span class="tab"><img src="assets/img/icons/volume-2.svg" alt="Now playing" width="14" height="14"></span>
-                    </div>
-                    <div class="card-body">
-                      <div>
-                        <div class="orb" aria-hidden="true">
-                          <i class="halo"></i><i class="ring"></i><i class="core"></i>
-                          <img src="assets/img/icons/mic.svg" alt="" width="17" height="17">
-                        </div>
-                        <div class="orb-label">LISTENING</div>
-                      </div>
-                      <div class="transcript">
-                        <div class="who">You</div>
-                        <p class="said"><span data-type="What is running on port three thousand?"></span><span class="caret caret--a"></span></p>
-                        <div class="who">Jarvis</div>
-                        <p class="reply"><span data-type="Port three thousand is held by node, process 8936."></span><span class="caret caret--b"></span></p>
-                        <div class="chips">
-                          <span class="chip"><span class="ok">✓</span> list_ports</span>
-                          <span class="chip chip--pending">… kill_port 3000</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <p class="mock-caption">Hover to expand, look away to dismiss. Nothing to alt-tab past.</p>
+      <!-- Real screenshots inside a clip-path shade, so the demo is the actual interaction:
+           hover the pill, it unrolls; look away, it's gone. -->
+      <div class="stage" data-stage>
+        <button class="bar" type="button" aria-expanded="false" aria-label="DevBar demo: open or close the bar">
+          <span class="bar-card">
+            <img class="is-on" src="assets/img/shots/09_jarvis.png" alt="DevBar open on the Jarvis tab, ready for a spoken question" width="640" height="300">
+            <img src="assets/img/shots/05_ports.png" alt="DevBar open on Ports, listing listening TCP ports with process and PID" width="640" height="300" loading="lazy">
+            <img src="assets/img/shots/04_claude.png" alt="DevBar open on Claude Code, showing sessions working, waiting and idle" width="640" height="300" loading="lazy">
+            <img src="assets/img/shots/03_clipboard.png" alt="DevBar open on Clipboard, showing recent copies" width="640" height="300" loading="lazy">
+          </span>
+          <span class="bar-pill" aria-hidden="true"><i></i></span>
+        </button>
+        <p class="stage-hint">Hover the pill. Move away and it's gone.</p>
       </div>
     </div>
 
-    <div class="stats" data-reveal-group>
-      <div class="stat stat--good"><b><span data-count="0.0" data-suffix="%">0.0%</span></b><span>CPU while collapsed - measured, not asserted</span></div>
-      <div class="stat"><b><span data-count="130" data-suffix=" MB">130 MB</span></b><span>Working set with the bar idle</span></div>
-      <div class="stat"><b><span data-count="9" data-suffix=" modules">9 modules</span></b><span>Plus a five-method SDK for your own</span></div>
-      <div class="stat"><b>0</b><span>Accounts, trackers, telemetry pings</span></div>
+    <div class="proof">
+      <div><b class="good">0.0%</b><span>CPU while collapsed, measured</span></div>
+      <div><b>~130 MB</b><span>Working set with the bar idle</span></div>
+      <div><b>9</b><span>Modules, plus an SDK for yours</span></div>
+      <div><b>0</b><span>Accounts, trackers or telemetry</span></div>
     </div>
   </div>
 </section>
@@ -151,69 +110,61 @@
 <!-- ───────────────────────── modules ───────────────────────── -->
 <section class="band band--well" id="modules">
   <div class="wrap">
-    <div class="band-head" data-reveal>
-      <p class="overline">What's on the bar</p>
-      <h2 style="margin-top:14px">Nine things you check fifty times a day.</h2>
-      <p class="lead">Every shot below is DevBar running on Windows 11 - real ports, real containers, real sessions. Each module is event-driven or polls only while its card is on screen, so none of it costs you anything when the bar is closed.</p>
+    <div class="head" data-reveal>
+      <h2>Nine things you check fifty times a day.</h2>
+      <p class="lead">Each module is event-driven or polls only while its card is on screen. With the bar closed, none of it costs you anything.</p>
     </div>
 
-    <div class="shots" data-reveal-group>
-      <figure class="shot" style="margin:0">
-        <div class="shot-frame"><img src="assets/img/shots/09_jarvis.png" alt="DevBar's Jarvis tab: an orb, the transcript of what you said, and Jarvis's spoken reply" loading="lazy" width="640" height="300"></div>
-        <div class="shot-meta">
-          <h3><img src="assets/img/icons/mic.svg" alt="" width="15" height="15"> Jarvis</h3>
-          <p>Press the shortcut, talk. It answers out loud and can act - with a confirmation for anything destructive.</p>
+    <div class="viewer" data-viewer>
+      <div class="mods" role="tablist" aria-label="Modules" aria-orientation="vertical">
+        <button class="mod" role="tab" id="t-jarvis" aria-controls="viewer-frame" aria-selected="true" data-shot="0">
+          <span class="i i-mic" aria-hidden="true"></span><b>Jarvis</b>
+          <span class="desc"><span>Press the shortcut and talk. It answers out loud and can act, with a confirmation for anything destructive.</span></span>
+        </button>
+        <button class="mod" role="tab" id="t-ports" aria-controls="viewer-frame" aria-selected="false" tabindex="-1" data-shot="1">
+          <span class="i i-ports" aria-hidden="true"></span><b>Ports</b>
+          <span class="desc"><span>Every listening TCP port with the process holding it. One click to kill the stuck dev server.</span></span>
+        </button>
+        <button class="mod" role="tab" id="t-clip" aria-controls="viewer-frame" aria-selected="false" tabindex="-1" data-shot="2">
+          <span class="i i-clip" aria-hidden="true"></span><b>Clipboard</b>
+          <span class="desc"><span>Your last 25 copies, tagged as text, URL or code. Click to copy again, &times; to forget one.</span></span>
+        </button>
+        <button class="mod" role="tab" id="t-claude" aria-controls="viewer-frame" aria-selected="false" tabindex="-1" data-shot="3">
+          <span class="i i-bot" aria-hidden="true"></span><b>Claude Code</b>
+          <span class="desc"><span>Which sessions are working, idle, or waiting on you. Click one to jump to its terminal.</span></span>
+        </button>
+        <button class="mod" role="tab" id="t-docker" aria-controls="viewer-frame" aria-selected="false" tabindex="-1" data-shot="4">
+          <span class="i i-docker" aria-hidden="true"></span><b>Docker</b>
+          <span class="desc"><span>Containers with start and stop on every row, and honest states for "not installed" versus "not running".</span></span>
+        </button>
+        <button class="mod" role="tab" id="t-git" aria-controls="viewer-frame" aria-selected="false" tabindex="-1" data-shot="5">
+          <span class="i i-git" aria-hidden="true"></span><b>Git status</b>
+          <span class="desc"><span>Dirty or clean, ahead or behind, for the repos you choose to watch. Click to open the folder.</span></span>
+        </button>
+        <button class="mod" role="tab" id="t-shelf" aria-controls="viewer-frame" aria-selected="false" tabindex="-1" data-shot="6">
+          <span class="i i-shelf" aria-hidden="true"></span><b>Shelf</b>
+          <span class="desc"><span>Drag files in, drag them out somewhere else. It clears on restart, on purpose.</span></span>
+        </button>
+        <button class="mod" role="tab" id="t-ci" aria-controls="viewer-frame" aria-selected="false" tabindex="-1" data-shot="7">
+          <span class="i i-check" aria-hidden="true"></span><b>Build pulse</b>
+          <span class="desc"><span>A quiet status light for each build output you watch. Did it build recently, yes or no.</span></span>
+        </button>
+      </div>
+
+      <div class="viewer-main">
+        <div class="viewer-frame" id="viewer-frame" role="tabpanel" aria-labelledby="t-jarvis">
+          <img class="is-on" src="assets/img/shots/09_jarvis.png" alt="Jarvis tab: an orb, what you said, and the spoken reply" width="640" height="300" loading="lazy">
+          <img src="assets/img/shots/05_ports.png" alt="Ports module listing listening TCP ports with process names and PIDs" width="640" height="300" loading="lazy">
+          <img src="assets/img/shots/03_clipboard.png" alt="Clipboard module showing recent copies tagged by type" width="640" height="300" loading="lazy">
+          <img src="assets/img/shots/04_claude.png" alt="Claude Code module showing sessions in working, waiting and idle states" width="640" height="300" loading="lazy">
+          <img src="assets/img/shots/06_docker.png" alt="Docker module listing containers with start and stop buttons" width="640" height="300" loading="lazy">
+          <img src="assets/img/shots/07_git.png" alt="Git status module showing a watched repo, its branch and dirty state" width="640" height="300" loading="lazy">
+          <img src="assets/img/shots/02_shelf.png" alt="Shelf module with three files dropped onto it" width="640" height="300" loading="lazy">
+          <img src="assets/img/shots/08_ci.png" alt="Build pulse module showing a status light per watched build" width="640" height="300" loading="lazy">
         </div>
-      </figure>
-      <figure class="shot" style="margin:0">
-        <div class="shot-frame"><img src="assets/img/shots/05_ports.png" alt="Ports module listing listening TCP ports with process names and PIDs" loading="lazy" width="640" height="300"></div>
-        <div class="shot-meta">
-          <h3><img src="assets/img/icons/network.svg" alt="" width="15" height="15"> Ports</h3>
-          <p>Every listening TCP port with the process holding it. One click to kill the stuck dev server.</p>
-        </div>
-      </figure>
-      <figure class="shot" style="margin:0">
-        <div class="shot-frame"><img src="assets/img/shots/03_clipboard.png" alt="Clipboard module showing recent copies tagged by type" loading="lazy" width="640" height="300"></div>
-        <div class="shot-meta">
-          <h3><img src="assets/img/icons/clipboard.svg" alt="" width="15" height="15"> Clipboard</h3>
-          <p>Your last 25 copies, type-tagged. Click a chip to re-copy, × to forget it.</p>
-        </div>
-      </figure>
-      <figure class="shot" style="margin:0">
-        <div class="shot-frame"><img src="assets/img/shots/04_claude.png" alt="Claude Code module showing sessions in working, waiting and idle states" loading="lazy" width="640" height="300"></div>
-        <div class="shot-meta">
-          <h3><img src="assets/img/icons/bot.svg" alt="" width="15" height="15"> Claude Code</h3>
-          <p>Which sessions are working, idle, or waiting on you. Connect the hook and Jarvis says so out loud.</p>
-        </div>
-      </figure>
-      <figure class="shot" style="margin:0">
-        <div class="shot-frame"><img src="assets/img/shots/06_docker.png" alt="Docker module listing containers with start and stop buttons" loading="lazy" width="640" height="300"></div>
-        <div class="shot-meta">
-          <h3><img src="assets/img/icons/box.svg" alt="" width="15" height="15"> Docker</h3>
-          <p>Containers with start/stop per row, and honest states for "not installed" versus "not running".</p>
-        </div>
-      </figure>
-      <figure class="shot" style="margin:0">
-        <div class="shot-frame"><img src="assets/img/shots/07_git.png" alt="Git status module showing a watched repo, its branch and dirty state" loading="lazy" width="640" height="300"></div>
-        <div class="shot-meta">
-          <h3><img src="assets/img/icons/git-branch.svg" alt="" width="15" height="15"> Git status</h3>
-          <p>Dirty or clean, ahead or behind, for the repos you choose to watch. Click to open the folder.</p>
-        </div>
-      </figure>
-      <figure class="shot" style="margin:0">
-        <div class="shot-frame"><img src="assets/img/shots/02_shelf.png" alt="Shelf module with three files dropped onto it" loading="lazy" width="640" height="300"></div>
-        <div class="shot-meta">
-          <h3><img src="assets/img/icons/folder-open.svg" alt="" width="15" height="15"> Shelf</h3>
-          <p>Drag files in, drag them out somewhere else. Clears on restart, on purpose.</p>
-        </div>
-      </figure>
-      <figure class="shot" style="margin:0">
-        <div class="shot-frame"><img src="assets/img/shots/01_idle.png" alt="DevBar idle: a small pill docked to the top edge of the screen" loading="lazy" width="640" height="120"></div>
-        <div class="shot-meta">
-          <h3><img src="assets/img/icons/eye.svg" alt="" width="15" height="15"> Idle</h3>
-          <p>This is what's on your screen all day: 125 × 22 pixels. Every pixel around it stays click-through.</p>
-        </div>
-      </figure>
+        <p class="viewer-desc" aria-live="polite">Press the shortcut and talk. It answers out loud and can act, with a confirmation for anything destructive.</p>
+        <p class="viewer-foot">Real screenshots from Windows 11. Now Playing, the ninth module, controls whatever is playing system-wide.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -221,61 +172,54 @@
 <!-- ───────────────────────── jarvis ───────────────────────── -->
 <section class="band" id="jarvis">
   <div class="wrap">
-    <div class="band-head" data-reveal>
-      <p class="overline">The Jarvis tab</p>
-      <h2 style="margin-top:14px">Press a key. Talk. It does the thing.</h2>
-      <p class="lead">Not a chatbot in a window - a voice loop wired into the modules above. It hears you with streaming speech recognition, thinks on free-tier models, calls real tools on your machine, and speaks the result while the rest of the answer is still being generated.</p>
+    <div class="head" data-reveal>
+      <h2>Press a key. Talk. It does the thing.</h2>
+      <p class="lead">Not a chatbot in a window. A voice loop wired into the modules, calling real tools on your machine and speaking before the answer is finished.</p>
     </div>
 
-    <div class="pipeline" data-reveal-group>
-      <div class="step">
-        <span class="num">01</span>
+    <ol class="rail" data-rail>
+      <li class="leg">
         <h3>You press</h3>
-        <p>A global shortcut you can rebind. The mic is shut until that moment - or until you say "Hey Jarvis", if you turn the on-device wake word on.</p>
+        <p>A global shortcut you can rebind. The mic stays shut until then, or until you say "Hey Jarvis" with the on-device wake word on.</p>
         <span class="ms">0 ms idle cost</span>
-      </div>
-      <div class="step">
-        <span class="num">02</span>
+      </li>
+      <li class="leg">
         <h3>It hears</h3>
-        <p>Streaming transcription, with pauses handled so you don't get cut off mid-thought.</p>
+        <p>Streaming transcription that waits out your pauses, so you don't get cut off mid-thought.</p>
         <span class="ms">~500 ms after you stop</span>
-      </div>
-      <div class="step">
-        <span class="num">03</span>
+      </li>
+      <li class="leg">
         <h3>It thinks</h3>
-        <p>Your words, your pinned profile and the tool list go to the first model in your chain; the next one takes over on a rate limit.</p>
+        <p>Your words, your pinned profile and the tool list go to the first model in your chain. The next takes over on a rate limit.</p>
         <span class="ms">~400 ms to first word</span>
-      </div>
-      <div class="step">
-        <span class="num">04</span>
+      </li>
+      <li class="leg">
         <h3>It acts</h3>
-        <p>27 tools: ports, containers, repos, clipboard, apps, screen, mail, calendar, shell. Destructive ones are read back and wait for your yes.</p>
+        <p>27 tools across ports, containers, repos, clipboard, apps, screen, mail, calendar and shell. Destructive ones wait for your yes.</p>
         <span class="ms">your call</span>
-      </div>
-      <div class="step">
-        <span class="num">05</span>
+      </li>
+      <li class="leg">
         <h3>It speaks</h3>
-        <p>Sentence by sentence, so it starts talking before the reply is finished. Talk over it to interrupt.</p>
+        <p>Sentence by sentence, so it starts talking early. Talk over it to interrupt.</p>
         <span class="ms">~350 ms to first sound</span>
-      </div>
-    </div>
+      </li>
+    </ol>
 
-    <div class="split" style="margin-top:clamp(48px,7vw,88px)">
+    <div class="say">
       <div data-reveal>
-        <p class="overline">What you can say</p>
-        <h2 style="margin-top:14px;font-size:clamp(1.5rem,2.4vw,2rem)">It knows your machine, and a bit about you.</h2>
-        <ul class="tick-list">
-          <li><img src="assets/img/icons/network.svg" alt="" width="16" height="16"><span><b>"What's on port 3000? Kill it."</b> Reads the real TCP table, then asks before killing.</span></li>
-          <li><img src="assets/img/icons/eye.svg" alt="" width="16" height="16"><span><b>"What does this error say?"</b> Looks at your active window and quotes the line and file.</span></li>
-          <li><img src="assets/img/icons/keyboard.svg" alt="" width="16" height="16"><span><b>"Type this into the editor…"</b> Dictation straight into whatever has focus.</span></li>
-          <li><img src="assets/img/icons/calendar.svg" alt="" width="16" height="16"><span><b>"What's on today?"</b> Google Calendar and Gmail, once you connect them.</span></li>
-          <li><img src="assets/img/icons/bell.svg" alt="" width="16" height="16"><span><b>"Remind me in twenty minutes to push."</b> Survives a restart, and it speaks up when it's due.</span></li>
-          <li><img src="assets/img/icons/sparkles.svg" alt="" width="16" height="16"><span><b>"Remember that…"</b> Keeps lasting facts in a local database you can read and delete.</span></li>
+        <h3>It knows your machine, and a bit about you.</h3>
+        <ul class="quotes">
+          <li><span class="i i-ports" aria-hidden="true"></span><q>What's on port 3000? Kill it.</q><span>Reads the real TCP table, then asks before killing.</span></li>
+          <li><span class="i i-eye" aria-hidden="true"></span><q>What does this error say?</q><span>Looks at your active window and quotes the line and file.</span></li>
+          <li><span class="i i-keys" aria-hidden="true"></span><q>Type this into the editor.</q><span>Dictation straight into whatever has focus.</span></li>
+          <li><span class="i i-cal" aria-hidden="true"></span><q>What's on today?</q><span>Google Calendar and Gmail, once you connect them.</span></li>
+          <li><span class="i i-bell" aria-hidden="true"></span><q>Remind me in twenty minutes to push.</q><span>Survives a restart, and speaks up when it's due.</span></li>
+          <li><span class="i i-brain" aria-hidden="true"></span><q>Remember that I use pnpm.</q><span>Lasting facts go in a local database you can read and delete.</span></li>
         </ul>
       </div>
       <div data-reveal>
         <div class="code">
-          <div class="code-head"><img src="assets/img/icons/terminal.svg" alt="" width="14" height="14"> a real turn, from the trace log</div>
+          <div class="code-head"><span class="i i-term" aria-hidden="true"></span> a real turn, from the trace log</div>
 <pre><span class="c">// DEVBAR_JARVIS_TRACE=1</span>
 state Listening -&gt; Thinking
 llm groq:openai/gpt-oss-120b <span class="c">(1589 tok)</span>
@@ -286,10 +230,10 @@ llm groq:openai/gpt-oss-120b
   <span class="s">"All set, Vivek. I'll nudge you
    in fifteen seconds."</span>
 state Thinking -&gt; Speaking
-<span class="c">…15s later</span>
+<span class="c">...15s later</span>
 announce: Reminder: stretch.</pre>
         </div>
-        <p class="note" style="margin-top:14px">Every action Jarvis takes shows up as a chip on the card, and in a trace log you can switch on. Nothing happens invisibly.</p>
+        <p class="note">Every action Jarvis takes shows up as a chip on the card, and in a trace log you can switch on. Nothing happens invisibly.</p>
       </div>
     </div>
   </div>
@@ -298,17 +242,41 @@ announce: Reminder: stretch.</pre>
 <!-- ───────────────────────── free stack ───────────────────────── -->
 <section class="band band--well">
   <div class="wrap">
-    <div class="band-head" data-reveal>
-      <p class="overline">Bring your own keys</p>
-      <h2 style="margin-top:14px">Built to run on free tiers.</h2>
-      <p class="lead">DevBar has no server and resells nothing. You paste your own keys, and they're encrypted on your machine with Windows DPAPI. Every layer has a free option, and the voice can run entirely offline.</p>
+    <div class="head" data-reveal>
+      <h2>Built to run on free tiers.</h2>
+      <p class="lead">DevBar has no server and resells nothing. You paste your own keys, encrypted on your machine with Windows DPAPI. The voice can run entirely offline.</p>
     </div>
-    <div class="providers" data-reveal-group>
-      <div class="provider"><b>Groq</b><span>The brain. gpt-oss-120b, then 20b as backup.</span><em>free tier</em></div>
-      <div class="provider"><b>Google Gemini</b><span>Fallback brain, vision for your screen, and web search.</span><em>free tier</em></div>
-      <div class="provider"><b>Piper · on-device</b><span>The voice, running locally at ~20× real time.</span><em>free forever</em></div>
-      <div class="provider"><b>Deepgram</b><span>Streaming speech recognition, and the Aura-2 voice.</span><em class="paid">usage-based</em></div>
-      <div class="provider"><b>OpenAI · Anthropic · Cerebras · OpenRouter · Ollama</b><span>Drop any of them into the model chain and reorder it in settings.</span><em class="paid">optional</em></div>
+    <div class="bento" data-reveal-group>
+      <div class="cell cell--brain">
+        <span class="i i-brain" aria-hidden="true"></span>
+        <b>Groq</b>
+        <span>The brain. gpt-oss-120b first, 20b as the backup.</span>
+        <em>free tier</em>
+      </div>
+      <div class="cell cell--wide">
+        <span class="i i-eye" aria-hidden="true"></span>
+        <b>Google Gemini</b>
+        <span>Fallback brain, vision for your screen, and web search.</span>
+        <em>free tier</em>
+      </div>
+      <div class="cell cell--local">
+        <span class="i i-cpu" aria-hidden="true"></span>
+        <b>Piper, on your PC</b>
+        <span>The voice, running locally at about 20&times; real time.</span>
+        <em>free forever</em>
+      </div>
+      <div class="cell">
+        <span class="i i-mic" aria-hidden="true"></span>
+        <b>Deepgram</b>
+        <span>Streaming speech recognition, and the Aura-2 voice.</span>
+        <em class="paid">usage-based</em>
+      </div>
+      <div class="cell">
+        <span class="i i-arrow" aria-hidden="true"></span>
+        <b>Anything else</b>
+        <span>OpenAI, Anthropic, Cerebras, OpenRouter or Ollama. Drop them into the chain and reorder.</span>
+        <em class="paid">optional</em>
+      </div>
     </div>
   </div>
 </section>
@@ -316,45 +284,34 @@ announce: Reminder: stretch.</pre>
 <!-- ───────────────────────── privacy ───────────────────────── -->
 <section class="band" id="privacy">
   <div class="wrap">
-    <div class="split">
-      <div data-reveal>
-        <p class="overline">Your data</p>
-        <h2 style="margin-top:14px">Local by default. Honest about the rest.</h2>
-        <p class="lead">A voice assistant that can read your mail should be exact about what leaves your computer. So here it is, without the marketing fog.</p>
-        <div class="btn-row">
-          <a class="btn" href="/privacy">Privacy policy</a>
-          <a class="btn btn--ghost" href="/terms">Terms of service</a>
-        </div>
+    <div class="head" data-reveal>
+      <h2>Local by default. Honest about the rest.</h2>
+      <p class="lead">A voice assistant that can read your mail should be exact about what leaves your computer. Here it is.</p>
+    </div>
+    <div class="ledger" data-reveal-group>
+      <div class="ledger-col ledger-col--local">
+        <h3><span class="i i-shield" aria-hidden="true"></span>Never leaves your PC</h3>
+        <ul>
+          <li><b>API keys and Google tokens</b>DPAPI-encrypted, readable only by your Windows account.</li>
+          <li><b>Memory and reminders</b>One SQLite file you can open, edit or delete.</li>
+          <li><b>Wake-word listening</b>An on-device model. Nothing is sent until it hears you.</li>
+          <li><b>Your mail and calendar</b>Fetched to answer, never stored or indexed.</li>
+          <li><b>Usage</b>There's no telemetry to send, and no server to send it to.</li>
+        </ul>
       </div>
-      <div class="flow" data-reveal>
-        <div class="flow-col">
-          <div class="flow-head">
-            <img src="assets/img/icons/shield-check.svg" alt="" width="16" height="16">
-            Never leaves your PC
-            <span class="tag">local</span>
-          </div>
-          <ul>
-            <li><b>API keys and Google tokens</b> - DPAPI-encrypted, readable only by your Windows account</li>
-            <li><b>Memory and reminders</b> - one SQLite file you can open, edit or delete</li>
-            <li><b>Wake-word listening</b> - an on-device model; nothing is sent until it hears you</li>
-            <li><b>Your mail and calendar</b> - fetched to answer, never stored or indexed</li>
-            <li><b>Usage</b> - there's no telemetry to send, and no server to send it to</li>
-          </ul>
-        </div>
-        <div class="flow-col">
-          <div class="flow-head">
-            <img src="assets/img/icons/cpu.svg" alt="" width="16" height="16">
-            Sent only while you're talking
-            <span class="tag">your keys</span>
-          </div>
-          <ul>
-            <li><b>Your voice</b> → speech-to-text, for the length of the conversation</li>
-            <li><b>Your words + pinned profile + tool results</b> → the model you chose</li>
-            <li><b>A screenshot</b> → the vision model, only when you ask about the screen</li>
-            <li><b>The reply text</b> → the cloud voice, unless you pick a local one</li>
-          </ul>
-        </div>
+      <div class="ledger-col">
+        <h3><span class="i i-out" aria-hidden="true"></span>Sent only while you're talking</h3>
+        <ul>
+          <li><b>Your voice</b>To speech-to-text, for the length of the conversation.</li>
+          <li><b>Your words, pinned profile and tool results</b>To the model you chose.</li>
+          <li><b>A screenshot</b>To the vision model, only when you ask about the screen.</li>
+          <li><b>The reply text</b>To the cloud voice, unless you pick a local one.</li>
+        </ul>
       </div>
+    </div>
+    <div class="btn-row">
+      <a class="btn" href="/privacy">Privacy policy</a>
+      <a class="btn btn--ghost" href="/terms">Terms of service</a>
     </div>
   </div>
 </section>
@@ -362,15 +319,14 @@ announce: Reminder: stretch.</pre>
 <!-- ───────────────────────── contribute ───────────────────────── -->
 <section class="band band--well" id="contribute">
   <div class="wrap">
-    <div class="band-head" data-reveal>
-      <p class="overline">Open source</p>
-      <h2 style="margin-top:14px">A module takes an afternoon.</h2>
-      <p class="lead">DevBar is MIT licensed and built to be extended. A module is five methods; drop the compiled DLL into <code class="mono">%LOCALAPPDATA%\DevBar\modules\</code> and it appears as a tab. The only hard rule is the performance contract: do nothing between <code class="mono">OnCollapsed</code> and the next <code class="mono">OnExpanded</code>.</p>
+    <div class="head" data-reveal>
+      <h2>A module takes an afternoon.</h2>
+      <p class="lead">DevBar is MIT licensed. Drop a compiled module into <code class="mono">%LOCALAPPDATA%\DevBar\modules\</code> and it appears as a tab. One hard rule: do nothing between <code class="mono">OnCollapsed</code> and the next <code class="mono">OnExpanded</code>.</p>
     </div>
 
-    <div class="split" style="margin-top:44px">
+    <div class="contrib">
       <div class="code" data-reveal>
-        <div class="code-head"><img src="assets/img/icons/terminal.svg" alt="" width="14" height="14"> IDevBarModule.cs</div>
+        <div class="code-head"><span class="i i-term" aria-hidden="true"></span> IDevBarModule.cs</div>
 <pre><span class="k">public interface</span> <span class="t">IDevBarModule</span>
 {
     <span class="c">// Stable id, used in config.</span>
@@ -388,24 +344,21 @@ announce: Reminder: stretch.</pre>
     <span class="k">void</span> OnCollapsed();
 }</pre>
       </div>
-      <div class="cards" style="margin-top:0" data-reveal-group>
-        <a class="card" href="https://github.com/Vivek-C-Shah/DevBar/issues">
-          <img src="assets/img/icons/sparkles.svg" alt="" width="20" height="20">
-          <h3>Pick up an issue</h3>
-          <p>Bugs, module ideas, and rough edges are all in the tracker. Small, self-contained work is labelled.</p>
-          <span class="go">Browse issues →</span>
+      <div class="links" data-reveal-group>
+        <a class="link" href="https://github.com/Vivek-C-Shah/DevBar#writing-a-module">
+          <b>Write a module</b>
+          <p>A Jira strip, a GPU meter, a standup timer. If you check it daily, it belongs on the bar.</p>
+          <span class="i i-out" aria-hidden="true"></span>
         </a>
-        <a class="card" href="https://github.com/Vivek-C-Shah/DevBar#writing-a-module">
-          <img src="assets/img/icons/box.svg" alt="" width="20" height="20">
-          <h3>Write a module</h3>
-          <p>A Jira ticket strip, a GPU meter, a build queue, a standup timer - if you check it daily, it belongs on the bar.</p>
-          <span class="go">Read the SDK →</span>
+        <a class="link" href="https://github.com/Vivek-C-Shah/DevBar/issues">
+          <b>Pick up an issue</b>
+          <p>Bugs, module ideas and rough edges live in the tracker. Small, self-contained work is labelled.</p>
+          <span class="i i-out" aria-hidden="true"></span>
         </a>
-        <a class="card" href="https://github.com/Vivek-C-Shah/DevBar/fork">
-          <img src="assets/img/icons/git-branch.svg" alt="" width="20" height="20">
-          <h3>Fork and break it</h3>
+        <a class="link" href="https://github.com/Vivek-C-Shah/DevBar/fork">
+          <b>Fork it</b>
           <p>Clone, <code class="mono">dotnet run</code>, and the bar is on your screen in a minute. No secrets needed to build.</p>
-          <span class="go">Fork the repo →</span>
+          <span class="i i-out" aria-hidden="true"></span>
         </a>
       </div>
     </div>
@@ -415,82 +368,78 @@ announce: Reminder: stretch.</pre>
 <!-- ───────────────────────── install ───────────────────────── -->
 <section class="band" id="install">
   <div class="wrap">
-    <div class="band-head band-head--center" data-reveal>
-      <p class="overline">Install</p>
-      <h2 style="margin-top:14px">On your screen in about a minute.</h2>
-      <p class="lead" style="margin-inline:auto">No admin rights, no installer prompts you have to think about. Jarvis is optional - the bar works without a single API key.</p>
+    <div class="head head--center" data-reveal>
+      <h2>On your screen in about a minute.</h2>
+      <p class="lead">No admin rights. Jarvis is optional, and the bar works without a single API key.</p>
     </div>
 
-    <div class="install" data-reveal-group>
-      <div class="install-step">
-        <p class="overline">Step 1</p>
+    <ol class="steps" data-reveal-group>
+      <li>
         <h3>Get the build</h3>
-        <p>Grab the latest Windows installer from GitHub Releases, or build it yourself with the .NET 8 SDK.</p>
-        <pre>git clone https://github.com/Vivek-C-Shah/DevBar
+        <p>Grab the Windows installer from GitHub Releases, or build it with the .NET 8 SDK.</p>
+<pre>git clone https://github.com/Vivek-C-Shah/DevBar
 cd DevBar
 dotnet run --project src/DevBar</pre>
-      </div>
-      <div class="install-step">
-        <p class="overline">Step 2</p>
+      </li>
+      <li>
         <h3>Hover the top edge</h3>
-        <p>The pill sits centred at the top of your primary screen. Hover it, page through the tabs, pin it if you're waiting on something.</p>
+        <p>The pill sits centred at the top of your primary screen. Hover it, page through the tabs, pin it if you're waiting on something. Settings live in one file.</p>
         <pre>%LOCALAPPDATA%\DevBar\config.json</pre>
-      </div>
-      <div class="install-step">
-        <p class="overline">Step 3 · optional</p>
+      </li>
+      <li>
         <h3>Wake Jarvis up</h3>
-        <p>Open the Jarvis tab, click the gear, paste a Deepgram key and a free Groq key. Then press the shortcut and talk.</p>
+        <p>Optional. Open the Jarvis tab, click the gear, paste a Deepgram key and a free Groq key. Then press the shortcut and talk.</p>
         <pre>Ctrl + Alt + Space</pre>
-      </div>
-    </div>
+      </li>
+    </ol>
 
-    <div class="btn-row" style="justify-content:center" data-reveal>
+    <div class="btn-row">
       <a class="btn btn--primary" href="https://github.com/Vivek-C-Shah/DevBar/releases">
-        <img src="assets/img/icons/download.svg" alt="" width="17" height="17">
-        Download for Windows
-      </a>
-      <a class="btn" href="https://github.com/Vivek-C-Shah/DevBar">
-        <img src="assets/img/icons/github.svg" alt="" width="17" height="17">
-        Read the source
+        <span class="i i-download" aria-hidden="true"></span>
+        Latest release
       </a>
     </div>
+    <p class="note reqs">Windows 10 or 11. MIT licensed. No account, ever.</p>
   </div>
 </section>
 
 <!-- ───────────────────────── closing ───────────────────────── -->
 <section class="cta">
-  <div class="mesh" aria-hidden="true" style="top:-40%"><span class="b1"></span><span class="b2"></span><span class="b3"></span><span class="b4"></span></div>
-  <div class="wrap">
-    <div data-reveal>
-      <h2>Built for people who live in terminals.</h2>
-      <p class="lead" style="margin-inline:auto;text-align:center">Free, open source, and quiet enough to leave on your screen all day. If you build something on top of it, send a pull request.</p>
-      <div class="btn-row">
-        <a class="btn btn--primary" href="#install">Install DevBar</a>
-        <a class="btn" href="https://github.com/Vivek-C-Shah/DevBar/issues">Contribute on GitHub</a>
-      </div>
+  <div class="wrap" data-reveal>
+    <h2>Built for people who live in terminals.</h2>
+    <p class="lead">Free, open source, and quiet enough to leave on your screen all day. If you build something on top of it, send a pull request.</p>
+    <div class="btn-row">
+      <a class="btn btn--primary" href="#install">
+        <span class="i i-download" aria-hidden="true"></span>
+        Download
+      </a>
+      <a class="btn" href="https://github.com/Vivek-C-Shah/DevBar">
+        <span class="i i-github" aria-hidden="true"></span>
+        View on GitHub
+      </a>
     </div>
   </div>
 </section>
+
+</main>
 
 <footer class="footer">
   <div class="wrap">
     <div>
       <a class="brand" href="/"><img src="assets/img/logo.svg" alt="" width="26" height="26"> DevBar</a>
-      <p class="note" style="margin-top:12px">A hover-expand command strip for Windows developers, with a voice assistant that can actually act. MIT licensed. Built by <a href="https://github.com/Vivek-C-Shah">Vivek Shah</a>.</p>
+      <p class="note">A hover-expand command strip for Windows developers, with a voice assistant that can actually act. MIT licensed. Built by <a href="https://github.com/Vivek-C-Shah">Vivek Shah</a>.</p>
     </div>
     <nav class="footer-links" aria-label="Footer">
       <a href="#modules">Modules</a>
       <a href="#jarvis">Jarvis</a>
       <a href="#install">Install</a>
-      <a href="/privacy" class="nav-hide">Privacy</a>
-      <a href="/terms" class="nav-hide">Terms</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
       <a href="https://github.com/Vivek-C-Shah/DevBar">GitHub</a>
     </nav>
   </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-<script src="assets/js/site.js"></script>
+<script src="assets/js/site.js?v=3" defer></script>
 </body>
 </html>
