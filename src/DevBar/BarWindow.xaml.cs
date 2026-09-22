@@ -132,6 +132,28 @@ public partial class BarWindow : Window, IJarvisHost
         if (_args.JarvisInject is { } injected && _jarvis != null)
             _ = _jarvis.InjectForTestAsync(injected);
 
+        if (_args.Director && _jarvis != null)
+        {
+            // Recording a demo: subtitles for the conversation, plus the script's captions
+            // ("caption:text" on the pipe, "caption:" clears; "title:text" for a big title card;
+            // "subtitles:off|on"; "end" closes the conversation).
+            var captions = new CaptionOverlay();
+            captions.Show();
+            var name = string.IsNullOrWhiteSpace(_config.Jarvis.UserName) ? "You" : _config.Jarvis.UserName;
+            _jarvis.Heard += t => Dispatcher.BeginInvoke(() => captions.Subtitle(name, t, 3.5));
+            // Held for roughly as long as the reply takes to say out loud.
+            _jarvis.Reply += t => Dispatcher.BeginInvoke(() =>
+                captions.Subtitle("Jarvis", t, 1.5 + t.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length / 2.5));
+            DemoDirector.Listen(line => Dispatcher.BeginInvoke(() =>
+            {
+                if (line.StartsWith("caption:", StringComparison.Ordinal)) captions.Caption(line["caption:".Length..]);
+                else if (line == "end") _jarvis.OnCancelKey(); // close the conversation so voice-over isn't heard as a question
+                else if (line.StartsWith("title:", StringComparison.Ordinal)) captions.Title(line["title:".Length..]);
+                else if (line is "subtitles:off" or "subtitles:on") captions.SubtitlesOn = line.EndsWith("on");
+                else _ = _jarvis.SayForDemoAsync(line);
+            }), CancellationToken.None);
+        }
+
         if (_args.Demo)
         {
             if (_args.DemoModuleId != null)

@@ -125,11 +125,12 @@ internal static class ReminderScheduler
 internal sealed class SetReminderTool : JarvisTool
 {
     public override string Name => "set_reminder";
-    public override string Description => "Set a timer or reminder; Jarvis speaks up when it's due, even after a restart. Give either minutes or an exact local time.";
+    public override string Description => "Set a timer or reminder; Jarvis speaks up when it's due, even after a restart. Give seconds, minutes, or an exact local time.";
     protected override (string, string, string)[] Params => new[]
     {
         ("text", "string", "What to remind about, e.g. 'push the branch' or 'timer'"),
-        ("minutes?", "number", "From now, e.g. 20 or 0.5"),
+        ("seconds?", "number", "From now, for short timers: 'in 30 seconds' is 30"),
+        ("minutes?", "number", "From now: 'in 20 minutes' is 20"),
         ("at?", "string", "Local date-time 'yyyy-MM-dd HH:mm' (24h), for 'at 5pm' or 'tomorrow morning'"),
     };
     public override Risk RiskOf(JsonElement args) => Risk.Reversible;
@@ -139,15 +140,20 @@ internal sealed class SetReminderTool : JarvisTool
         DateTime due;
         var at = Str(args, "at");
         if (at.Length > 0 && DateTime.TryParse(at, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var parsed)) due = parsed;
+        else if (args.TryGetProperty("seconds", out var sec) && sec.ValueKind == JsonValueKind.Number) due = DateTime.Now.AddSeconds(sec.GetDouble());
+        else if (double.TryParse(Str(args, "seconds"), CultureInfo.InvariantCulture, out var ss)) due = DateTime.Now.AddSeconds(ss);
         else if (args.TryGetProperty("minutes", out var m) && m.ValueKind == JsonValueKind.Number) due = DateTime.Now.AddMinutes(m.GetDouble());
         else if (double.TryParse(Str(args, "minutes"), CultureInfo.InvariantCulture, out var mm)) due = DateTime.Now.AddMinutes(mm);
-        else return Task.FromResult("Need either minutes or an 'at' time.");
+        else return Task.FromResult("Need seconds, minutes or an 'at' time.");
 
         if (due <= DateTime.Now) return Task.FromResult("That time has already passed.");
         var text = Str(args, "text", "timer");
         MemoryStore.AddReminder(due, text);
         ReminderScheduler.Arm();
-        return Task.FromResult($"Reminder set for {due:ddd h:mm tt}: {text}.");
+        var inSecs = (due - DateTime.Now).TotalSeconds;
+        return Task.FromResult(inSecs < 120
+            ? $"Reminder set for {inSecs:0} seconds from now: {text}."
+            : $"Reminder set for {due:ddd h:mm tt}: {text}.");
     }
 }
 
@@ -308,7 +314,7 @@ internal sealed class LookAtScreenTool(ProviderRouter vision) : JarvisTool
 internal sealed class TypeTextTool : JarvisTool
 {
     public override string Name => "type_text";
-    public override string Description => "Type text into the user's focused window (dictation, e.g. 'type: ...' or 'write a commit message saying ...'). Does not press Enter.";
+    public override string Description => "Type text into the user's focused window (dictation, e.g. 'write a commit message saying ...'). The text is the user's own words, verbatim - never a command or fix you came up with. Does not press Enter.";
     protected override (string, string, string)[] Params => new[] { ("text", "string", "Exact text to type, cleaned up and punctuated") };
     public override Risk RiskOf(JsonElement args) => Risk.Reversible;
 

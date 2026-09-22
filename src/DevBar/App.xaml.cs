@@ -33,6 +33,16 @@ public partial class App : Application
             return;
         }
 
+        // --jarvis-say "text": hand a line to a running DevBar started with --demo-director.
+        int say = Array.IndexOf(e.Args, "--jarvis-say");
+        if (say >= 0 && say + 1 < e.Args.Length)
+        {
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            try { DemoDirector.Send(e.Args[say + 1]); }
+            finally { Shutdown(); }
+            return;
+        }
+
         _singleInstance = new Mutex(true, @"Local\DevBar_SingleInstance", out bool isNew);
         if (!isNew)
         {
@@ -129,6 +139,9 @@ public sealed class StartupArgs
     /// <summary>--jarvis-inject "text": start a Jarvis session and feed it this utterance as if spoken (debug only).</summary>
     public string? JarvisInject { get; }
 
+    /// <summary>--demo-director: accept scripted Jarvis lines from --jarvis-say (for recording demo videos).</summary>
+    public bool Director { get; }
+
     public StartupArgs(string[] args)
     {
         var seed = new List<string>();
@@ -140,6 +153,9 @@ public sealed class StartupArgs
                     Demo = true;
                     if (i + 1 < args.Length && !args[i + 1].StartsWith("--"))
                         DemoModuleId = args[++i];
+                    break;
+                case "--demo-director":
+                    Director = true;
                     break;
                 case "--jarvis-inject" when i + 1 < args.Length:
                     JarvisInject = args[++i];

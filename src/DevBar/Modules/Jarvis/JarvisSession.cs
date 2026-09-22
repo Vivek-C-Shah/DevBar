@@ -66,6 +66,7 @@ internal sealed partial class JarvisSession
     private string _currentUserText = "";
     private bool _bargedIn;
     private bool _awaitingConfirm;
+    private bool _dictateNext; // said "type this" on its own: the next utterance is the text
     private string? _pendingUtterance;
     private string? _carryOver;
     private bool _audioStarted;
@@ -286,6 +287,40 @@ internal sealed partial class JarvisSession
         var schemas = new JsonArray(_tools.Select(t => (JsonNode)t.Schema()).ToArray());
         var speech = new SpeechQueue(_tts, _player, () => Post(() => { _audioStarted = true; SetState(JarvisState.Speaking); }), msg => Post(() => Error?.Invoke(msg)), ct);
         var shown = new StringBuilder();
+
+        // Dictation is literal. Asked through the model, "type this: fix the port
+        // collision" came back as a command it made up to fix it. "Type this: X"
+        // types X exactly; a bare "type this" types whatever is said next.
+        string? dictation = null;
+        if (_dictateNext) { _dictateNext = false; dictation = userText; }
+        else if (DictationCommand().Match(userText) is { Success: true } dm)
+        {
+            dictation = dm.Groups["text"].Value.Trim();
+            if (dictation.Length == 0)
+            {
+                _dictateNext = true;
+                const string prompt = "Go ahead.";
+                SetReply(prompt);
+                speech.Say(prompt);
+                _memory.AddAssistant(prompt);
+                await speech.FinishAsync();
+                return;
+            }
+        }
+        if (dictation != null)
+        {
+            Trace($"dictated: {dictation}");
+            var call = new ToolCall("dictate", "type_text", JsonSerializer.Serialize(new { text = dictation }));
+            var result = await ExecuteToolAsync(call, speech, ct);
+            var done = result.StartsWith("Typed") ? "Typed it." : result;
+            SetReply(done);
+            speech.Say(done);
+            _memory.AddAssistant($"(typed \"{dictation}\") {done}");
+            MemoryStore.LogTurn("assistant", done);
+            await speech.FinishAsync();
+            _player.Stop();
+            return;
+        }
 
         for (int step = 0; step < MaxToolSteps; step++)
         {
@@ -529,7 +564,7 @@ internal sealed partial class JarvisSession
             Heard?.Invoke(text);
             return;
         }
-        if (_awaitingConfirm && !IsRealSpeech(text)) return;
+        if (_awaitingConfirm && !IsConfirmAnswer(text)) return;
         _lastHeard = DateTime.UtcNow;
         Heard?.Invoke(text);
     }
@@ -539,10 +574,10 @@ internal sealed partial class JarvisSession
         Trace($"utterance: {text}");
         if (_nextUtterance is { Task.IsCompleted: false } waiting)
         {
-            if (_awaitingConfirm && !IsRealSpeech(text)) return; // our own question, heard through the speakers
+            if (_awaitingConfirm && !IsConfirmAnswer(text)) return; // our own question, heard through the speakers
             waiting.TrySetResult(text);
         }
-        else if (_bargedIn || (_awaitingConfirm && IsRealSpeech(text)))
+        else if (_bargedIn || (_awaitingConfirm && IsConfirmAnswer(text)))
             _pendingUtterance = _pendingUtterance is null ? text : _pendingUtterance + " " + text;
     }
 
@@ -551,6 +586,18 @@ internal sealed partial class JarvisSession
     /// the mic: at least two words, and mostly words Jarvis isn't currently saying.
     /// </summary>
     private bool IsRealSpeech(string heard) => IsRealSpeech(heard, _replyText);
+
+    /// <summary>
+    /// During a confirmation: a real answer, including a bare "yes" or "no". Those
+    /// are too short for the echo check, but they're never part of our own question.
+    /// </summary>
+    private bool IsConfirmAnswer(string heard)
+    {
+        if (IsRealSpeech(heard)) return true;
+        var m = Affirmative().Match(heard);
+        if (!m.Success) m = Negative().Match(heard);
+        return m.Success && !Words(_replyText).Contains(m.Value.ToLowerInvariant());
+    }
 
     internal static bool IsRealSpeech(string heard, string jarvisSaying)
     {
@@ -564,6 +611,9 @@ internal sealed partial class JarvisSession
 
     private static List<string> Words(string s) =>
         WordSplit().Split(s.ToLowerInvariant()).Where(w => w.Length > 0).ToList();
+
+    [GeneratedRegex(@"^(?:please\s+)?(?:type|dictate)(?:\s+(?:this|that|out))?(?:\s*[:,.!-]\s*|\s+|$)(?<text>.*)$", RegexOptions.IgnoreCase | RegexOptions.Singleline)]
+    private static partial Regex DictationCommand();
 
     [GeneratedRegex(@"^\s*(hey|ok|okay|hi)?[\s,]*jarvis[\s,.!?]*", RegexOptions.IgnoreCase)]
     private static partial Regex WakePrefix();
@@ -749,7 +799,8 @@ internal sealed partial class SentenceSplitter(Action<string> emit)
         if (s.Any(char.IsLetterOrDigit)) emit(s);
     }
 
-    public static string Clean(string s) => Spaces().Replace(Markdown().Replace(Punctuation(s), ""), " ").Trim();
+    public static string Clean(string s) =>
+        Spaces().Replace(RunOnSentence().Replace(Markdown().Replace(Punctuation(s), ""), " "), " ").Trim();
 
     /// <summary>
     /// Models like to emit typographic punctuation (non-breaking hyphens, en/em
@@ -767,6 +818,11 @@ internal sealed partial class SentenceSplitter(Action<string> emit)
 
     [GeneratedRegex(@"[*_`#>]|\[(?=[^\]]*\]\()|\]\([^)]*\)")]
     private static partial Regex Markdown();
+
+    // "free.All set." - gpt-oss sometimes drops the space between sentences.
+    // A lowercase letter before and a capitalised word after keeps "3.5" and "vercel.app" intact.
+    [GeneratedRegex(@"(?<=[a-z][.!?])(?=[A-Z][a-z']|I\s)")]
+    private static partial Regex RunOnSentence();
 
     [GeneratedRegex(@"\s+")]
     private static partial Regex Spaces();

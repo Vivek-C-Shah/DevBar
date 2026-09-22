@@ -29,6 +29,13 @@ internal sealed class DeepgramStt : IAsyncDisposable
     private Task? _sendLoop, _recvLoop;
     private volatile bool _muted;
 
+    // Nova-3 keyterm prompting: the words DevBar's commands hinge on. Without them
+    // "what's running on my ports" came back as "porch", and "kill" as "still".
+    private static readonly string[] KeyTerms =
+    {
+        "Jarvis", "DevBar", "ports", "port", "kill", "localhost", "Docker", "container", "commit", "repo", "Claude Code",
+    };
+
     public async Task ConnectAsync(string apiKey, string model, string language, int sampleRate, int endpointingMs, CancellationToken ct)
     {
         var url = "wss://api.deepgram.com/v1/listen"
@@ -36,7 +43,7 @@ internal sealed class DeepgramStt : IAsyncDisposable
                   + $"&encoding=linear16&sample_rate={sampleRate}&channels=1"
                   + "&interim_results=true&smart_format=true&punctuate=true"
                   + $"&endpointing={Math.Clamp(endpointingMs, 100, 3000)}&utterance_end_ms=1000&vad_events=true"
-                  + "&keyterm=Jarvis&keyterm=DevBar";
+                  + string.Concat(KeyTerms.Select(k => "&keyterm=" + Uri.EscapeDataString(k)));
         _ws.Options.SetRequestHeader("Authorization", "Token " + apiKey);
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(ct, _cts.Token);
         linked.CancelAfter(TimeSpan.FromSeconds(8));

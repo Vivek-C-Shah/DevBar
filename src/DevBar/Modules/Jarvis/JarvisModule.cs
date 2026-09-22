@@ -49,7 +49,7 @@ internal sealed class JarvisModule : IDevBarModule
         !Settings.WakeWord ? "off"
         : !WakeWordListener.IsInstalled ? "model not downloaded"
         : WakeWordListening ? "listening"
-        : _session != null ? "paused for this conversation"
+        : _session != null ? "paused"
         : "not started - restart DevBar";
 
     // Forwarded session events, so the card binds once instead of per conversation.
@@ -299,6 +299,23 @@ internal sealed class JarvisModule : IDevBarModule
         for (int i = 0; i < 200 && State != JarvisState.Speaking; i++) await Task.Delay(50);
         await Task.Delay(1200);
         _session?.SimulateHeard(parts[1]);
+    }
+
+    /// <summary>
+    /// Demo director (--demo-director): treat <paramref name="text"/> as speech the
+    /// mic just heard - it shows on the card and goes through the same path as a
+    /// real utterance, confirmations included. Opens a session if none is live.
+    /// </summary>
+    public async Task SayForDemoAsync(string text)
+    {
+        if (_session is null)
+        {
+            OnHotkey();
+            await Task.Delay(600); // let the orb settle on camera
+        }
+        // A line sent while Deepgram is still connecting would be dropped.
+        for (int i = 0; i < 100 && State is not (JarvisState.Listening or JarvisState.Confirming); i++) await Task.Delay(100);
+        _session?.SimulateHeard(text);
     }
 
     /// <summary>Speaks up unprompted (timer finished). Shows the bar while it talks.</summary>
