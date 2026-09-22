@@ -510,27 +510,6 @@ p { margin: 0; }
 .chip .ok { color: var(--good); }
 .chip--pending { color: var(--warn); }
 
-/* The real bar, recorded. The clip is a full-screen 1728x972 capture, so the
-   wrapper shows only the bar's region of it: x 587-1141, y 40-296 in source px.
-   Every offset is a fraction of that region, so the crop holds at any width. */
-.hero-crop {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 554 / 256;
-  margin-top: 14px;
-  overflow: hidden;
-  border-radius: 0 0 var(--r-md) var(--r-md);
-  background: var(--bg-well);
-}
-.hero-video {
-  position: absolute;
-  width: calc(1728 / 554 * 100%);
-  max-width: none;
-  height: auto;
-  left: calc(-587 / 554 * 100%);
-  top: calc(-40 / 256 * 100%);
-}
-
 .mock-caption {
   margin-top: 16px;
   text-align: center;

@@ -85,17 +85,53 @@
         <p class="note" style="margin-top:18px">Windows 10/11 · no admin rights · MIT licensed · no account, ever</p>
       </div>
 
-      <!-- The real bar, recorded: idle pill, drops open on Jarvis, a tool runs, back to the pill. -->
+      <!-- Not a video: the real bar, rebuilt in DOM so it animates exactly like the product. -->
       <div class="mock" data-reveal>
         <div class="mock-frame">
           <div class="mock-topbar" aria-hidden="true">
             <i></i><i></i><i></i><span>your screen, top edge</span>
           </div>
           <div class="mock-stage">
-            <div class="hero-crop">
-              <video class="hero-video" src="assets/video/devbar-hero.mp4" width="1728" height="972"
-                     autoplay muted loop playsinline preload="auto"
-                     aria-label="DevBar dropping open on the Jarvis tab, listing ports, then collapsing back to the idle pill"></video>
+            <div class="bar" role="img" aria-label="DevBar expanded on the Jarvis tab, answering a question about port 3000">
+              <div class="bar-mesh" aria-hidden="true"><span class="m1"></span><span class="m2"></span><span class="m3"></span><span class="m4"></span></div>
+              <div class="bar-inner">
+                <div class="bar-rail"></div>
+                <div class="bar-body">
+                  <div class="bar-idle"><i></i></div>
+                  <div class="bar-expanded">
+                    <div class="tabs">
+                      <span class="tab is-active"><img src="assets/img/icons/mic.svg" alt="Jarvis" width="14" height="14"></span>
+                      <span class="tab"><img src="assets/img/icons/clipboard.svg" alt="Clipboard" width="14" height="14"></span>
+                      <span class="tab"><img src="assets/img/icons/folder-open.svg" alt="Shelf" width="14" height="14"></span>
+                      <span class="tab"><img src="assets/img/icons/bot.svg" alt="Claude Code" width="14" height="14"></span>
+                      <span class="tab"><img src="assets/img/icons/network.svg" alt="Ports" width="14" height="14"></span>
+                      <span class="tab"><img src="assets/img/icons/box.svg" alt="Docker" width="14" height="14"></span>
+                      <span class="tab"><img src="assets/img/icons/git-branch.svg" alt="Git" width="14" height="14"></span>
+                      <span class="tab"><img src="assets/img/icons/check-circle.svg" alt="Build pulse" width="14" height="14"></span>
+                      <span class="tab"><img src="assets/img/icons/volume-2.svg" alt="Now playing" width="14" height="14"></span>
+                    </div>
+                    <div class="card-body">
+                      <div>
+                        <div class="orb" aria-hidden="true">
+                          <i class="halo"></i><i class="ring"></i><i class="core"></i>
+                          <img src="assets/img/icons/mic.svg" alt="" width="17" height="17">
+                        </div>
+                        <div class="orb-label">LISTENING</div>
+                      </div>
+                      <div class="transcript">
+                        <div class="who">You</div>
+                        <p class="said"><span data-type="What is running on port three thousand?"></span><span class="caret caret--a"></span></p>
+                        <div class="who">Jarvis</div>
+                        <p class="reply"><span data-type="Port three thousand is held by node, process 8936."></span><span class="caret caret--b"></span></p>
+                        <div class="chips">
+                          <span class="chip"><span class="ok">✓</span> list_ports</span>
+                          <span class="chip chip--pending">… kill_port 3000</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
