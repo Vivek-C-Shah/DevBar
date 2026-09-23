@@ -9,10 +9,11 @@
     <a href="https://devbar-neon.vercel.app"><img src="https://img.shields.io/badge/devbar-website-555?style=for-the-badge" alt="Website"></a>
   </p>
 
-  <!-- TODO before launch: replace this still with a ~10s GIF at design/assets/demo.gif
-       (hover open -> Claude sessions -> kill a port -> collapse). The first screen
-       has to move; a still cannot show what hover-expand feels like. -->
-  <img src="design/screenshots/02_shelf.png" width="640" alt="DevBar expanded, showing the tab strip and the glass card">
+  <!-- Built from design/social-preview.html's sibling, scripts in the repo history:
+       real module screenshots, driven frame by frame so it regenerates identically.
+       Beats: approach -> unroll -> Claude sessions -> kill :5173 -> clipboard ->
+       Jarvis -> collapse. -->
+  <img src="design/assets/demo.gif" width="680" alt="DevBar: hovering the pill unrolls the card, showing Claude Code sessions, then Ports where one click kills the process on 5173, then the clipboard and Jarvis, then it collapses">
 </div>
 
 ---
