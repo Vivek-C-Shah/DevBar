@@ -23,7 +23,7 @@ Windows has a taskbar for your apps, notification icons for background noise, an
 Mac developers have a hundred menu bar apps for this. Windows developers got nothing. DevBar is that missing thing: a tiny pill docked to the top of your screen, about the size of a browser tab, that expands into a small card when you hover it and disappears the instant you don't need it.
 
 - **Hover, not click.** Glance up, it's there. Look away, it's gone. No window to alt-tab past, no icon to remember, no screen space reserved — every pixel outside the pill is click-through.
-- **0.0% CPU while collapsed.** Measured, not asserted. Nothing polls, nothing animates, the blur is switched off at the OS level. It costs you something only in the seconds you are actually looking at it.
+- **0.08% CPU while collapsed.** Measured, not asserted. Nothing polls, nothing animates, the blur is switched off at the OS level. It costs you something only in the seconds you are actually looking at it.
 - **Nine modules and an SDK for yours.** A module is five methods. No accounts, no trackers, no telemetry — with no keys configured, nothing leaves your machine.
 
 > **Windows only** (10 2004+ or 11, x64), and deliberately so: this is built on real Windows compositor blur and Win32 window behaviour, not a cross-platform shell.
@@ -146,9 +146,16 @@ Without it, the module can only see that a terminal named "claude" exists. With 
 
 ## Performance
 
-**0.0% CPU collapsed**, ~90–140MB working set. Nothing polls while the bar is shut, including the blur, which is switched off at the OS level.
+| | CPU | Working set |
+|---|---|---|
+| Collapsed | **0.08%** of one core | 141MB |
+| Expanded | **21.7%** of one core | 195MB |
 
-Expanded costs real CPU, because genuine Windows Acrylic blur-behind is not free. That trade-off, the two config dials that reduce it, and how the idle number stays at zero are written up honestly in **[docs/performance.md](docs/performance.md)**.
+Measured on one machine in 20-second samples, not asserted. Nothing polls while the bar is shut, including the blur, which is switched off at the OS level.
+
+Expanded costs real CPU because genuine Windows Acrylic blur-behind is not free — though it used to cost 54.4%, and caching the blurred layers plus dropping the drift to 24fps more than halved it. The trade-off, the before/after, and the two config dials that reduce it further are in **[docs/performance.md](docs/performance.md)**.
+
+Jarvis' wake word is the one thing that costs anything while you are not looking: about **5.4% of a core** to keep listening on-device. It is off by default, and the hotkey costs nothing.
 
 ## Build your own module
 

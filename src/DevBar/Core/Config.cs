@@ -152,8 +152,12 @@ public sealed class JarvisConfig
     public DateTime? LastConversation { get; set; }
 
     /// <summary>
-    /// Say "Hey Jarvis" instead of pressing the hotkey. Off by default: it keeps the
-    /// mic open (on-device only, ~0.3% CPU). Listens on AC power only unless WakeWordOnBattery.
+    /// Say "Hey Jarvis" instead of pressing the hotkey. Off by default, and that
+    /// default is the point: it keeps the mic open (on-device only) and measured
+    /// ~5.4% of one core, sustained, which is the one thing in this app that
+    /// costs something while nobody is looking at it. An earlier note here said
+    /// ~0.3%, which was wrong by nearly twenty times.
+    /// Listens on AC power only unless WakeWordOnBattery.
     /// </summary>
     public bool WakeWord { get; set; }
     public bool WakeWordOnBattery { get; set; }

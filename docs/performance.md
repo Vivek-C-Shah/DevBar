@@ -2,26 +2,43 @@
 
 This was the actual design constraint, not a footnote. The plan going in was explicit: *don't build a tool that costs more attention than it saves.* So the numbers below are measured on a dev machine, not asserted.
 
-| | Idle (collapsed) | Expanded (Acrylic blur + mesh gradient active) |
+| | CPU (% of one core) | Working set |
 |---|---|---|
-| CPU | **0.0%** over a 5–10s sample (`Get-Process` `TotalProcessorTime` delta) | **~45–50%** of one core, sustained |
-| Working set | ~90–140MB | same ballpark |
-| Threads | ~30 | ~30 |
+| **Collapsed** | **0.08%** | 141MB |
+| **Expanded** (Acrylic blur + drifting mesh) | **21.7%** | 195MB |
+| Collapsed, with Jarvis' wake word on | 5.44% | 195MB |
 
-> The expanded figure predates two changes that target exactly it: the blurred
-> blobs are now bitmap-cached, so drifting moves a rasterised layer instead of
-> re-running a 24px blur every frame, and the drift runs at 24fps rather than
-> the compositor's 60. It has not been re-measured since. To take your own
-> reading, with no other copy of DevBar running:
->
-> ```powershell
-> $p = Start-Process .\src\DevBar\bin\Release\net8.0-windows10.0.19041.0\DevBar.exe `
->        -ArgumentList "--demo clipboard" -PassThru
-> Start-Sleep 8; $p.Refresh(); $t0 = $p.TotalProcessorTime; $w0 = Get-Date
-> Start-Sleep 12; $p.Refresh()
-> "{0:N1}% of one core" -f (($p.TotalProcessorTime - $t0).TotalSeconds / ((Get-Date) - $w0).TotalSeconds * 100)
-> Stop-Process -Id $p.Id
-> ```
+One machine, one sitting, 20-second samples of `TotalProcessorTime` with no
+other copy of DevBar running. The wake word is off by default; the middle row is
+what you get out of the box.
+
+**Expanded used to be 54.4%.** That is the same machine and the same method,
+measured against the previous build minutes earlier, so the comparison is real:
+
+| | before | after |
+|---|---|---|
+| Expanded | 54.4% | **21.7%** |
+
+Two changes did it. The blurred blobs are bitmap-cached, so drifting moves a
+rasterised layer instead of re-running a 24px blur on every composited frame,
+and the drift runs at 24fps rather than the compositor's 60. Neither changes how
+it looks.
+
+To take your own reading, with **no other copy of DevBar running** — this is the
+part that catches people, because the app is single-instance, so a second copy
+exits immediately and you end up timing a dead process and reading a confident
+`0.0%`:
+
+```powershell
+Stop-Process -Name DevBar -ErrorAction SilentlyContinue; Start-Sleep 3
+Start-Process .\src\DevBar\bin\Release\net8.0-windows10.0.19041.0\DevBar.exe -ArgumentList "--demo clipboard"
+Start-Sleep 10
+$p = Get-Process DevBar; $t0 = $p.TotalProcessorTime; $w0 = Get-Date
+Start-Sleep 20; $p.Refresh()
+"{0:N2}% of one core" -f (($p.TotalProcessorTime - $t0).TotalSeconds / ((Get-Date) - $w0).TotalSeconds * 100)
+```
+
+Drop `--demo clipboard` for the collapsed number.
 
 That expanded-state number is not a typo, and it is the one honest tension in this whole design: real Windows Acrylic blur-behind is genuinely expensive. DWM has to keep re-sampling whatever is behind the window for as long as it is on, and independently-drifting blurred mesh blobs add more compositor work on top of that.
 
