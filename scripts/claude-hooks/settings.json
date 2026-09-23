@@ -1,0 +1,66 @@
+{
+  "_comment": "Copy the hooks block into ~/.claude/settings.json (or .claude/settings.json in a project). Replace the path with wherever you put devbar-claude-state.ps1. See README.md in this folder.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"%LOCALAPPDATA%\\DevBar\\hooks\\devbar-claude-state.ps1\" -State idle"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"%LOCALAPPDATA%\\DevBar\\hooks\\devbar-claude-state.ps1\" -State working"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"%LOCALAPPDATA%\\DevBar\\hooks\\devbar-claude-state.ps1\" -State working"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"%LOCALAPPDATA%\\DevBar\\hooks\\devbar-claude-state.ps1\" -State waiting"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"%LOCALAPPDATA%\\DevBar\\hooks\\devbar-claude-state.ps1\" -State waiting"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"%LOCALAPPDATA%\\DevBar\\hooks\\devbar-claude-state.ps1\" -State end"
+          }
+        ]
+      }
+    ]
+  }
+}

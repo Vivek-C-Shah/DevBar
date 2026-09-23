@@ -48,6 +48,13 @@
                     <Ellipse.Effect>
                         <BlurEffect Radius="24"/>
                     </Ellipse.Effect>
+                    <!-- The blur is rasterised once and the drift then moves the
+                         cached bitmap, instead of re-blurring a 240px ellipse on
+                         every composited frame. Only the transform changes, so
+                         the cache never needs regenerating. -->
+                    <Ellipse.CacheMode>
+                        <BitmapCache EnableClearType="False" SnapsToDevicePixels="False"/>
+                    </Ellipse.CacheMode>
                 </Ellipse>
                 <Ellipse x:Name="Blob2" Width="200" Height="200" HorizontalAlignment="Right" VerticalAlignment="Top"
                          Margin="0,-60,120,0">
@@ -57,6 +64,13 @@
                     <Ellipse.Effect>
                         <BlurEffect Radius="24"/>
                     </Ellipse.Effect>
+                    <!-- The blur is rasterised once and the drift then moves the
+                         cached bitmap, instead of re-blurring a 240px ellipse on
+                         every composited frame. Only the transform changes, so
+                         the cache never needs regenerating. -->
+                    <Ellipse.CacheMode>
+                        <BitmapCache EnableClearType="False" SnapsToDevicePixels="False"/>
+                    </Ellipse.CacheMode>
                 </Ellipse>
                 <Ellipse x:Name="Blob3" Width="280" Height="280" HorizontalAlignment="Right" VerticalAlignment="Bottom"
                          Margin="0,0,-100,-120">
@@ -66,6 +80,13 @@
                     <Ellipse.Effect>
                         <BlurEffect Radius="24"/>
                     </Ellipse.Effect>
+                    <!-- The blur is rasterised once and the drift then moves the
+                         cached bitmap, instead of re-blurring a 240px ellipse on
+                         every composited frame. Only the transform changes, so
+                         the cache never needs regenerating. -->
+                    <Ellipse.CacheMode>
+                        <BitmapCache EnableClearType="False" SnapsToDevicePixels="False"/>
+                    </Ellipse.CacheMode>
                 </Ellipse>
                 <Ellipse x:Name="Blob4" Width="190" Height="190" HorizontalAlignment="Left" VerticalAlignment="Bottom"
                          Margin="60,0,0,-80">
@@ -75,6 +96,13 @@
                     <Ellipse.Effect>
                         <BlurEffect Radius="24"/>
                     </Ellipse.Effect>
+                    <!-- The blur is rasterised once and the drift then moves the
+                         cached bitmap, instead of re-blurring a 240px ellipse on
+                         every composited frame. Only the transform changes, so
+                         the cache never needs regenerating. -->
+                    <Ellipse.CacheMode>
+                        <BitmapCache EnableClearType="False" SnapsToDevicePixels="False"/>
+                    </Ellipse.CacheMode>
                 </Ellipse>
             </Grid>
 

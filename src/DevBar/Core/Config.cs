@@ -21,6 +21,21 @@ public sealed class Config
         { "jarvis", "clipboard", "shelf", "claude", "ports", "docker", "git", "ci", "media" };
     public int ClipboardHistorySize { get; set; } = 25;
 
+    /// <summary>
+    /// Whether the mesh blobs drift while the card is open. Each blob is a
+    /// separately blurred layer, so moving them is the most expensive thing the
+    /// expanded card does. False keeps the glass and the mesh exactly as they
+    /// look standing still, and stops paying for the motion.
+    /// </summary>
+    public bool MeshDrift { get; set; } = true;
+
+    /// <summary>
+    /// How many mesh blobs to draw, 0-4. Each is a separately blurred layer for
+    /// the compositor to blend, so this is the dial that actually moves the
+    /// expanded-state CPU number. 0 keeps the Acrylic backdrop and drops the mesh.
+    /// </summary>
+    public int MeshBlobs { get; set; } = 4;
+
     /// <summary>Repo paths the Git status module watches. Empty by default - opt-in.</summary>
     public List<string> GitWatchedRepos { get; set; } = new();
 

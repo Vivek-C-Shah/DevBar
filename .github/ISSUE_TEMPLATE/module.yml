@@ -1,0 +1,31 @@
+name: Module idea
+description: Something you'd want on the bar
+labels: [module idea]
+body:
+  - type: textarea
+    id: glance
+    attributes:
+      label: What would you see at a glance?
+      description: A module earns its tab by answering one question in one look. What's the question?
+      placeholder: Is the staging deploy still running?
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Where does the data come from?
+      description: A local command, a file on disk, an API? Anything needing an account or a token is a bigger conversation than anything that doesn't.
+    validations:
+      required: true
+  - type: textarea
+    id: action
+    attributes:
+      label: What would clicking a row do?
+      description: Optional. Ports kills a process, Docker starts a container, Git opens a folder.
+  - type: checkboxes
+    id: collapsed
+    attributes:
+      label: The one rule
+      options:
+        - label: This can sit completely idle while the bar is collapsed (no polling, no background work).
+          required: true

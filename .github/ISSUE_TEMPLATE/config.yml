@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: How to build a module
+    url: https://github.com/Vivek-C-Shah/DevBar/blob/master/docs/architecture.md
+    about: The five-method contract, and which built-in to copy from.

@@ -4,7 +4,7 @@
 ; installed Windows app.
 
 #define MyAppName "DevBar"
-#define MyAppVersion "0.1.0"
+#define MyAppVersion "1.1.0"
 #define MyAppPublisher "DevBar contributors"
 #define MyAppURL "https://github.com/your-org/devbar"
 #define MyAppExeName "DevBar.exe"

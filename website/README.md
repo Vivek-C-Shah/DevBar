@@ -8,7 +8,7 @@ website/
   privacy.html        privacy policy  → /privacy
   terms.html          terms of service → /terms
   vercel.json         clean URLs + cache/security headers
-  assets/css/site.css tokens copied from ../.tastemaker/style-lock.md
+  assets/css/site.css tokens copied from ../docs/style-lock.md
   assets/js/site.js    hero bar demo, module tabs, reveals (vanilla, no libraries)
   assets/fonts/        Geist + Geist Mono, self-hosted
   assets/img/          logo, product screenshots, Phosphor icons

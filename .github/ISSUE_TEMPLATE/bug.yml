@@ -1,0 +1,52 @@
+name: Bug report
+description: Something in DevBar doesn't work the way it should
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time. The three fields below are the ones that actually help.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you expected, and what happened instead.
+      placeholder: I hovered the pill and the card opened behind my taskbar.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to get there
+      placeholder: |
+        1. Open the Ports module
+        2. Click kill on a row
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      description: Win+R, type `winver`, and copy the version line.
+      placeholder: Windows 11 23H2 (22631.4317)
+    validations:
+      required: true
+  - type: input
+    id: devbar
+    attributes:
+      label: DevBar version
+      placeholder: 1.1.0
+  - type: dropdown
+    id: transparency
+    attributes:
+      label: Transparency effects
+      description: Settings → Accessibility → Visual effects. It changes the whole rendering path, so it matters for anything visual or performance-related.
+      options:
+        - "On"
+        - "Off"
+        - "Not sure"
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Screenshots, a config.json excerpt, multi-monitor or scaling setup.

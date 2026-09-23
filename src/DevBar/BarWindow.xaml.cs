@@ -250,6 +250,15 @@ public partial class BarWindow : Window, IJarvisHost
         Blob2.Fill = BlobBrush(ColorMath.RotateHue(accent, 15, 120));
         Blob3.Fill = BlobBrush(ColorMath.RotateHue(accent, 55, 145));
         Blob4.Fill = BlobBrush(ColorMath.RotateHue(accent, -80, 110));
+
+        // Each blob is its own blurred layer, so the count is the dial that
+        // actually moves the expanded-state CPU number. Hidden ones are
+        // collapsed rather than made transparent: a transparent blurred layer
+        // still costs a blur and a blend.
+        var blobs = new[] { Blob1, Blob2, Blob3, Blob4 };
+        var wanted = Math.Clamp(_config.MeshBlobs, 0, blobs.Length);
+        for (var i = 0; i < blobs.Length; i++)
+            blobs[i].Visibility = i < wanted ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private static RadialGradientBrush BlobBrush(Color c)
@@ -271,30 +280,41 @@ public partial class BarWindow : Window, IJarvisHost
     /// </summary>
     private void StartBlobDrift()
     {
-        Drift(Blob1, Blob1Tx, 22, 14, 7.5, 0.85);
-        Drift(Blob2, Blob2Tx, -14, 20, 10.5, 0.7);
-        Drift(Blob3, Blob3Tx, -20, -16, 9.0, 0.85);
-        Drift(Blob4, Blob4Tx, 16, -10, 12.0, 0.75);
+        // Opacity is set even when the drift is off, so turning the motion off
+        // changes only the motion and not how the mesh looks standing still.
+        Drift(Blob1, Blob1Tx, 22, 14, 7.5, 0.85, _config.MeshDrift);
+        Drift(Blob2, Blob2Tx, -14, 20, 10.5, 0.7, _config.MeshDrift);
+        Drift(Blob3, Blob3Tx, -20, -16, 9.0, 0.85, _config.MeshDrift);
+        Drift(Blob4, Blob4Tx, 16, -10, 12.0, 0.75, _config.MeshDrift);
 
-        static void Drift(Ellipse blob, TranslateTransform tx, double dx, double dy, double seconds, double opacity)
+        static void Drift(Ellipse blob, TranslateTransform tx, double dx, double dy, double seconds, double opacity, bool moving)
         {
+            blob.Opacity = opacity;
+            if (!moving) return;
+
             var moveEase = new SineEase { EasingMode = EasingMode.EaseInOut };
             var duration = TimeSpan.FromSeconds(seconds);
-            tx.BeginAnimation(TranslateTransform.XProperty,
-                new DoubleAnimation(0, dx, duration) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = moveEase });
-            tx.BeginAnimation(TranslateTransform.YProperty,
-                new DoubleAnimation(0, dy, duration) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = moveEase });
+            // 24fps, not the compositor's default 60. The drift is a blurred
+            // shape sliding a couple of dozen pixels over eight seconds: at
+            // that speed the extra frames are invisible, and each one costs a
+            // full re-composite of every blurred layer. This is the cheapest
+            // third of the expanded-state cost to give back.
+            var x = new DoubleAnimation(0, dx, duration) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = moveEase };
+            var y = new DoubleAnimation(0, dy, duration) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = moveEase };
+            Timeline.SetDesiredFrameRate(x, 24);
+            Timeline.SetDesiredFrameRate(y, 24);
+            tx.BeginAnimation(TranslateTransform.XProperty, x);
+            tx.BeginAnimation(TranslateTransform.YProperty, y);
 
-            // Each blob's own fixed opacity varies blob-to-blob so the mesh
-            // doesn't read as uniform brightness. An earlier version also
-            // *animated* opacity per-frame here, which measured a real,
-            // avoidable CPU cost on top of the Acrylic blur's already-known
-            // cost while expanded (compositing a blurred, translucent
-            // surface with changing opacity means re-blurring every frame; a
-            // pure position transform doesn't). Staggered position drift
-            // alone already satisfies "never syncs up into something
-            // mechanical."
-            blob.Opacity = opacity;
+            // The opacity above is each blob's own fixed value, varied
+            // blob-to-blob so the mesh doesn't read as uniform brightness. An
+            // earlier version *animated* it per-frame here, which measured a
+            // real, avoidable CPU cost on top of the Acrylic blur's
+            // already-known cost while expanded: compositing a blurred,
+            // translucent surface with changing opacity means re-blurring every
+            // frame, where a pure position transform does not. Staggered
+            // position drift alone already satisfies "never syncs up into
+            // something mechanical."
         }
     }
 
