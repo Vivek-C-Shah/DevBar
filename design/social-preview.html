@@ -1,0 +1,98 @@
+<!doctype html>
+<!--
+  Source for design/assets/social-preview.png, the card GitHub shows when the
+  repo link is shared. Rendered at 1280x640 and screenshotted; regenerate the
+  PNG from this file if the pitch changes.
+
+  Colours are the site's own tokens (website/assets/css/site.css), so a shared
+  link and the landing page look like the same product.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --bg: #111113;
+    --bg-elevated: #1b1b1e;
+    --hairline: #2c2c31;
+    --text: #ececec;
+    --muted: #9c9ca3;
+    --accent: #5ea1ff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1280px; height: 640px; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 86px;
+    position: relative;
+    overflow: hidden;
+  }
+  /* One soft accent wash, the same idea as the bar's own mesh, kept far from
+     the text so nothing competes with the headline. */
+  .wash {
+    position: absolute; right: -180px; top: -220px;
+    width: 780px; height: 780px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(94,161,255,0.20) 0%, rgba(94,161,255,0) 70%);
+  }
+  /* The product itself: the idle pill, at roughly its real proportions. */
+  .pill {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 210px; height: 16px;
+    border-radius: 0 0 10px 10px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--hairline); border-top: 0;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+  }
+  .pill::after {
+    content: ""; position: absolute; left: 50%; top: 6px; transform: translateX(-50%);
+    width: 54px; height: 3px; border-radius: 2px; background: var(--accent); opacity: 0.9;
+  }
+  header { display: flex; align-items: center; gap: 18px; margin-bottom: 34px; }
+  header img { width: 56px; height: 56px; }
+  header span { font-size: 34px; font-weight: 600; letter-spacing: -0.01em; }
+  h1 {
+    font-size: 62px; line-height: 1.08; font-weight: 700;
+    letter-spacing: -0.03em; max-width: 21ch;
+  }
+  h1 em { font-style: normal; color: var(--accent); }
+  p.sub {
+    margin-top: 24px; font-size: 26px; line-height: 1.45;
+    color: var(--muted); max-width: 42ch;
+  }
+  ul {
+    position: absolute; left: 86px; bottom: 78px;
+    display: flex; gap: 14px; list-style: none;
+  }
+  li {
+    font-size: 19px; color: var(--muted);
+    border: 1px solid var(--hairline); border-radius: 999px;
+    padding: 9px 18px; background: var(--bg-elevated);
+  }
+  li strong { color: var(--text); font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="wash"></div>
+  <div class="pill"></div>
+
+  <header>
+    <img src="assets/logo-512.png" alt="">
+    <span>DevBar</span>
+  </header>
+
+  <h1>The toolbar that <em>gets out of your way</em>.</h1>
+  <p class="sub">Ports, clipboard, containers and Claude&nbsp;Code sessions in a 125-pixel pill.</p>
+
+  <ul>
+    <li><strong>0.0%</strong> CPU idle</li>
+    <li><strong>9</strong> modules</li>
+    <li><strong>0</strong> accounts or telemetry</li>
+    <li>Windows</li>
+  </ul>
+</body>
+</html>
