@@ -1,0 +1,84 @@
+# Builds the installer on a clean machine, from a tag, and attaches it to the
+# release.
+#
+# This exists because a release built on a maintainer's laptop cannot be
+# verified by anyone, including a certificate authority. SignPath Foundation's
+# conditions for free OSS code signing require the binary to be "a valid,
+# automated build resulting from the source code", so signing DevBar starts
+# here rather than with the application form.
+#
+# It runs the same scripts/build-installer.ps1 a maintainer runs, so there is
+# one build path and not a second one that drifts.
+
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to build and upload to (e.g. v1.1.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  installer:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      # Not preinstalled on the runner. Chocolatey is, so this is the cheapest
+      # way in; build-installer.ps1 already looks in this install location.
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Check the tag matches the version in the project
+        shell: pwsh
+        run: |
+          $tag = "${{ github.event.inputs.tag || github.ref_name }}" -replace '^v',''
+          $csproj = Select-String -Path src/DevBar/DevBar.csproj -Pattern '<Version>(.+?)</Version>'
+          $version = $csproj.Matches[0].Groups[1].Value
+          $iss = Select-String -Path installer/DevBar.iss -Pattern '#define MyAppVersion "(.+?)"'
+          $issVersion = $iss.Matches[0].Groups[1].Value
+          "tag=$tag  csproj=$version  installer=$issVersion"
+          if ($tag -ne $version -or $tag -ne $issVersion) {
+            throw "Version mismatch. The tag, DevBar.csproj and DevBar.iss must agree, or the installer is named after one version and contains another."
+          }
+
+      - name: Build the installer
+        run: .\scripts\build-installer.ps1
+
+      - name: Record what was built
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem dist\DevBar-Setup-*.exe | Select-Object -First 1
+          $hash = (Get-FileHash $setup.FullName -Algorithm SHA256).Hash
+          "installer: $($setup.Name)"
+          "sha256:    $hash"
+          "size:      {0:N1} MB" -f ($setup.Length / 1MB)
+          # The winget manifest pins this hash, so it is worth having in the
+          # build log rather than recomputed by hand later.
+          "$hash  $($setup.Name)" | Set-Content dist\SHA256SUMS.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DevBar-installer
+          path: |
+            dist/DevBar-Setup-*.exe
+            dist/SHA256SUMS.txt
+
+      - name: Attach to the release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          files: |
+            dist/DevBar-Setup-*.exe
+            dist/SHA256SUMS.txt

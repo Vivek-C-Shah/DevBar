@@ -36,7 +36,7 @@ Download the installer from **[Releases](https://github.com/Vivek-C-Shah/DevBar/
 - **No separate .NET install** — the runtime is bundled.
 - Adds a Start Menu entry, an optional launch-at-sign-in checkbox, and a clean uninstaller.
 
-> The installer is not code-signed yet, so Windows SmartScreen will warn you the first time. **More info → Run anyway**, or build it yourself below.
+> The installer is not code-signed yet, so Windows SmartScreen will warn you the first time. **More info → Run anyway**, or build it yourself below. Every release is built by [GitHub Actions](.github/workflows/release.yml) from its tag, not on a laptop, and ships with its SHA256 — see the [code signing policy](docs/code-signing.md).
 
 <details>
 <summary><strong>Build it yourself instead</strong></summary>
@@ -182,7 +182,7 @@ That is the entire commitment: no base class, no lifecycle beyond expand and col
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Privacy: [PRIVACY.md](PRIVACY.md). Terms: [TERMS.md](TERMS.md).
+MIT — see [LICENSE](LICENSE). Privacy: [PRIVACY.md](PRIVACY.md). Terms: [TERMS.md](TERMS.md). Code signing: [docs/code-signing.md](docs/code-signing.md).
 
 ## How this was built
 
