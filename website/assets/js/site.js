@@ -6,6 +6,42 @@
 (() => {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
 
+  // ---------- theme ----------
+  // The <head> script has already set the theme before paint; this is only the switch.
+  const root = document.documentElement;
+  const themeBtn = document.querySelector('[data-theme-toggle]');
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+  const osLight = window.matchMedia('(prefers-color-scheme: light)');
+  const readChoice = () => {
+    try { return localStorage.getItem('devbar-theme'); } catch (e) { return null; }
+  };
+  const paintTheme = () => {
+    const light = root.dataset.theme === 'light';
+    if (themeMeta) themeMeta.content = light ? '#f5f5f6' : '#111113';
+    if (themeBtn) {
+      themeBtn.setAttribute('aria-label', light ? 'Switch to the dark theme' : 'Switch to the light theme');
+    }
+  };
+  const setTheme = (light) => {
+    if (light) root.dataset.theme = 'light';
+    else delete root.dataset.theme;
+    paintTheme();
+  };
+  paintTheme();
+
+  if (themeBtn) {
+    themeBtn.addEventListener('click', () => {
+      const light = root.dataset.theme !== 'light';
+      setTheme(light);
+      try { localStorage.setItem('devbar-theme', light ? 'light' : 'dark'); } catch (e) { /* private mode */ }
+    });
+  }
+
+  // Keep following the OS, but only until the reader has picked for themselves.
+  osLight.addEventListener('change', (e) => {
+    if (!readChoice()) setTheme(e.matches);
+  });
+
   // ---------- nav border once the page has scrolled (no scroll listener) ----------
   const nav = document.querySelector('.nav');
   const sentinel = document.querySelector('.nav-sentinel');

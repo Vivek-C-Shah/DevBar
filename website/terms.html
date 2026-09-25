@@ -12,8 +12,22 @@
 <meta property="og:type" content="article">
 <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
 <link rel="icon" type="image/png" sizes="128x128" href="assets/img/logo-128.png">
-<link rel="stylesheet" href="assets/css/site.css?v=4">
-<script>document.documentElement.classList.add('js');</script>
+<link rel="stylesheet" href="assets/css/site.css?v=6">
+<script>
+/* Runs before first paint, so there is no flash of the wrong theme. A stored choice
+   wins; without one the page follows the OS. Dark when neither says anything, because
+   the product is dark and so is every screenshot here. */
+(function () {
+  var r = document.documentElement;
+  r.classList.add('js');
+  var saved = null;
+  try { saved = localStorage.getItem('devbar-theme'); } catch (e) {}
+  var light = saved
+    ? saved === 'light'
+    : window.matchMedia('(prefers-color-scheme: light)').matches;
+  if (light) r.dataset.theme = 'light';
+})();
+</script>
 </head>
 <body>
 
@@ -27,6 +41,10 @@
       <a href="/#modules" class="nav-hide">Modules</a>
       <a href="/#jarvis" class="nav-hide">Jarvis</a>
       <a href="/privacy" class="nav-hide">Privacy</a>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to the light theme">
+        <span class="i i-sun" aria-hidden="true"></span>
+        <span class="i i-moon" aria-hidden="true"></span>
+      </button>
       <a class="btn btn--sm btn--ghost" href="https://github.com/Vivek-C-Shah/DevBar">
         <span class="i i-github" aria-hidden="true"></span> GitHub
       </a>
@@ -152,6 +170,6 @@
   </div>
 </footer>
 
-<script src="assets/js/site.js?v=4" defer></script>
+<script src="assets/js/site.js?v=6" defer></script>
 </body>
 </html>

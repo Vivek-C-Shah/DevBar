@@ -1,8 +1,9 @@
 @charset "utf-8";
 /* DevBar site.
    Palette and shape come from .tastemaker/style-lock.md (the desktop app's locked tokens),
-   so the page and the product read as one thing. Dark only, on purpose: the product has
-   no light mode, and every screenshot on the page is the dark bar.
+   so the page and the product read as one thing. Two themes, following the OS unless the
+   reader picks one. The product itself is dark-only, so every screenshot stays on a dark
+   surface in both themes: a screenshot is a photograph of the app, not page furniture.
 
    Shape rule: 6px on controls, 10px on surfaces, full-round only on the kbd-sized pill.
    Surfaces are neutral graphite, not the app's navy: no glow, no blobs, no gradients.
@@ -16,22 +17,8 @@
    downloads, no swap flash, and it reads as native rather than as every other
    product page. */
 
+/* Shape, type and motion do not change with the theme. */
 :root {
-  --bg: #111113;
-  --bg-well: #0c0c0e;
-  --bg-elevated: #1b1b1e;
-  --hairline: #2c2c31;
-  --hairline-soft: #212125;
-  --text: #ececec;
-  --muted: #9c9ca3;
-  --accent: #5ea1ff;
-  --accent-hover: #7db3ff;
-  --accent-dim: rgba(94, 161, 255, 0.1);
-  --good: #3fb950;
-  --good-dim: rgba(63, 185, 80, 0.08);
-  --warn: #d29922;
-  --danger: #f47067;
-
   --font-ui: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-mono: "Cascadia Mono", "Cascadia Code", Consolas, ui-monospace, monospace;
 
@@ -42,6 +29,74 @@
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+  /* The surface a product screenshot sits on, and the mock bar chrome in the hero.
+     Fixed in both themes because DevBar has no light mode: a light frame around a
+     dark screenshot would claim a bar that does not exist. */
+  --shot-bg: #111113;
+  --shot-line: #2c2c31;
+}
+
+/* Dark is the default: the product is dark, and so is every screenshot on the page.
+   The inline script in <head> switches this to light from the reader's stored choice,
+   or from prefers-color-scheme when they have not made one. */
+:root {
+  color-scheme: dark;
+
+  --bg: #111113;
+  --bg-well: #0c0c0e;
+  --bg-elevated: #1b1b1e;
+  --hairline: #2c2c31;
+  --hairline-soft: #212125;
+  --hairline-strong: #45454c;
+  --surface-hover: rgba(27, 27, 30, 0.7);
+  --nav-bg: rgba(17, 17, 19, 0.82);
+
+  --text: #ececec;
+  --muted: #9c9ca3;
+
+  --accent: #5ea1ff;
+  --accent-hover: #7db3ff;
+  --accent-dim: rgba(94, 161, 255, 0.1);
+  --on-accent: #06111f;
+  --selection: rgba(94, 161, 255, 0.28);
+
+  --good: #3fb950;
+  --good-dim: rgba(63, 185, 80, 0.08);
+  --good-line: rgba(63, 185, 80, 0.2);
+  --code-type: #c79bff;
+}
+
+/* Light. Not a tint of the dark one: every value is picked against the light floor so
+   the contrast ratios hold. The blues and greens are darkened because #5ea1ff on paper
+   is 2.2:1 and unreadable; these are 6:1 and 4.9:1. The page floor is #f5f5f6 rather
+   than white, and the raised surfaces are the near-white, so depth still comes from two
+   floor tones and a hairline, the same way it does in the dark. */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f5f5f6;
+  --bg-well: #ebebed;
+  --bg-elevated: #fdfdfe;
+  --hairline: #d2d2d8;
+  --hairline-soft: #e1e1e5;
+  --hairline-strong: #b7b7bf;
+  --surface-hover: rgba(253, 253, 254, 0.8);
+  --nav-bg: rgba(245, 245, 246, 0.82);
+
+  --text: #17171a;
+  --muted: #5d5d65;
+
+  --accent: #1b62d4;
+  --accent-hover: #124fb0;
+  --accent-dim: rgba(27, 98, 212, 0.08);
+  --on-accent: #ffffff;
+  --selection: rgba(27, 98, 212, 0.18);
+
+  --good: #177230;
+  --good-dim: rgba(23, 114, 48, 0.09);
+  --good-line: rgba(23, 114, 48, 0.26);
+  --code-type: #8250df;
 }
 
 *,
@@ -68,7 +123,7 @@ body {
 img { display: block; max-width: 100%; }
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; text-underline-offset: 3px; }
-::selection { background: rgba(94, 161, 255, 0.28); }
+::selection { background: var(--selection); }
 
 :focus-visible {
   outline: 2px solid var(--accent);
@@ -83,7 +138,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   z-index: 60;
   padding: 8px 14px;
   background: var(--accent);
-  color: #06111f;
+  color: var(--on-accent);
   border-radius: var(--r-ctl);
   font-weight: 600;
 }
@@ -121,6 +176,8 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .i-cal      { --m: url("../img/icons/calendar-blank.svg"); }
 .i-bell     { --m: url("../img/icons/bell.svg"); }
 .i-brain    { --m: url("../img/icons/brain.svg"); }
+.i-sun      { --m: url("../img/icons/sun.svg"); }
+.i-moon     { --m: url("../img/icons/moon.svg"); }
 
 /* ---------- layout ---------- */
 
@@ -213,14 +270,14 @@ code.mono,
   cursor: pointer;
   transition: border-color 160ms ease, background-color 160ms ease, transform 160ms var(--ease-out);
 }
-.btn:hover { text-decoration: none; border-color: #45454c; }
+.btn:hover { text-decoration: none; border-color: var(--hairline-strong); }
 .btn:active { transform: scale(0.97); }
 .btn .i { width: 17px; height: 17px; }
 
 .btn--primary {
   background: var(--accent);
   border-color: var(--accent);
-  color: #06111f;
+  color: var(--on-accent);
   font-weight: 600;
 }
 .btn--primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
@@ -246,7 +303,7 @@ code.mono,
   height: var(--nav-h);
   display: flex;
   align-items: center;
-  background: rgba(17, 17, 19, 0.82);
+  background: var(--nav-bg);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
   border-bottom: 1px solid transparent;
@@ -269,6 +326,27 @@ code.mono,
 .nav-links { display: flex; gap: 26px; margin-left: auto; align-items: center; }
 .nav-links a:not(.btn) { color: var(--muted); font-size: 0.9375rem; transition: color 160ms ease; }
 .nav-links a:not(.btn):hover { color: var(--text); text-decoration: none; }
+/* Shows the theme you would switch to, not the one you are in, and is the same
+   height as the buttons beside it so it reads as one of the nav controls. */
+.theme-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--r-ctl);
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 160ms ease, border-color 160ms ease;
+}
+.theme-toggle:hover { color: var(--text); border-color: var(--hairline); }
+.theme-toggle .i { width: 17px; height: 17px; }
+.theme-toggle .i-moon { display: none; }
+:root[data-theme="light"] .theme-toggle .i-sun { display: none; }
+:root[data-theme="light"] .theme-toggle .i-moon { display: inline-block; }
+
 .nav-links .btn { margin-left: -8px; }
 .nav-links .btn + .btn { margin-left: -14px; }
 
@@ -356,7 +434,7 @@ code.mono,
   inset: 0;
   border-radius: 0 0 10px 10px;
   overflow: hidden;
-  background: var(--bg);
+  background: var(--shot-bg);
   clip-path: inset(0 0 0 0 round 0 0 10px 10px);
   transition: clip-path 460ms var(--ease-out);
 }
@@ -378,10 +456,10 @@ code.mono,
   width: 125px;
   height: 22px;
   margin-left: -62.5px;
-  border: 1px solid var(--hairline);
+  border: 1px solid var(--shot-line);
   border-top: 0;
   border-radius: 0 0 8px 8px;
-  background: var(--bg);
+  background: var(--shot-bg);
   display: grid;
   place-items: center;
   opacity: 0;
@@ -459,7 +537,7 @@ code.mono,
 }
 .mod .desc span { overflow: hidden; }
 @media (hover: hover) and (pointer: fine) {
-  .mod:hover { color: var(--text); background: rgba(27, 27, 30, 0.7); }
+  .mod:hover { color: var(--text); background: var(--surface-hover); }
 }
 .mod[aria-selected="true"] {
   color: var(--text);
@@ -476,7 +554,7 @@ code.mono,
   border: 1px solid var(--hairline);
   border-radius: var(--r-surface);
   overflow: hidden;
-  background: var(--bg);
+  background: var(--shot-bg);
 }
 .viewer-frame img {
   position: absolute;
@@ -648,7 +726,7 @@ code.mono,
 .code .k { color: var(--accent-hover); }
 .code .c { color: var(--muted); }
 .code .s { color: var(--good); }
-.code .t { color: #c79bff; }
+.code .t { color: var(--code-type); }
 .code + .note { margin-top: 14px; }
 
 /* ---------- providers ---------- */
@@ -702,7 +780,7 @@ code.mono,
   border: 1px solid var(--hairline-soft);
   border-radius: var(--r-surface);
 }
-.ledger-col--local { background: var(--good-dim); border-color: rgba(63, 185, 80, 0.2); }
+.ledger-col--local { background: var(--good-dim); border-color: var(--good-line); }
 .ledger-col h3 { display: flex; align-items: center; gap: 10px; font-size: 1.0625rem; }
 .ledger-col--local h3 .i { color: var(--good); }
 .ledger-col h3 .i { color: var(--muted); width: 20px; height: 20px; }
