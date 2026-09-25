@@ -10,18 +10,11 @@
    the DevBar blue, plus green/amber where they carry real state.
    Z-index scale: 1 hero content, 10 sticky viewer, 50 nav. */
 
-@font-face {
-  font-family: "Geist";
-  src: url("../fonts/geist.woff2") format("woff2");
-  font-weight: 100 900;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Geist Mono";
-  src: url("../fonts/geist-mono.woff2") format("woff2");
-  font-weight: 100 900;
-  font-display: swap;
-}
+/* No bundled webfont. This is a site for a Windows tool, so it uses the
+   typeface Windows already has: Segoe UI Variable for text, Cascadia for code,
+   which is what the terminal the reader came from renders in. Two fewer
+   downloads, no swap flash, and it reads as native rather than as every other
+   product page. */
 
 :root {
   --bg: #111113;
@@ -39,8 +32,8 @@
   --warn: #d29922;
   --danger: #f47067;
 
-  --font-ui: "Geist", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
-  --font-mono: "Geist Mono", "Cascadia Mono", Consolas, ui-monospace, monospace;
+  --font-ui: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "Cascadia Mono", "Cascadia Code", Consolas, ui-monospace, monospace;
 
   --r-ctl: 6px;
   --r-surface: 10px;
@@ -161,7 +154,7 @@ h1, h2, h3 {
   text-wrap: balance;
 }
 h1 {
-  font-size: clamp(2.5rem, 5.4vw, 4.5rem);
+  font-size: clamp(2.25rem, 4vw, 3.25rem);
   line-height: 1.04;
   letter-spacing: -0.035em;
 }
@@ -404,32 +397,27 @@ code.mono,
 }
 .js .bar:not(.is-open) .bar-pill { opacity: 1; transition-delay: 120ms; }
 
-/* ---------- proof strip ---------- */
+/* ---------- proof line ---------- */
 
+/* This was four oversized numerals in a row. The numbers are the credible part
+   of the pitch so they stay; the billboard treatment does not. Read as a
+   sentence they say the same thing without asking to be admired. */
 .proof {
-  margin-top: clamp(56px, 7vw, 88px);
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: clamp(48px, 6vw, 72px);
+  padding-top: 20px;
   border-top: 1px solid var(--hairline-soft);
-  border-bottom: 1px solid var(--hairline-soft);
+  max-width: 68ch;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--muted);
 }
-.proof div { padding: 22px 20px 22px 0; }
-.proof div + div { padding-left: 20px; border-left: 1px solid var(--hairline-soft); }
 .proof b {
-  display: block;
   font-family: var(--font-mono);
-  font-size: clamp(1.375rem, 2.2vw, 1.75rem);
   font-weight: 500;
-  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
+  color: var(--text);
 }
 .proof .good { color: var(--good); }
-.proof span { display: block; margin-top: 4px; font-size: 0.8125rem; color: var(--muted); }
-@media (max-width: 760px) {
-  .proof { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .proof div:nth-child(3) { padding-left: 0; border-left: 0; }
-  .proof div:nth-child(n + 3) { border-top: 1px solid var(--hairline-soft); }
-}
 
 /* ---------- module viewer: works like the bar's own tab strip ---------- */
 
@@ -663,51 +651,41 @@ code.mono,
 .code .t { color: #c79bff; }
 .code + .note { margin-top: 14px; }
 
-/* ---------- providers: an exact five-cell bento ---------- */
+/* ---------- providers ---------- */
 
-.bento {
-  margin-top: 48px;
+/* Was a bento. A bento is a layout hunting for content; this content is three
+   facts per provider, which is a list with three columns. */
+.providers {
+  margin-top: 40px;
+  list-style: none;
+  border-top: 1px solid var(--hairline-soft);
+}
+.providers li {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 2.4fr) 96px;
+  gap: 8px 28px;
+  align-items: baseline;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--hairline-soft);
 }
-.cell {
-  grid-column: span 2;
-  display: flex;
-  flex-direction: column;
-  min-height: 176px;
-  padding: 22px;
-  border: 1px solid var(--hairline-soft);
-  border-radius: var(--r-surface);
-  background: var(--bg);
-}
-.cell--brain { grid-column: span 3; min-height: 212px; background: var(--accent-dim); border-color: rgba(94, 161, 255, 0.22); }
-.cell--wide { grid-column: span 3; min-height: 212px; }
-.cell--local { background: var(--good-dim); border-color: rgba(63, 185, 80, 0.2); }
-.cell .i { width: 22px; height: 22px; color: var(--muted); }
-.cell--brain .i { color: var(--accent); }
-.cell--local .i { color: var(--good); }
-.cell b { display: block; margin-top: auto; padding-top: 22px; font-size: 1.125rem; font-weight: 600; letter-spacing: -0.015em; }
-.cell--brain b { font-size: 1.5rem; }
-.cell span { display: block; margin-top: 4px; font-size: 0.875rem; color: var(--muted); max-width: 42ch; }
-.cell em {
-  margin-top: 14px;
+.providers b { font-weight: 600; letter-spacing: -0.01em; }
+.providers span { color: var(--muted); font-size: 0.9375rem; }
+.providers em {
   font-style: normal;
   font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--good);
+  white-space: nowrap;
+  text-align: right;
 }
-.cell em.paid { color: var(--warn); }
-@media (max-width: 860px) {
-  .bento { grid-template-columns: 1fr 1fr; }
-  .cell,
-  .cell--brain,
-  .cell--wide { grid-column: span 1; min-height: 0; }
-  .cell--brain { grid-column: span 2; }
-}
-@media (max-width: 520px) {
-  .bento { grid-template-columns: 1fr; }
-  .cell--brain { grid-column: span 1; }
+.providers em.paid { color: var(--muted); }
+/* Narrow: name and price on one line, the description under both, rather than
+   letting auto-placement strand the price in the middle of the row. */
+@media (max-width: 760px) {
+  .providers li { grid-template-columns: 1fr 96px; gap: 4px 16px; }
+  .providers b { grid-area: 1 / 1; }
+  .providers em { grid-area: 1 / 2; }
+  .providers span { grid-area: 2 / 1 / 3 / -1; }
 }
 
 /* ---------- privacy ledger ---------- */
@@ -759,8 +737,8 @@ code.mono,
 .link:hover { text-decoration: none; border-color: var(--hairline); background: var(--bg-elevated); }
 .link b { font-weight: 500; }
 .link p { grid-column: 1; font-size: 0.875rem; color: var(--muted); line-height: 1.55; }
-.link .i { grid-row: 1 / span 2; grid-column: 2; width: 18px; height: 18px; color: var(--muted); transition: transform 200ms var(--ease-out), color 160ms ease; }
-.link:hover .i { color: var(--accent); transform: translate(2px, -2px); }
+.link .i { grid-row: 1 / span 2; grid-column: 2; width: 18px; height: 18px; color: var(--muted); transition: color 160ms ease; }
+.link:hover .i { color: var(--accent); }
 
 /* ---------- install ---------- */
 
@@ -827,7 +805,7 @@ code.mono,
   text-align: center;
 }
 .cta .wrap { position: relative; z-index: 1; }
-.cta h2 { font-size: clamp(2rem, 4vw, 3.1rem); letter-spacing: -0.03em; }
+.cta h2 { letter-spacing: -0.03em; }
 .cta .lead { margin-inline: auto; }
 .cta .btn-row { justify-content: center; }
 

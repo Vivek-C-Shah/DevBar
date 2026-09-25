@@ -1,6 +1,6 @@
 # DevBar website
 
-Static marketing site plus the legal pages Google's OAuth consent screen requires. No build step, no framework, no dependencies, no third-party requests - three HTML files, one stylesheet, one script, self-hosted fonts, and the product's own screenshots.
+Static marketing site plus the legal pages Google's OAuth consent screen requires. No build step, no framework, no dependencies, no third-party requests - three HTML files, one stylesheet, one script, and the product's own screenshots.
 
 ```
 website/
@@ -10,7 +10,6 @@ website/
   vercel.json         clean URLs + cache/security headers
   assets/css/site.css tokens copied from ../docs/style-lock.md
   assets/js/site.js    hero bar demo, module tabs, reveals (vanilla, no libraries)
-  assets/fonts/        Geist + Geist Mono, self-hosted
   assets/img/          logo, product screenshots, Phosphor icons
 ```
 
@@ -66,7 +65,7 @@ Numbers on the landing page are measured, not marketing: 0.0% idle CPU and ~130 
 
 - **Icons** - [Phosphor](https://phosphoricons.com) (MIT), tinted in CSS through a mask so they follow text colour.
 - **Screenshots** - captured from DevBar running on Windows 11. Nothing is mocked up; the hero unrolls the real screenshots through a clip-path so it moves like the bar does.
-- **Fonts** - [Geist and Geist Mono](https://vercel.com/font) (OFL), self-hosted from `assets/fonts/`.
+- **Fonts** - none downloaded. Segoe UI Variable and Cascadia Mono, both already on the Windows machines this tool runs on, with system-ui and ui-monospace behind them.
 
 ## Cache busting
 

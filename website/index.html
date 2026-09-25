@@ -27,10 +27,9 @@
 <link rel="icon" type="image/png" sizes="128x128" href="assets/img/logo-128.png">
 <link rel="apple-touch-icon" href="assets/img/logo-512.png">
 
-<link rel="preload" href="assets/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/img/shots/09_jarvis.png" as="image">
 <!-- ?v= busts the year-long immutable cache vercel.json sets on /assets -->
-<link rel="stylesheet" href="assets/css/site.css?v=3">
+<link rel="stylesheet" href="assets/css/site.css?v=4">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -98,12 +97,12 @@
       </div>
     </div>
 
-    <div class="proof">
-      <div><b class="good">0.08%</b><span>CPU while collapsed, measured</span></div>
-      <div><b>~130 MB</b><span>Working set with the bar idle</span></div>
-      <div><b>9</b><span>Modules, plus an SDK for yours</span></div>
-      <div><b>0</b><span>Accounts, trackers or telemetry</span></div>
-    </div>
+    <p class="proof">
+      Collapsed, it uses <b class="good">0.08%</b> of one core and about <b>130 MB</b>,
+      measured over 20-second samples rather than asserted. There are <b>9</b> modules
+      and an SDK for writing your own, and no accounts, trackers or telemetry: with no
+      keys configured, nothing leaves your machine.
+    </p>
   </div>
 </section>
 
@@ -174,7 +173,7 @@
   <div class="wrap">
     <div class="head" data-reveal>
       <h2>Press a key. Talk. It does the thing.</h2>
-      <p class="lead">Not a chatbot in a window. A voice loop wired into the modules, calling real tools on your machine and speaking before the answer is finished.</p>
+      <p class="lead">A voice loop wired into the modules. It calls real tools on your machine and starts speaking before the answer is finished.</p>
     </div>
 
     <ol class="rail" data-rail>
@@ -246,38 +245,33 @@ announce: Reminder: stretch.</pre>
       <h2>Built to run on free tiers.</h2>
       <p class="lead">DevBar has no server and resells nothing. You paste your own keys, encrypted on your machine with Windows DPAPI. The voice can run entirely offline.</p>
     </div>
-    <div class="bento" data-reveal-group>
-      <div class="cell cell--brain">
-        <span class="i i-brain" aria-hidden="true"></span>
+    <ul class="providers" data-reveal-group>
+      <li>
         <b>Groq</b>
         <span>The brain. gpt-oss-120b first, 20b as the backup.</span>
         <em>free tier</em>
-      </div>
-      <div class="cell cell--wide">
-        <span class="i i-eye" aria-hidden="true"></span>
+      </li>
+      <li>
         <b>Google Gemini</b>
         <span>Fallback brain, vision for your screen, and web search.</span>
         <em>free tier</em>
-      </div>
-      <div class="cell cell--local">
-        <span class="i i-cpu" aria-hidden="true"></span>
-        <b>Piper, on your PC</b>
-        <span>The voice, running locally at about 20&times; real time.</span>
+      </li>
+      <li>
+        <b>Piper</b>
+        <span>The voice, running on your PC at about 20&times; real time.</span>
         <em>free forever</em>
-      </div>
-      <div class="cell">
-        <span class="i i-mic" aria-hidden="true"></span>
+      </li>
+      <li>
         <b>Deepgram</b>
         <span>Streaming speech recognition, and the Aura-2 voice.</span>
         <em class="paid">usage-based</em>
-      </div>
-      <div class="cell">
-        <span class="i i-arrow" aria-hidden="true"></span>
+      </li>
+      <li>
         <b>Anything else</b>
         <span>OpenAI, Anthropic, Cerebras, OpenRouter or Ollama. Drop them into the chain and reorder.</span>
         <em class="paid">optional</em>
-      </div>
-    </div>
+      </li>
+    </ul>
   </div>
 </section>
 
@@ -443,6 +437,6 @@ dotnet run --project src/DevBar</pre>
   </div>
 </footer>
 
-<script src="assets/js/site.js?v=3" defer></script>
+<script src="assets/js/site.js?v=4" defer></script>
 </body>
 </html>
