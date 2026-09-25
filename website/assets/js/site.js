@@ -29,10 +29,51 @@
   };
   paintTheme();
 
+  // The change rises out of the button: the new theme is clipped to a circle at the
+  // toggle and grown until it passes the furthest corner. Browsers without view
+  // transitions crossfade the colours instead, and reduced motion just switches.
+  const sweepTheme = (light, from) => {
+    if (reduce.matches) { setTheme(light); return; }
+
+    if (!document.startViewTransition) {
+      root.classList.add('is-theming');
+      setTheme(light);
+      window.setTimeout(() => root.classList.remove('is-theming'), 460);
+      return;
+    }
+
+    const x = from.left + from.width / 2;
+    const y = from.top + from.height / 2;
+    const reach = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    );
+
+    document.startViewTransition(() => setTheme(light)).ready.then(() => {
+      root.animate(
+        {
+          clipPath: [
+            'circle(0px at ' + x + 'px ' + y + 'px)',
+            'circle(' + reach + 'px at ' + x + 'px ' + y + 'px)',
+          ],
+        },
+        {
+          duration: 700,
+          // Not the site's --ease-out, which is quintic: over 1400px that spends 85%
+          // of the distance in the first third of the time and then crawls, which
+          // reads as a snap. This one starts soft, holds an even pace across the
+          // page and lands soft.
+          easing: 'cubic-bezier(0.4, 0, 0.25, 1)',
+          pseudoElement: '::view-transition-new(root)',
+        }
+      );
+    }, () => { /* transition skipped; the theme is already set */ });
+  };
+
   if (themeBtn) {
     themeBtn.addEventListener('click', () => {
       const light = root.dataset.theme !== 'light';
-      setTheme(light);
+      sweepTheme(light, themeBtn.getBoundingClientRect());
       try { localStorage.setItem('devbar-theme', light ? 'light' : 'dark'); } catch (e) { /* private mode */ }
     });
   }

@@ -176,8 +176,6 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .i-cal      { --m: url("../img/icons/calendar-blank.svg"); }
 .i-bell     { --m: url("../img/icons/bell.svg"); }
 .i-brain    { --m: url("../img/icons/brain.svg"); }
-.i-sun      { --m: url("../img/icons/sun.svg"); }
-.i-moon     { --m: url("../img/icons/moon.svg"); }
 
 /* ---------- layout ---------- */
 
@@ -342,10 +340,25 @@ code.mono,
   transition: color 160ms ease, border-color 160ms ease;
 }
 .theme-toggle:hover { color: var(--text); border-color: var(--hairline); }
-.theme-toggle .i { width: 17px; height: 17px; }
-.theme-toggle .i-moon { display: none; }
-:root[data-theme="light"] .theme-toggle .i-sun { display: none; }
-:root[data-theme="light"] .theme-toggle .i-moon { display: inline-block; }
+.theme-toggle .tt { width: 18px; height: 18px; fill: currentColor; }
+
+/* Sun to moon as one shape, not two icons swapping: the disc grows, the rays fold
+   into the centre and fade, and the bite circle slides in from off-icon to carve the
+   crescent. Dark shows the sun, because the sun is what you would switch to. */
+.tt-disc,
+.tt-bite,
+.tt-rays { transition: transform 520ms var(--ease-out), opacity 260ms ease; }
+.tt-disc {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0.55);
+}
+.tt-bite { transform: translate(9px, -7px); }
+.tt-rays { transform-box: fill-box; transform-origin: center; }
+
+:root[data-theme="light"] .tt-disc { transform: scale(1); }
+:root[data-theme="light"] .tt-bite { transform: translate(0, 0); }
+:root[data-theme="light"] .tt-rays { transform: scale(0.35) rotate(-45deg); opacity: 0; }
 
 .nav-links .btn { margin-left: -8px; }
 .nav-links .btn + .btn { margin-left: -14px; }
@@ -979,6 +992,35 @@ code.mono,
 }
 .prose .callout p { color: var(--text); }
 .updated { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); letter-spacing: 0.02em; }
+
+/* ---------- theme change ---------- */
+
+/* The new theme is clipped to a circle at the toggle and grown past the far corner,
+   so the colour arrives from the control you pressed instead of replacing the page
+   under you. Both snapshots are the same page at the same scroll position, so nothing
+   moves; only the colour travels. The default cross-fade is switched off because two
+   themes fading through each other goes muddy in the middle. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+  ::view-transition-old(root) { z-index: 1; }
+  ::view-transition-new(root) { z-index: 2; }
+}
+
+/* Firefox and older Safari have no view transitions, so they get the same change as a
+   plain colour crossfade. The universal selector is affordable because the class is on
+   the page for less than half a second, and only while a theme is actually changing. */
+.is-theming,
+.is-theming *,
+.is-theming *::before,
+.is-theming *::after {
+  transition: background-color 420ms var(--ease-out), border-color 420ms var(--ease-out),
+    color 420ms var(--ease-out), fill 420ms var(--ease-out) !important;
+  transition-delay: 0s !important;
+}
 
 /* ---------- entrance ---------- */
 

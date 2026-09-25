@@ -12,7 +12,7 @@
 <meta property="og:type" content="article">
 <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
 <link rel="icon" type="image/png" sizes="128x128" href="assets/img/logo-128.png">
-<link rel="stylesheet" href="assets/css/site.css?v=6">
+<link rel="stylesheet" href="assets/css/site.css?v=8">
 <script>
 /* Runs before first paint, so there is no flash of the wrong theme. A stored choice
    wins; without one the page follows the OS. Dark when neither says anything, because
@@ -42,8 +42,23 @@
       <a href="/#jarvis" class="nav-hide">Jarvis</a>
       <a href="/terms" class="nav-hide">Terms</a>
       <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to the light theme">
-        <span class="i i-sun" aria-hidden="true"></span>
-        <span class="i i-moon" aria-hidden="true"></span>
+        <svg class="tt" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <mask id="tt-crescent" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+            <rect x="0" y="0" width="24" height="24" fill="#fff"></rect>
+            <circle class="tt-bite" cx="16" cy="8" r="8" fill="#000"></circle>
+          </mask>
+          <circle class="tt-disc" cx="12" cy="12" r="9" mask="url(#tt-crescent)"></circle>
+          <g class="tt-rays" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <line x1="12" y1="4.8" x2="12" y2="2.2"></line>
+            <line x1="17.09" y1="6.91" x2="18.93" y2="5.07"></line>
+            <line x1="19.2" y1="12" x2="21.8" y2="12"></line>
+            <line x1="17.09" y1="17.09" x2="18.93" y2="18.93"></line>
+            <line x1="12" y1="19.2" x2="12" y2="21.8"></line>
+            <line x1="6.91" y1="17.09" x2="5.07" y2="18.93"></line>
+            <line x1="4.8" y1="12" x2="2.2" y2="12"></line>
+            <line x1="6.91" y1="6.91" x2="5.07" y2="5.07"></line>
+          </g>
+        </svg>
       </button>
       <a class="btn btn--sm btn--ghost" href="https://github.com/Vivek-C-Shah/DevBar">
         <span class="i i-github" aria-hidden="true"></span> GitHub
@@ -225,6 +240,6 @@
   </div>
 </footer>
 
-<script src="assets/js/site.js?v=6" defer></script>
+<script src="assets/js/site.js?v=8" defer></script>
 </body>
 </html>
