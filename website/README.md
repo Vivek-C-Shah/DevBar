@@ -7,7 +7,6 @@ website/
   index.html          landing page
   privacy.html        privacy policy  → /privacy
   terms.html          terms of service → /terms
-  vercel.json         clean URLs + cache/security headers
   assets/css/site.css tokens copied from ../docs/style-lock.md
   assets/js/site.js    hero bar demo, module tabs, reveals (vanilla, no libraries)
   assets/img/          logo, product screenshots, Phosphor icons
@@ -85,6 +84,13 @@ Numbers on the landing page are measured, not marketing: 0.0% idle CPU and ~130 
 - **Icons** - [Phosphor](https://phosphoricons.com) (MIT), tinted in CSS through a mask so they follow text colour, which is also how the theme toggle swaps its sun for a moon.
 - **Screenshots** - captured from DevBar running on Windows 11. Nothing is mocked up; the hero unrolls the real screenshots through a clip-path so it moves like the bar does.
 - **Fonts** - none downloaded. Segoe UI Variable and Cascadia Mono, both already on the Windows machines this tool runs on, with system-ui and ui-monospace behind them.
+
+## Deploy config lives at the repo root
+
+`../vercel.json`, not here. The project deploys from the repository root with
+`outputDirectory: "website"`, so a `vercel.json` in this folder is never read. There
+used to be one, it drifted from the real one, and editing it did nothing; it is gone
+now. Rewrites, cache headers and security headers all belong in the root file.
 
 ## Cache busting
 
