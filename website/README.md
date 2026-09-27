@@ -88,4 +88,20 @@ Numbers on the landing page are measured, not marketing: 0.0% idle CPU and ~130 
 
 ## Cache busting
 
-`vercel.json` serves `/assets/*` as immutable for a year. When you change `site.css` or `site.js`, bump the `?v=` on their `<link>`/`<script>` tags in all three HTML files, or returning visitors keep the old file.
+`vercel.json` serves `/assets/img/*` as immutable for a year, because an image never
+changes under its own name. `site.css` and `site.js` do change under theirs, so they
+are served `max-age=0, must-revalidate` and revalidate on every load: a 304 when
+nothing moved, the new file when something did.
+
+They used to be immutable too, with a `?v=` query on the tags to bust it. That does
+not work, and the way it fails is worth knowing about. **Vercel's edge ignores the
+query string when it keys its cache**, so `site.css?v=4` and `site.css?v=8` both
+return whatever is currently deployed. A browser holding the previous HTML therefore
+asks for the old `?v=` and is handed the *new* stylesheet. The page then runs old
+markup against new CSS, which is how the theme toggle once rendered as two grey
+rectangles: the HTML still had the mask-icon spans, the CSS no longer had the rule
+that gave them a mask image, and an unmasked `.i` paints its `background:
+currentColor` as a solid box.
+
+The `?v=` is still on the tags as a second line of defence, since it does give the
+browser a genuinely new cache key. It is not what makes this correct.

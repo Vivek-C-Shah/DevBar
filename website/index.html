@@ -28,8 +28,9 @@
 <link rel="apple-touch-icon" href="assets/img/logo-512.png">
 
 <link rel="preload" href="assets/img/shots/09_jarvis.png" as="image">
-<!-- ?v= busts the year-long immutable cache vercel.json sets on /assets -->
-<link rel="stylesheet" href="assets/css/site.css?v=8">
+<!-- ?v= is a second line of defence only. Vercel's edge ignores the query string
+     entirely, so the real fix is that vercel.json no longer marks css/js immutable. -->
+<link rel="stylesheet" href="assets/css/site.css?v=9">
 <script>
 /* Runs before first paint, so there is no flash of the wrong theme. A stored choice
    wins; without one the page follows the OS. Dark when neither says anything, because
@@ -470,6 +471,6 @@ dotnet run --project src/DevBar</pre>
   </div>
 </footer>
 
-<script src="assets/js/site.js?v=8" defer></script>
+<script src="assets/js/site.js?v=9" defer></script>
 </body>
 </html>

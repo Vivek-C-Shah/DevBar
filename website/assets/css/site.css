@@ -147,6 +147,11 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 /* ---------- icons: Phosphor (MIT), tinted with currentColor through a mask ---------- */
 
 .i {
+  /* An .i with no --m is an unmasked element painting `background: currentColor`,
+     which is a solid grey block the size of the icon. That is how a stale page
+     fails, and it is worse than no icon at all. An empty 1x1 SVG makes the mask
+     fully transparent instead, so a missing glyph is simply absent. */
+  --m: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'/%3E");
   display: inline-block;
   flex: none;
   width: 1.125em;
